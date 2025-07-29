@@ -11,7 +11,7 @@ ARG USE_RERANKING_MODEL=""
 ARG USE_TIKTOKEN_ENCODING_NAME="cl100k_base"
 
 # Tag/commit/branch to checkout from the repo
-ARG BUILD_HASH=main
+ARG BUILD_HASH=${BUILD_HASH:-main}
 
 # Override at your own risk - non-root configurations are untested
 ARG UID=0
