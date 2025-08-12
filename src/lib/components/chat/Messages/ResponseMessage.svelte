@@ -615,10 +615,10 @@
 			/>
 		</div>
 
-		<div class="flex-auto w-0 pl-1 relative">
+		<div class="flex-auto w-0 pl-1 relative bg-[#ffffff] rounded-2xl dark:bg-[#0b367e] px-5 py-2">
 			<Name>
 				<Tooltip content={model?.name ?? message.model} placement="top-start">
-					<span class="line-clamp-1 text-black dark:text-white">
+					<span class="line-clamp-1 text-black dark:text-white px-5">
 						{model?.name ?? message.model}
 					</span>
 				</Tooltip>
@@ -628,7 +628,10 @@
 						class=" self-center text-xs invisible group-hover:visible text-gray-400 font-medium first-letter:capitalize ml-0.5 translate-y-[1px]"
 					>
 						<Tooltip content={dayjs(message.timestamp * 1000).format('LLLL')}>
-							<span class="line-clamp-1">{formatDate(message.timestamp * 1000)}</span>
+							<span
+								class="line-clamp-1 dark:bg-[#c0ff01] text-[#082556] rounded-full px-3 py-1 mb-1"
+								>{formatDate(message.timestamp * 1000)}</span
+							>
 						</Tooltip>
 					</div>
 				{/if}
@@ -877,7 +880,7 @@
 				{#if !edit}
 					<div
 						bind:this={buttonsContainerElement}
-						class="flex justify-start overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5"
+						class="flex justify-start overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5 px-5"
 					>
 						{#if message.done || siblings.length > 1}
 							{#if siblings.length > 1}
