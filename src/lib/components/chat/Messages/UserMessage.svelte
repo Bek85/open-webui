@@ -222,7 +222,169 @@
 												on:click={() => {
 													editedFiles.splice(fileIdx, 1);
 
+<<<<<<< HEAD
 													editedFiles = editedFiles;
+=======
+												editedFiles = editedFiles;
+											}}
+											on:click={() => {
+												console.log(file);
+											}}
+										/>
+									{/if}
+								{/each}
+							</div>
+						{/if}
+
+						<div class="max-h-96 overflow-auto">
+							<textarea
+								id="message-edit-{message.id}"
+								bind:this={messageEditTextAreaElement}
+								class=" bg-transparent outline-hidden w-full resize-none"
+								bind:value={editedContent}
+								on:input={(e) => {
+									e.target.style.height = '';
+									e.target.style.height = `${e.target.scrollHeight}px`;
+								}}
+								on:keydown={(e) => {
+									if (e.key === 'Escape') {
+										document.getElementById('close-edit-message-button')?.click();
+									}
+
+									const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
+									const isEnterPressed = e.key === 'Enter';
+
+									if (isCmdOrCtrlPressed && isEnterPressed) {
+										document.getElementById('confirm-edit-message-button')?.click();
+									}
+								}}
+							/>
+						</div>
+
+						<div class=" mt-2 mb-1 flex justify-between text-sm font-medium">
+							<div>
+								<button
+									id="save-edit-message-button"
+									class=" px-4 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200 transition rounded-3xl"
+									on:click={() => {
+										editMessageConfirmHandler(false);
+									}}
+								>
+									{$i18n.t('Save')}
+								</button>
+							</div>
+
+							<div class="flex space-x-1.5">
+								<button
+									id="close-edit-message-button"
+									class="px-4 py-2 bg-white dark:bg-gray-900 hover:bg-gray-100 text-gray-800 dark:text-gray-100 transition rounded-3xl"
+									on:click={() => {
+										cancelEditMessage();
+									}}
+								>
+									{$i18n.t('Cancel')}
+								</button>
+
+								<button
+									id="confirm-edit-message-button"
+									class=" px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-850 text-gray-100 dark:text-gray-800 transition rounded-3xl"
+									on:click={() => {
+										editMessageConfirmHandler();
+									}}
+								>
+									{$i18n.t('Send')}
+								</button>
+							</div>
+						</div>
+					</div>
+				{:else}
+					<div class="w-full">
+						<div class="flex {($settings?.chatBubble ?? true) ? 'justify-end pb-1' : 'w-full'}">
+							<div
+								class="rounded-3xl {($settings?.chatBubble ?? true)
+									? `max-w-[90%] px-5 py-2  bg-gray-50 dark:bg-[#0e4e8a] ${
+											message.files ? 'rounded-tr-lg' : ''
+										}`
+									: ' w-full'}"
+							>
+								{#if message.content}
+									<Markdown id={`${chatId}-${message.id}`} content={message.content} {topPadding} />
+								{/if}
+							</div>
+						</div>
+
+						<div
+							class=" flex {($settings?.chatBubble ?? true)
+								? 'justify-end'
+								: ''}  text-gray-600 dark:text-gray-500"
+						>
+							{#if !($settings?.chatBubble ?? true)}
+								{#if siblings.length > 1}
+									<div class="flex self-center" dir="ltr">
+										<button
+											class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+											on:click={() => {
+												showPreviousMessage(message);
+											}}
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke="currentColor"
+												stroke-width="2.5"
+												class="size-3.5"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													d="M15.75 19.5 8.25 12l7.5-7.5"
+												/>
+											</svg>
+										</button>
+
+										{#if messageIndexEdit}
+											<div
+												class="text-sm flex justify-center font-semibold self-center dark:text-gray-100 min-w-fit"
+											>
+												<input
+													id="message-index-input-{message.id}"
+													type="number"
+													value={siblings.indexOf(message.id) + 1}
+													min="1"
+													max={siblings.length}
+													on:focus={(e) => {
+														e.target.select();
+													}}
+													on:blur={(e) => {
+														gotoMessage(message, e.target.value - 1);
+														messageIndexEdit = false;
+													}}
+													on:keydown={(e) => {
+														if (e.key === 'Enter') {
+															gotoMessage(message, e.target.value - 1);
+															messageIndexEdit = false;
+														}
+													}}
+													class="bg-transparent font-semibold self-center dark:text-gray-100 min-w-fit outline-hidden"
+												/>/{siblings.length}
+											</div>
+										{:else}
+											<!-- svelte-ignore a11y-no-static-element-interactions -->
+											<div
+												class="text-sm tracking-widest font-semibold self-center dark:text-gray-100 min-w-fit"
+												on:dblclick={async () => {
+													messageIndexEdit = true;
+
+													await tick();
+													const input = document.getElementById(
+														`message-index-input-${message.id}`
+													);
+													if (input) {
+														input.focus();
+														input.select();
+													}
+>>>>>>> 6db2d482b (update: change UI colors)
 												}}
 											>
 												<svg

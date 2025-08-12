@@ -403,9 +403,9 @@
 	{#if Object.keys(history?.messages ?? {}).length == 0}
 		<ChatPlaceholder modelIds={selectedModels} {atSelectedModel} {onSelect} />
 	{:else}
-		<div class="w-full pt-2">
+		<div class="w-full pt-2 dark:bg-[#082556]">
 			{#key chatId}
-				<section class="w-full" aria-labelledby="chat-conversation">
+				<section class="w-full dark:bg-[#082556]" aria-labelledby="chat-conversation">
 					<h2 class="sr-only" id="chat-conversation">{$i18n.t('Chat Conversation')}</h2>
 					{#if messages.at(0)?.parentId !== null}
 						<Loader
@@ -454,9 +454,9 @@
 						{/each}
 					</ul>
 				</section>
-				<div class="pb-12" />
+				<div class="pb-12 dark:bg-[#082556]" />
 				{#if bottomPadding}
-					<div class="  pb-6" />
+					<div class="pb-6" />
 				{/if}
 			{/key}
 		</div>
