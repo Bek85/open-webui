@@ -985,7 +985,7 @@
 			</div>
 		</div>
 
-		<div class="bg-transparent">
+		<div class="bg-transparent dark:bg-[#082556]">
 			<div
 				class="{($settings?.widescreenMode ?? null)
 					? 'max-w-full'
