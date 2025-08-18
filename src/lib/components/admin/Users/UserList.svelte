@@ -154,13 +154,13 @@
 	</div>
 {:else}
 	<div
-		class="pt-0.5 pb-1 gap-1 flex flex-col md:flex-row justify-between sticky top-0 z-10 bg-white dark:bg-gray-900"
+		class="pt-0.5 pb-1 gap-1 flex flex-col md:flex-row justify-between sticky top-0 z-10 bg-white dark:bg-[#082556]"
 	>
 		<div class="flex md:self-center text-lg font-medium px-0.5">
 			<div class="flex-shrink-0">
 				{$i18n.t('Users')}
 			</div>
-			<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
+			<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-[#082556]" />
 
 			{#if ($config?.license_metadata?.seats ?? null) !== null}
 				{#if total > $config?.license_metadata?.seats}
@@ -221,7 +221,7 @@
 
 	<div class="scrollbar-hidden relative whitespace-nowrap overflow-x-auto max-w-full">
 		<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto max-w-full">
-			<thead class="text-xs text-gray-800 uppercase bg-transparent dark:text-gray-200">
+			<thead class="text-xs text-gray-800 uppercase bg-transparent dark:bg-[#082556]">
 				<tr class=" border-b-[1.5px] border-gray-50 dark:border-gray-850">
 					<th
 						scope="col"
@@ -344,7 +344,7 @@
 			</thead>
 			<tbody class="">
 				{#each users as user, userIdx}
-					<tr class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs">
+					<tr class="bg-white dark:bg-[#113f6c] dark:border-gray-850 text-xs">
 						<td class="px-3 py-1 min-w-[7rem] w-28">
 							<button
 								class=" translate-y-0.5"
@@ -476,14 +476,14 @@
 > [!NOTE]
 > # **Hey there! 👋**
 >
-> It looks like you have over 50 users, that usually falls under organizational usage.
-> 
-> Open WebUI is completely free to use as-is, with no restrictions or hidden limits, and we'd love to keep it that way. 🌱  
+> It looks like you have over 50 users — that usually falls under organizational usage.
 >
-> By supporting the project through sponsorship or an enterprise license, you’re not only helping us stay independent, you’re also helping us ship new features faster, improve stability, and grow the project for the long haul. With an *enterprise license*, you also get additional perks like dedicated support, customization options, and more, all at a fraction of what it would cost to build and maintain internally.  
-> 
+> Open WebUI is proudly open source and completely free, with no hidden limits — and we'd love to keep it that way. 🌱
+>
+> By supporting the project through sponsorship or an enterprise license, you’re not only helping us stay independent, you’re also helping us ship new features faster, improve stability, and grow the project for the long haul. With an *enterprise license*, you also get additional perks like dedicated support, customization options, and more — all at a fraction of what it would cost to build and maintain internally.
+>
 > Your support helps us stay independent and continue building great tools for everyone. 💛
-> 
+>
 > - 👉 **[Click here to learn more about enterprise licensing](https://docs.openwebui.com/enterprise)**
 > - 👉 *[Click here to sponsor the project on GitHub](https://github.com/sponsors/tjbck)*
 `}

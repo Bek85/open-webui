@@ -250,7 +250,7 @@
 	{#if responseContent === null}
 		{#if !floatingInput}
 			<div
-				class="flex flex-row shrink-0 p-0.5 bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-xl shadow-xl border border-gray-100 dark:border-gray-800"
+				class="flex flex-row shrink-0 p-0.5 bg-white dark:bg-[#082556] dark:text-gray-100 text-medium rounded-xl shadow-xl border border-gray-100 dark:border-gray-800"
 			>
 				{#each actions as action}
 					<button
@@ -326,7 +326,7 @@
 		{/if}
 	{:else}
 		<div
-			class="bg-white dark:bg-gray-850 dark:text-gray-100 rounded-3xl shadow-xl w-80 max-w-full border border-gray-100 dark:border-gray-800"
+			class="bg-white dark:bg-[#082556] dark:text-gray-100 rounded-3xl shadow-xl w-80 max-w-full border border-gray-100 dark:border-gray-800"
 		>
 			<div
 				class="bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-3xl px-3.5 pt-3 w-full"
@@ -336,7 +336,7 @@
 				</div>
 			</div>
 
-			<div class="bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-4xl w-full">
+			<div class="bg-white dark:bg-[#082556] dark:text-gray-100 text-medium rounded-4xl w-full">
 				<div
 					class=" max-h-80 overflow-y-auto w-full markdown-prose-xs px-3.5 py-3"
 					id="response-container"

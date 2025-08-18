@@ -204,6 +204,7 @@
 										type={file.type}
 										size={file?.size}
 										small={true}
+                    colorClassName="bg-white dark:bg-[#082556]
 									/>
 								{/if}
 							</div>
@@ -316,7 +317,7 @@
 						<div class="flex {($settings?.chatBubble ?? true) ? 'justify-end pb-1' : 'w-full'}">
 							<div
 								class="rounded-3xl {($settings?.chatBubble ?? true)
-									? `max-w-[90%] px-5 py-2  bg-gray-50 dark:bg-[#0e4e8a] ${
+									? `max-w-[90%] px-5 py-2  bg-gray-50 dark:bg-[#4b7297] ${
 											message.files ? 'rounded-tr-lg' : ''
 										}`
 									: ' w-full'}"

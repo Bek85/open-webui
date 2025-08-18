@@ -386,7 +386,7 @@
 						>
 							{#each notes[timeRange] as note, idx (note.id)}
 								<div
-									class=" flex space-x-4 cursor-pointer w-full px-4.5 py-4 border border-gray-50 dark:border-gray-850 bg-transparent dark:hover:bg-gray-850 hover:bg-white rounded-2xl transition"
+									class=" flex space-x-4 cursor-pointer w-full px-4.5 py-4 border border-gray-50 dark:border-[#082556] bg-transparent dark:hover:bg-gray-850 hover:bg-white rounded-2xl transition"
 								>
 									<div class=" flex flex-1 space-x-4 cursor-pointer w-full">
 										<a
@@ -484,7 +484,7 @@
 			<div class="flex gap-0.5 justify-end w-full">
 				<Tooltip content={$i18n.t('Create Note')}>
 					<button
-						class="cursor-pointer p-2.5 flex rounded-full border border-gray-50 bg-white dark:border-none dark:bg-gray-850 hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-xl"
+						class="cursor-pointer p-2.5 flex rounded-full border border-gray-50 bg-white dark:border-none dark:bg-[#082556] hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-xl"
 						type="button"
 						on:click={async () => {
 							createNoteHandler();

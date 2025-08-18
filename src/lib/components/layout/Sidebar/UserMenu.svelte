@@ -64,14 +64,14 @@
 
 	<slot name="content">
 		<DropdownMenu.Content
-			class="w-full {className}  rounded-2xl px-1 py-1  border border-gray-100  dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg text-sm"
+			class="w-full {className}  rounded-2xl px-1 py-1  border border-gray-100  dark:border-gray-800 z-50 bg-white dark:bg-[#091b39] dark:text-white shadow-lg text-sm"
 			sideOffset={4}
 			side="bottom"
 			align="start"
 			transition={(e) => fade(e, { duration: 100 })}
 		>
 			<DropdownMenu.Item
-				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
+				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-[#4CC9F0] transition cursor-pointer"
 				on:click={async () => {
 					show = false;
 
@@ -90,7 +90,7 @@
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
-				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
+				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-[#4CC9F0] transition cursor-pointer"
 				on:click={async () => {
 					show = false;
 
@@ -113,7 +113,7 @@
 				<DropdownMenu.Item
 					as="a"
 					href="/playground"
-					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition select-none"
+					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-[#4CC9F0] transition select-none"
 					on:click={async () => {
 						show = false;
 						if ($mobile) {
@@ -130,7 +130,7 @@
 				<DropdownMenu.Item
 					as="a"
 					href="/admin"
-					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition select-none"
+					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-[#4CC9F0] transition select-none"
 					on:click={async () => {
 						show = false;
 						if ($mobile) {
@@ -155,7 +155,7 @@
 					<DropdownMenu.Item
 						as="a"
 						target="_blank"
-						class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition"
+						class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-[#4CC9F0] rounded-xl transition"
 						id="chat-share-button"
 						on:click={() => {
 							show = false;
@@ -170,7 +170,7 @@
 					<DropdownMenu.Item
 						as="a"
 						target="_blank"
-						class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition"
+						class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-[#4CC9F0] rounded-xl transition"
 						id="chat-share-button"
 						on:click={() => {
 							show = false;
@@ -183,7 +183,7 @@
 				{/if}
 
 				<DropdownMenu.Item
-					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full  hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition cursor-pointer"
+					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full  hover:bg-gray-50 dark:hover:bg-[#4CC9F0] rounded-xl transition cursor-pointer"
 					id="chat-share-button"
 					on:click={async () => {
 						show = false;
@@ -203,7 +203,7 @@
 			<hr class=" border-gray-50 dark:border-gray-800 my-1 p-0" />
 
 			<DropdownMenu.Item
-				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-[#4CC9F0] transition cursor-pointer"
 				on:click={async () => {
 					const res = await userSignOut();
 					user.set(null);

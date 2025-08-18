@@ -669,6 +669,7 @@
 												type={file.type}
 												size={file?.size}
 												small={true}
+                        colorClassName="bg-white dark:bg-[#082556]
 											/>
 										{/if}
 									</div>
@@ -693,7 +694,7 @@
 						{/if}
 
 						{#if edit === true}
-							<div class="w-full bg-gray-50 dark:bg-gray-800 rounded-3xl px-5 py-3 my-2">
+							<div class="w-full bg-gray-50 dark:bg-[#4b7297] rounded-3xl px-5 py-3 my-2">
 								<textarea
 									id="message-edit-{message.id}"
 									bind:this={editTextAreaElement}
@@ -754,7 +755,7 @@
 								</div>
 							</div>
 						{:else}
-							<div class="w-full flex flex-col relative" id="response-content-container">
+							<div class="w-full flex flex-col px-5 relative" id="response-content-container">
 								{#if message.content === '' && !message.error && ((model?.info?.meta?.capabilities?.status_updates ?? true) ? (message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]).length === 0 || (message?.statusHistory?.at(-1)?.hidden ?? false) : true)}
 									<Skeleton />
 								{:else if message.content && message.error !== true}
@@ -825,7 +826,7 @@
 				{#if !edit}
 					<div
 						bind:this={buttonsContainerElement}
-						class="flex justify-start overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5 px-5"
+						class="flex justify-end overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5"
 					>
 						{#if message.done || siblings.length > 1}
 							{#if siblings.length > 1}

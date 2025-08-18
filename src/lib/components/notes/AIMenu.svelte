@@ -27,7 +27,7 @@
 
 	<slot name="content">
 		<DropdownMenu.Content
-			class="w-full {className} text-sm rounded-xl p-1 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg font-primary"
+			class="w-full {className} text-sm rounded-xl p-1 z-50 bg-white dark:bg-[#082556] dark:text-white shadow-lg font-primary"
 			sideOffset={8}
 			side="bottom"
 			align="end"

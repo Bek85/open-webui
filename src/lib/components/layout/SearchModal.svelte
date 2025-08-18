@@ -368,7 +368,7 @@
 						<a
 							class=" w-full flex justify-between items-center rounded-xl text-sm py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-850 {selectedIdx ===
 							idx + actions.length
-								? 'bg-gray-50 dark:bg-gray-850'
+								? 'bg-gray-50 dark:bg-[#082556]'
 								: ''}"
 							href="/c/{chat.id}"
 							draggable="false"

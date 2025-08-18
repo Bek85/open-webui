@@ -57,7 +57,7 @@ class Tools:
         pass
 
     # Add your custom tools using pure Python code here, make sure to add type hints and descriptions
-	
+
     def get_user_name_and_email_and_id(self, __user__: dict = {}) -> str:
         """
         Get the user name, Email and ID from the user object.
@@ -236,7 +236,7 @@ class Tools:
 
 						<div class="self-center shrink-0">
 							<button
-								class="bg-gray-50 hover:bg-gray-100 text-black dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white transition px-2 py-1 rounded-full flex gap-1 items-center"
+								class="bg-gray-50 hover:bg-gray-100 text-black dark:bg-[#082556] dark:hover:bg-gray-800 dark:text-white transition px-2 py-1 rounded-full flex gap-1 items-center"
 								type="button"
 								on:click={() => {
 									showAccessControlModal = true;

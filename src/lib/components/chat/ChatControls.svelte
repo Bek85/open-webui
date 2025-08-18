@@ -253,7 +253,7 @@
 				<div
 					class="w-full {($showOverview || $showArtifacts || $showEmbeds) && !$showCallOverlay
 						? ' '
-						: 'px-4 py-3 bg-white dark:shadow-lg dark:bg-gray-850 '} z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
+						: 'px-4 py-3 bg-white dark:shadow-lg dark:bg-[#082556] '} z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
 					id="controls-container"
 				>
 					{#if $showCallOverlay}

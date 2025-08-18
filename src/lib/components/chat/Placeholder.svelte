@@ -120,13 +120,25 @@
 											selectedModelIdx = modelIdx;
 										}}
 									>
+										<!--																				<img-->
+										<!--																					crossorigin="anonymous"-->
+										<!--																					src={model?.info?.meta?.profile_image_url ??-->
+										<!--																						($i18n.language === 'dg-DG'-->
+										<!--																							? `${WEBUI_BASE_URL}/doge.png`-->
+										<!--																							: `${WEBUI_BASE_URL}/static/pro_dark.gif`)}-->
+										<!--																					class="w-150 h-auto @sm:w-150 rounded-full border-[1px] border-gray-100 dark:border-none"-->
+										<!--																					aria-hidden="true"-->
+										<!--																					draggable="false"-->
+										<!--																				/>-->
 										<img
 											crossorigin="anonymous"
 											src={model?.info?.meta?.profile_image_url ??
 												($i18n.language === 'dg-DG'
 													? `${WEBUI_BASE_URL}/doge.png`
-													: `${WEBUI_BASE_URL}/static/favicon.png`)}
-											class=" size-9 @sm:size-10 rounded-full border-[1px] border-gray-100 dark:border-none"
+													: model?.id === 'lexuz_pipeline' // <-- model ID yoki nomiga qarab
+														? `${WEBUI_BASE_URL}/static/lex_dark.gif`
+														: `${WEBUI_BASE_URL}/static/pro_dark.gif`)}
+											class="w-150 h-auto @sm:w-150 rounded-full border-[1px] border-gray-100 dark:border-none"
 											aria-hidden="true"
 											draggable="false"
 										/>
@@ -136,24 +148,24 @@
 						</div>
 					</div>
 
-					<div
-						class=" text-3xl @sm:text-3xl line-clamp-1 flex items-center"
-						in:fade={{ duration: 100 }}
-					>
-						{#if models[selectedModelIdx]?.name}
-							<Tooltip
-								content={models[selectedModelIdx]?.name}
-								placement="top"
-								className=" flex items-center "
-							>
-								<span class="line-clamp-1">
-									{models[selectedModelIdx]?.name}
-								</span>
-							</Tooltip>
-						{:else}
-							{$i18n.t('Hello, {{name}}', { name: $user?.name })}
-						{/if}
-					</div>
+					<!--					<div-->
+					<!--						class=" text-3xl @sm:text-3xl line-clamp-1 flex items-center"-->
+					<!--						in:fade={{ duration: 100 }}-->
+					<!--					>-->
+					<!--						{#if models[selectedModelIdx]?.name}-->
+					<!--							<Tooltip-->
+					<!--								content={models[selectedModelIdx]?.name}-->
+					<!--								placement="top"-->
+					<!--								className=" flex items-center "-->
+					<!--							>-->
+					<!--								<span class="line-clamp-1">-->
+					<!--									{models[selectedModelIdx]?.name}-->
+					<!--								</span>-->
+					<!--							</Tooltip>-->
+					<!--						{:else}-->
+					<!--							{$i18n.t('Hello, {{name}}', { name: $user?.name })}-->
+					<!--						{/if}-->
+					<!--					</div>-->
 				</div>
 
 				<div class="flex mt-1 mb-2">
