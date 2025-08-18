@@ -337,14 +337,14 @@
 />
 
 <div
-	class="pt-0.5 pb-2 gap-1 flex flex-col md:flex-row justify-between sticky top-0 z-10 bg-white dark:bg-gray-900"
+	class="pt-0.5 pb-2 gap-1 flex flex-col md:flex-row justify-between sticky top-0 z-10 bg-white dark:bg-[#082556]"
 >
 	<div class="flex md:self-center text-lg font-medium px-0.5 shrink-0 items-center">
 		<div class=" gap-1">
 			{$i18n.t('Leaderboard')}
 		</div>
 
-		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
+		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-[#082556]" />
 
 		<span class="text-lg font-medium text-gray-500 dark:text-gray-300 mr-1.5"
 			>{rankedModels.length}</span
@@ -391,7 +391,7 @@
 				: ''}"
 		>
 			<thead
-				class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 -translate-y-0.5"
+				class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#082556] dark:text-gray-400 -translate-y-0.5"
 			>
 				<tr class="">
 					<th
@@ -509,7 +509,7 @@
 			<tbody class="">
 				{#each sortedModels as model, modelIdx (model.id)}
 					<tr
-						class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-850/50 transition"
+						class="bg-white dark:bg-[#113f6c] dark:border-gray-850 text-xs group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-850/50 transition"
 						on:click={() => openLeaderboardModelModal(model)}
 					>
 						<td class="px-3 py-1.5 text-left font-medium text-gray-900 dark:text-white w-fit">

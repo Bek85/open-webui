@@ -126,7 +126,7 @@
 									{#if userGroups.length}
 										<div class="flex flex-wrap gap-1 my-0.5 -mx-1">
 											{#each userGroups as userGroup}
-												<span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-850 text-xs">
+												<span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#082556] text-xs">
 													{userGroup.name}
 												</span>
 											{/each}

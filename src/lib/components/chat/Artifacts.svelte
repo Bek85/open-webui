@@ -204,14 +204,14 @@
 	});
 </script>
 
-<div class=" w-full h-full relative flex flex-col bg-gray-50 dark:bg-gray-850">
+<div class=" w-full h-full relative flex flex-col bg-gray-50 dark:bg-[#082556]">
 	<div class="w-full h-full flex flex-col flex-1 relative">
 		{#if contents.length > 0}
 			<div
 				class="pointer-events-auto z-20 flex justify-between items-center p-2.5 font-primar text-gray-900 dark:text-white"
 			>
 				<button
-					class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
+					class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-[#082556]"
 					on:click={() => {
 						showArtifacts.set(false);
 					}}
@@ -275,7 +275,7 @@
 
 					<div class="flex items-center gap-1.5">
 						<button
-							class="copy-code-button bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+							class="copy-code-button bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
 							on:click={() => {
 								copyToClipboard(contents[selectedContentIdx].content);
 								copied = true;
@@ -288,7 +288,7 @@
 
 						<Tooltip content={$i18n.t('Download')}>
 							<button
-								class=" bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md p-0.5"
+								class=" bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md p-0.5"
 								on:click={downloadArtifact}
 							>
 								<ArrowDownTray className="size-3.5" />
@@ -298,7 +298,7 @@
 						{#if contents[selectedContentIdx].type === 'iframe'}
 							<Tooltip content={$i18n.t('Open in full screen')}>
 								<button
-									class=" bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md p-0.5"
+									class=" bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md p-0.5"
 									on:click={showFullScreen}
 								>
 									<ArrowsPointingOut className="size-3.5" />
@@ -309,7 +309,7 @@
 				</div>
 
 				<button
-					class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
+					class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-[#082556]"
 					on:click={() => {
 						dispatch('close');
 						showControls.set(false);

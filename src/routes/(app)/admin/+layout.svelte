@@ -28,7 +28,7 @@
 
 {#if loaded}
 	<div
-		class=" flex flex-col h-screen max-h-[100dvh] flex-1 transition-width duration-200 ease-in-out {$showSidebar
+		class=" flex flex-col h-screen max-h-[100dvh] bg-[#082556] flex-1 transition-width duration-200 ease-in-out {$showSidebar
 			? 'md:max-w-[calc(100%-260px)]'
 			: ' md:max-w-[calc(100%-49px)]'}  w-full max-w-full"
 	>

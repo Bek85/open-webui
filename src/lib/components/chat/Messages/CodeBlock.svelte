@@ -434,7 +434,7 @@
 			>
 				<div class="flex items-center gap-0.5 translate-y-[1px]">
 					<button
-						class="flex gap-1 items-center bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+						class="flex gap-1 items-center bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
 						on:click={collapseCodeBlock}
 					>
 						<div class=" -translate-y-[0.5px]">
@@ -448,7 +448,7 @@
 
 					{#if preview && ['html', 'svg'].includes(lang)}
 						<button
-							class="flex gap-1 items-center run-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+							class="flex gap-1 items-center run-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
 							on:click={previewCode}
 						>
 							<div class=" -translate-y-[0.5px]">
@@ -468,7 +468,7 @@
 							</div>
 						{:else if run}
 							<button
-								class="flex gap-1 items-center run-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+								class="flex gap-1 items-center run-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
 								on:click={async () => {
 									code = _code;
 									await tick();
@@ -488,7 +488,7 @@
 
 					{#if save}
 						<button
-							class="save-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+							class="save-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
 							on:click={saveCode}
 						>
 							{saved ? $i18n.t('Saved') : $i18n.t('Save')}
@@ -496,7 +496,7 @@
 					{/if}
 
 					<button
-						class="copy-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+						class="copy-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
 						on:click={copyCode}>{copied ? $i18n.t('Copied') : $i18n.t('Copy')}</button
 					>
 				</div>
@@ -509,7 +509,7 @@
 						? ''
 						: 'rounded-b-lg'} overflow-hidden"
 			>
-				<div class=" pt-7 bg-gray-50 dark:bg-gray-850"></div>
+				<div class=" pt-7 bg-gray-50 dark:bg-[#082556]"></div>
 
 				{#if !collapsed}
 					<CodeEditor
