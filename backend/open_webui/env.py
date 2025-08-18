@@ -133,7 +133,15 @@ if WEBUI_NAME != 'Open WebUI':
 
 WEBUI_FAVICON_URL = 'https://openwebui.com/favicon.png'
 
-TRUSTED_SIGNATURE_KEY = os.environ.get('TRUSTED_SIGNATURE_KEY', '')
+log.setLevel(SRC_LOG_LEVELS["CONFIG"])
+
+WEBUI_NAME = os.environ.get("WEBUI_NAME", "Prokuratura AI")
+if WEBUI_NAME != "Prokuratura AI":
+    WEBUI_NAME += " Prokuratura AI"
+
+WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
+
+TRUSTED_SIGNATURE_KEY = os.environ.get("TRUSTED_SIGNATURE_KEY", "")
 
 ####################################
 # ENV (dev,test,prod)

@@ -186,7 +186,7 @@
 					dir="auto"
 				>
 					<thead
-						class="text-xs text-gray-700 uppercase bg-white dark:bg-gray-900 dark:text-gray-400 border-none"
+						class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#082556] dark:text-gray-400 border-none"
 					>
 						<tr class="">
 							{#each token.header as header, headerIdx}
