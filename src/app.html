@@ -81,8 +81,8 @@
 				const logo = document.createElement('img');
 				logo.id = 'logo';
 				logo.style =
-					'position: absolute; width: auto; height: 6rem; top: 44%; left: 50%; transform: translateX(-50%); display:block;';
-				logo.src = isDarkMode ? '/static/splash-dark.png' : '/static/splash.png';
+					'position: absolute; width: auto; height: 25rem; top: 25%; left: 50%; transform: translateX(-50%); display:block;';
+				logo.src = isDarkMode ? '/static/pro_dark.gif' : '/static/pro_light.gif';
 
 				document.addEventListener('DOMContentLoaded', function () {
 					const splash = document.getElementById('splash-screen');
@@ -95,7 +95,7 @@
 			})();
 		</script>
 
-		<title>Open WebUI</title>
+		<title>Prokuratura AI</title>
 
 		%sveltekit.head%
 	</head>
@@ -179,7 +179,7 @@
 	}
 
 	html.dark #splash-screen {
-		background: #000;
+		background: #082556;
 	}
 
 	html.her #splash-screen {

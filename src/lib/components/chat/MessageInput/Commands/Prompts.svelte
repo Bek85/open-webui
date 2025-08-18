@@ -86,7 +86,7 @@
 					{#each filteredPrompts as promptItem, promptIdx}
 						<button
 							class=" px-3 py-1.5 rounded-xl w-full text-left {promptIdx === selectedPromptIdx
-								? '  bg-gray-50 dark:bg-gray-850 selected-command-option-button'
+								? '  bg-gray-50 dark:bg-[#082556] selected-command-option-button'
 								: ''}"
 							type="button"
 							on:click={() => {

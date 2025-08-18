@@ -317,13 +317,13 @@
 						<div class="flex w-full">
 							<div class="flex-1 mr-2">
 								<input
-									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 									placeholder={$i18n.t('Enter URL (e.g. http://127.0.0.1:7860/)')}
 									bind:value={config.automatic1111.AUTOMATIC1111_BASE_URL}
 								/>
 							</div>
 							<button
-								class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
+								class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-[#082556] dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
 								type="button"
 								on:click={async () => {
 									await updateConfigHandler();
@@ -396,7 +396,7 @@
 								<Tooltip content={$i18n.t('Enter Sampler (e.g. Euler a)')} placement="top-start">
 									<input
 										list="sampler-list"
-										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 										placeholder={$i18n.t('Enter Sampler (e.g. Euler a)')}
 										bind:value={config.automatic1111.AUTOMATIC1111_SAMPLER}
 									/>
@@ -418,7 +418,7 @@
 								<Tooltip content={$i18n.t('Enter Scheduler (e.g. Karras)')} placement="top-start">
 									<input
 										list="scheduler-list"
-										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 										placeholder={$i18n.t('Enter Scheduler (e.g. Karras)')}
 										bind:value={config.automatic1111.AUTOMATIC1111_SCHEDULER}
 									/>
@@ -439,7 +439,7 @@
 							<div class="flex-1 mr-2">
 								<Tooltip content={$i18n.t('Enter CFG Scale (e.g. 7.0)')} placement="top-start">
 									<input
-										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 										placeholder={$i18n.t('Enter CFG Scale (e.g. 7.0)')}
 										bind:value={config.automatic1111.AUTOMATIC1111_CFG_SCALE}
 									/>
@@ -453,13 +453,13 @@
 						<div class="flex w-full">
 							<div class="flex-1 mr-2">
 								<input
-									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 									placeholder={$i18n.t('Enter URL (e.g. http://127.0.0.1:7860/)')}
 									bind:value={config.comfyui.COMFYUI_BASE_URL}
 								/>
 							</div>
 							<button
-								class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
+								class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-[#082556] dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
 								type="button"
 								on:click={async () => {
 									await updateConfigHandler();
@@ -507,7 +507,7 @@
 
 						{#if config.comfyui.COMFYUI_WORKFLOW}
 							<Textarea
-								class="w-full rounded-lg mb-1 py-2 px-4 text-xs bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden disabled:text-gray-600 resize-none"
+								class="w-full rounded-lg mb-1 py-2 px-4 text-xs bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden disabled:text-gray-600 resize-none"
 								rows="10"
 								bind:value={config.comfyui.COMFYUI_WORKFLOW}
 								required
@@ -648,7 +648,7 @@
 									<Tooltip content={$i18n.t('Enter Model ID')} placement="top-start">
 										<input
 											list="model-list"
-											class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+											class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 											bind:value={imageGenerationConfig.MODEL}
 											placeholder={$i18n.t('Select a model')}
 											required
@@ -672,7 +672,7 @@
 						<div class="flex-1 mr-2">
 							<Tooltip content={$i18n.t('Enter Image Size (e.g. 512x512)')} placement="top-start">
 								<input
-									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 									placeholder={$i18n.t('Enter Image Size (e.g. 512x512)')}
 									bind:value={imageGenerationConfig.IMAGE_SIZE}
 									required
@@ -689,7 +689,7 @@
 							<div class="flex-1 mr-2">
 								<Tooltip content={$i18n.t('Enter Number of Steps (e.g. 50)')} placement="top-start">
 									<input
-										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-[#082556] outline-hidden"
 										placeholder={$i18n.t('Enter Number of Steps (e.g. 50)')}
 										bind:value={imageGenerationConfig.IMAGE_STEPS}
 										required

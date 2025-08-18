@@ -17,8 +17,8 @@ export default {
 					500: 'var(--color-gray-500, #9b9b9b)',
 					600: 'var(--color-gray-600, #676767)',
 					700: 'var(--color-gray-700, #4e4e4e)',
-					800: 'var(--color-gray-800, #333)',
-					850: 'var(--color-gray-850, #262626)',
+					800: 'var(--color-gray-800, #4CC9F0)',
+					850: 'var(--color-gray-850, #0b367e)',
 					900: 'var(--color-gray-900, #171717)',
 					950: 'var(--color-gray-950, #0d0d0d)'
 				}

@@ -232,7 +232,7 @@
 					<div
 						class="w-full {($showOverview || $showArtifacts) && !$showCallOverlay
 							? ' '
-							: 'px-4 py-4 bg-white dark:shadow-lg dark:bg-gray-850  border border-gray-100 dark:border-gray-850'} z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
+							: 'px-4 py-4 bg-white dark:shadow-lg dark:bg-[#082556]  border border-gray-100 dark:border-gray-850'} z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
 						id="controls-container"
 					>
 						{#if $showCallOverlay}

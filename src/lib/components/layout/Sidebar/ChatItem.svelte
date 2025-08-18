@@ -341,10 +341,10 @@
 		<div
 			class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
 			confirmEdit
-				? 'bg-gray-100 dark:bg-gray-900'
+				? 'bg-gray-100 dark:bg-[#0b367e]'
 				: selected
-					? 'bg-gray-100 dark:bg-gray-950'
-					: 'group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis relative {generating
+					? 'bg-gray-100 dark:bg-[#0b367e]'
+					: 'group-hover:bg-[#0b367e] dark:group-hover:bg-[#0b367e]'}  whitespace-nowrap text-ellipsis relative {generating
 				? 'cursor-not-allowed'
 				: ''}"
 		>
@@ -393,10 +393,10 @@
 		<a
 			class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
 			confirmEdit
-				? 'bg-gray-100 dark:bg-gray-900'
+				? 'bg-gray-100 dark:bg-[#0b367e]'
 				: selected
-					? 'bg-gray-100 dark:bg-gray-950'
-					: ' group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
+					? 'bg-gray-100 dark:bg-[#0b367e]'
+					: ' group-hover:bg-[#0b367e] dark:group-hover:bg-[#0b367e]'}  whitespace-nowrap text-ellipsis"
 			href="/c/{id}"
 			on:click={() => {
 				dispatch('select');
@@ -440,10 +440,10 @@
 	<div
 		class="
         {id === $chatId || confirmEdit
-			? 'from-gray-100 dark:from-gray-900'
+			? 'from-gray-100 dark:from-[#0b367e]'
 			: selected
-				? 'from-gray-100 dark:from-gray-950'
-				: 'invisible group-hover:visible from-gray-100 dark:from-gray-950'}
+				? 'from-gray-100 dark:from-[#0b367e]'
+				: 'invisible group-hover:visible from-gray-100 dark:from-[#0b367e]'}
             absolute {className === 'pr-2'
 			? 'right-[8px]'
 			: 'right-1'} top-[4px] py-1 pr-0.5 mr-1.5 pl-5 bg-linear-to-l from-80%

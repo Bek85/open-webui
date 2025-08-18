@@ -346,18 +346,19 @@
 				<div class="flex flex-col w-full">
 					<div class=" mb-1 text-xs font-medium">{$i18n.t('Notification Webhook')}</div>
 
-					<div class="flex-1">
-						<input
-							class="w-full text-sm outline-hidden"
-							type="url"
-							placeholder={$i18n.t('Enter your webhook URL')}
-							bind:value={webhookUrl}
-							required
-						/>
+						<div class="flex-1">
+							<input
+								class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-[#082556] outline-hidden"
+								type="url"
+								placeholder={$i18n.t('Enter your webhook URL')}
+								bind:value={webhookUrl}
+								required
+							/>
+						</div>
 					</div>
 				</div>
-			</div>
-		{/if}
+			{/if}
+		</div>
 
 		<hr class="border-gray-50 dark:border-gray-850 my-4" />
 
@@ -517,7 +518,7 @@
 									</Tooltip>
 								{:else}
 									<button
-										class="flex gap-1.5 items-center font-medium px-3.5 py-1.5 rounded-lg bg-gray-100/70 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-850 transition"
+										class="flex gap-1.5 items-center font-medium px-3.5 py-1.5 rounded-lg bg-gray-100/70 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-850 transition"
 										on:click={() => {
 											createAPIKeyHandler();
 										}}

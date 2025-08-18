@@ -246,7 +246,7 @@
 	{#if responseContent === null}
 		{#if !floatingInput}
 			<div
-				class="flex flex-row gap-0.5 shrink-0 p-1 bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-lg shadow-xl"
+				class="flex flex-row gap-0.5 shrink-0 p-1 bg-white dark:bg-[#082556] dark:text-gray-100 text-medium rounded-lg shadow-xl"
 			>
 				{#each actions as action}
 					<button
@@ -321,7 +321,7 @@
 			</div>
 		{/if}
 	{:else}
-		<div class="bg-white dark:bg-gray-850 dark:text-gray-100 rounded-xl shadow-xl w-80 max-w-full">
+		<div class="bg-white dark:bg-[#082556] dark:text-gray-100 rounded-xl shadow-xl w-80 max-w-full">
 			<div
 				class="bg-gray-50/50 dark:bg-gray-800 dark:text-gray-100 text-medium rounded-xl px-3.5 py-3 w-full"
 			>
@@ -331,7 +331,7 @@
 			</div>
 
 			<div
-				class="bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-xl px-3.5 py-3 w-full"
+				class="bg-white dark:bg-[#082556] dark:text-gray-100 text-medium rounded-xl px-3.5 py-3 w-full"
 			>
 				<div class=" max-h-80 overflow-y-auto w-full markdown-prose-xs" id="response-container">
 					{#if !responseContent || responseContent?.trim() === ''}

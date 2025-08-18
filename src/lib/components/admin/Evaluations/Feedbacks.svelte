@@ -173,7 +173,7 @@
 	<div class="flex md:self-center text-lg font-medium px-0.5">
 		{$i18n.t('Feedback History')}
 
-		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
+		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-[#082556]" />
 
 		<span class="text-lg font-medium text-gray-500 dark:text-gray-300">{feedbacks.length}</span>
 	</div>
@@ -206,7 +206,7 @@
 			class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto max-w-full rounded-sm"
 		>
 			<thead
-				class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 -translate-y-0.5"
+				class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#082556] dark:text-gray-400 -translate-y-0.5"
 			>
 				<tr class="">
 					<th
@@ -407,7 +407,7 @@
 				)}
 			>
 				<button
-					class="flex text-xs items-center px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-200 transition"
+					class="flex text-xs items-center px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-[#082556] dark:hover:bg-gray-800 dark:text-gray-200 transition"
 					on:click={async () => {
 						shareHandler();
 					}}

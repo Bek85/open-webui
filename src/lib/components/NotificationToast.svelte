@@ -32,7 +32,7 @@
 </script>
 
 <button
-	class="flex gap-2.5 text-left min-w-[var(--width)] w-full dark:bg-gray-850 dark:text-white bg-white text-black border border-gray-100 dark:border-gray-850 rounded-xl px-3.5 py-3.5"
+	class="flex gap-2.5 text-left min-w-[var(--width)] w-full dark:bg-[#082556] dark:text-white bg-white text-black border border-gray-100 dark:border-gray-850 rounded-xl px-3.5 py-3.5"
 	on:click={() => {
 		onClick();
 		dispatch('closeToast');

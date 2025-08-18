@@ -101,7 +101,7 @@
 
 	<div slot="content">
 		<DropdownMenu.Content
-			class="w-full max-w-[240px] rounded-xl px-1 py-1 border border-gray-300/30 dark:border-gray-700/50 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-sm"
+			class="w-full max-w-[240px] rounded-xl px-1 py-1 border border-gray-300/30 dark:border-gray-700/50 z-50 bg-white dark:bg-[#082556] dark:text-white shadow-sm"
 			sideOffset={10}
 			alignOffset={-8}
 			side="top"
@@ -367,7 +367,7 @@
 							<div class="line-clamp-1">{$i18n.t('Microsoft OneDrive')}</div>
 						</DropdownMenu.SubTrigger>
 						<DropdownMenu.SubContent
-							class="w-[calc(100vw-2rem)] max-w-[280px] rounded-xl px-1 py-1 border border-gray-300/30 dark:border-gray-700/50 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-sm"
+							class="w-[calc(100vw-2rem)] max-w-[280px] rounded-xl px-1 py-1 border border-gray-300/30 dark:border-gray-700/50 z-50 bg-white dark:bg-[#082556] dark:text-white shadow-sm"
 							side={$mobile ? 'bottom' : 'right'}
 							sideOffset={$mobile ? 5 : 0}
 							alignOffset={$mobile ? 0 : -8}

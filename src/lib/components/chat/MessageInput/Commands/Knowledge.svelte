@@ -200,7 +200,7 @@
 						<button
 							class=" px-3 py-1.5 rounded-xl w-full text-left flex justify-between items-center {idx ===
 							selectedIdx
-								? ' bg-gray-50 dark:bg-gray-850 dark:text-gray-100 selected-command-option-button'
+								? ' bg-gray-50 dark:bg-[#082556] dark:text-gray-100 selected-command-option-button'
 								: ''}"
 							type="button"
 							on:click={() => {
@@ -303,7 +303,7 @@
 							.substring(1)
 							.startsWith('https://youtu.be')}
 						<button
-							class="px-3 py-1.5 rounded-xl w-full text-left bg-gray-50 dark:bg-gray-850 dark:text-gray-100 selected-command-option-button"
+							class="px-3 py-1.5 rounded-xl w-full text-left bg-gray-50 dark:bg-[#082556] dark:text-gray-100 selected-command-option-button"
 							type="button"
 							on:click={() => {
 								if (isValidHttpUrl(command.substring(1))) {
@@ -325,7 +325,7 @@
 						</button>
 					{:else if command.substring(1).startsWith('http')}
 						<button
-							class="px-3 py-1.5 rounded-xl w-full text-left bg-gray-50 dark:bg-gray-850 dark:text-gray-100 selected-command-option-button"
+							class="px-3 py-1.5 rounded-xl w-full text-left bg-gray-50 dark:bg-[#082556] dark:text-gray-100 selected-command-option-button"
 							type="button"
 							on:click={() => {
 								if (isValidHttpUrl(command.substring(1))) {
