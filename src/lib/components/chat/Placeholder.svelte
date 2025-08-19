@@ -136,19 +136,29 @@
 <!--																					aria-hidden="true"-->
 <!--																					draggable="false"-->
 <!--																				/>-->
+
+<!--										urldan rasm kelishi shart bo'yicha rasmni chiqarish-->
+<!--										<img-->
+<!--											crossorigin='anonymous'-->
+<!--											src={-->
+<!--													model?.info?.meta?.profile_image_url ??-->
+<!--													($i18n.language === 'dg-DG'-->
+<!--														? `${WEBUI_BASE_URL}/doge.png`-->
+<!--														: model?.id === 'lexuz_pipeline' // <&#45;&#45; model ID yoki nomiga qarab-->
+<!--															? `${WEBUI_BASE_URL}/static/lex_dark.gif`-->
+<!--															: `${WEBUI_BASE_URL}/static/pro_dark.gif`)-->
+<!--												}-->
+<!--											class='w-150 h-auto @sm:w-150 rounded-full border-[1px] border-gray-100 dark:border-none'-->
+<!--											aria-hidden='true'-->
+<!--											draggable='false'-->
+<!--										/>-->
+
 										<img
-											crossorigin='anonymous'
-											src={
-													model?.info?.meta?.profile_image_url ??
-													($i18n.language === 'dg-DG'
-														? `${WEBUI_BASE_URL}/doge.png`
-														: model?.id === 'lexuz_pipeline' // <-- model ID yoki nomiga qarab
-															? `${WEBUI_BASE_URL}/static/lex_dark.gif`
-															: `${WEBUI_BASE_URL}/static/pro_dark.gif`)
-												}
-											class='w-150 h-auto @sm:w-150 rounded-full border-[1px] border-gray-100 dark:border-none'
-											aria-hidden='true'
-											draggable='false'
+											crossorigin="anonymous"
+											src={`${WEBUI_BASE_URL}/static/${model?.id === 'lexuz_pipeline' ? 'lex_dark.gif' : 'pro_dark.gif'}`}
+											class="w-150 h-auto @sm:w-150 rounded-full border-none border-gray-100 dark:border-none"
+											aria-hidden="true"
+											draggable="false"
 										/>
 
 									</button>
