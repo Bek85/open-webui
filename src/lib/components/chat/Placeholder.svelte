@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { marked } from 'marked';
-	import DOMPurify from 'dompurify';
 
 	import { onMount, getContext, tick, createEventDispatcher } from 'svelte';
 	import { blur, fade } from 'svelte/transition';
@@ -21,7 +20,7 @@
 		currentChatPage
 	} from '$lib/stores';
 	import { sanitizeResponseContent, extractCurlyBraceWords } from '$lib/utils';
-	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import Suggestions from './Suggestions.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
@@ -48,7 +47,6 @@
 
 	export let selectedToolIds = [];
 	export let selectedFilterIds = [];
-	export let pendingOAuthTools = [];
 
 	export let showCommands = false;
 
@@ -56,13 +54,10 @@
 	export let codeInterpreterEnabled = false;
 	export let webSearchEnabled = false;
 
-	export let onUpload: Function = (e) => {};
 	export let onSelect = (e) => {};
 	export let onChange = (e) => {};
 
 	export let toolServers = [];
-
-	export let dragged = false;
 
 	let models = [];
 	let selectedModelIdx = 0;
@@ -106,7 +101,7 @@
 					}}
 				/>
 			{:else}
-				<div class="flex flex-row justify-center gap-2.5 @sm:gap-3 w-fit px-5 max-w-xl">
+				<div class="flex flex-row justify-center gap-3 @sm:gap-3.5 w-fit px-5 max-w-xl">
 					<div class="flex shrink-0 justify-center">
 						<div class="flex -space-x-4 mb-0.5" in:fade={{ duration: 100 }}>
 							{#each models as model, modelIdx}
@@ -125,14 +120,39 @@
 											selectedModelIdx = modelIdx;
 										}}
 									>
+										<!--																				<img-->
+										<!--																					crossorigin="anonymous"-->
+										<!--																					src={model?.info?.meta?.profile_image_url ??-->
+										<!--																						($i18n.language === 'dg-DG'-->
+										<!--																							? `${WEBUI_BASE_URL}/doge.png`-->
+										<!--																							: `${WEBUI_BASE_URL}/static/pro_dark.gif`)}-->
+										<!--																					class="w-150 h-auto @sm:w-150 rounded-full border-[1px] border-gray-100 dark:border-none"-->
+										<!--																					aria-hidden="true"-->
+										<!--																					draggable="false"-->
+										<!--																				/>-->
+
+										<!--										urldan rasm kelishi shart bo'yicha rasmni chiqarish-->
+										<!--										<img-->
+										<!--											crossorigin='anonymous'-->
+										<!--											src={-->
+										<!--													model?.info?.meta?.profile_image_url ??-->
+										<!--													($i18n.language === 'dg-DG'-->
+										<!--														? `${WEBUI_BASE_URL}/doge.png`-->
+										<!--														: model?.id === 'lexuz_pipeline' // <&#45;&#45; model ID yoki nomiga qarab-->
+										<!--															? `${WEBUI_BASE_URL}/static/lex_dark.gif`-->
+										<!--															: `${WEBUI_BASE_URL}/static/pro_dark.gif`)-->
+										<!--												}-->
+										<!--											class='w-150 h-auto @sm:w-150 rounded-full border-[1px] border-gray-100 dark:border-none'-->
+										<!--											aria-hidden='true'-->
+										<!--											draggable='false'-->
+										<!--										/>-->
+
 										<img
-											src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${model?.id}&lang=${$i18n.language}`}
-											class=" size-9 @sm:size-10 rounded-full border-[1px] border-gray-100 dark:border-none"
+											crossorigin="anonymous"
+											src={`${WEBUI_BASE_URL}/static/${model?.id === 'lexuz_pipeline' ? 'lex_dark.gif' : 'pro_dark.gif'}`}
+											class="w-150 h-auto @sm:w-150 rounded-full border-none border-gray-100 dark:border-none"
 											aria-hidden="true"
 											draggable="false"
-											on:error={(e) => {
-												e.currentTarget.src = '/favicon.png';
-											}}
 										/>
 									</button>
 								</Tooltip>
@@ -140,24 +160,24 @@
 						</div>
 					</div>
 
-					<div
-						class=" text-3xl @sm:text-3xl line-clamp-1 flex items-center"
-						in:fade={{ duration: 100 }}
-					>
-						{#if models[selectedModelIdx]?.name}
-							<Tooltip
-								content={models[selectedModelIdx]?.name}
-								placement="top"
-								className=" flex items-center "
-							>
-								<span class="line-clamp-1">
-									{models[selectedModelIdx]?.name}
-								</span>
-							</Tooltip>
-						{:else}
-							{$i18n.t('Hello, {{name}}', { name: $user?.name })}
-						{/if}
-					</div>
+					<!--					<div-->
+					<!--						class=" text-3xl @sm:text-3xl line-clamp-1 flex items-center"-->
+					<!--						in:fade={{ duration: 100 }}-->
+					<!--					>-->
+					<!--						{#if models[selectedModelIdx]?.name}-->
+					<!--							<Tooltip-->
+					<!--								content={models[selectedModelIdx]?.name}-->
+					<!--								placement="top"-->
+					<!--								className=" flex items-center "-->
+					<!--							>-->
+					<!--								<span class="line-clamp-1">-->
+					<!--									{models[selectedModelIdx]?.name}-->
+					<!--								</span>-->
+					<!--							</Tooltip>-->
+					<!--						{:else}-->
+					<!--							{$i18n.t('Hello, {{name}}', { name: $user?.name })}-->
+					<!--						{/if}-->
+					<!--					</div>-->
 				</div>
 
 				<div class="flex mt-1 mb-2">
@@ -165,24 +185,20 @@
 						{#if models[selectedModelIdx]?.info?.meta?.description ?? null}
 							<Tooltip
 								className=" w-fit"
-								content={DOMPurify.sanitize(
-									marked.parse(
-										sanitizeResponseContent(
-											models[selectedModelIdx]?.info?.meta?.description ?? ''
-										).replaceAll('\n', '<br>')
-									)
+								content={marked.parse(
+									sanitizeResponseContent(
+										models[selectedModelIdx]?.info?.meta?.description ?? ''
+									).replaceAll('\n', '<br>')
 								)}
 								placement="top"
 							>
 								<div
 									class="mt-0.5 px-2 text-sm font-normal text-gray-500 dark:text-gray-400 line-clamp-2 max-w-xl markdown"
 								>
-									{@html DOMPurify.sanitize(
-										marked.parse(
-											sanitizeResponseContent(
-												models[selectedModelIdx]?.info?.meta?.description ?? ''
-											).replaceAll('\n', '<br>')
-										)
+									{@html marked.parse(
+										sanitizeResponseContent(
+											models[selectedModelIdx]?.info?.meta?.description ?? ''
+										).replaceAll('\n', '<br>')
 									)}
 								</div>
 							</Tooltip>
@@ -223,14 +239,14 @@
 					bind:webSearchEnabled
 					bind:atSelectedModel
 					bind:showCommands
-					bind:dragged
-					{pendingOAuthTools}
 					{toolServers}
 					{stopResponse}
 					{createMessagePair}
 					placeholder={$i18n.t('How can I help you today?')}
 					{onChange}
-					{onUpload}
+					on:upload={(e) => {
+						dispatch('upload', e.detail);
+					}}
 					on:submit={(e) => {
 						dispatch('submit', e.detail);
 					}}
