@@ -159,7 +159,7 @@
 						</DropdownMenu.Item>
 					</Tooltip>
 
-					<Tooltip
+					<!-- <Tooltip
 						content={fileUploadCapableModels.length !== selectedModels.length
 							? $i18n.t('Model(s) do not support file upload')
 							: !fileUploadEnabled
@@ -188,7 +188,7 @@
 							<Camera />
 							<div class=" line-clamp-1">{$i18n.t('Capture')}</div>
 						</DropdownMenu.Item>
-					</Tooltip>
+					</Tooltip> -->
 
 					<Tooltip
 						content={fileUploadCapableModels.length !== selectedModels.length

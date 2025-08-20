@@ -15,7 +15,7 @@
 
 	// General
 	let themes = ['dark', 'light', 'oled-dark'];
-	let selectedTheme = 'system';
+	let selectedTheme = 'dark';
 
 	let languages: Awaited<ReturnType<typeof getLanguages>> = [];
 	let lang = $i18n.language;
@@ -108,7 +108,7 @@
 	};
 
 	onMount(async () => {
-		selectedTheme = localStorage.theme ?? 'system';
+		selectedTheme = localStorage.theme ?? 'dark';
 
 		languages = await getLanguages();
 
@@ -122,8 +122,8 @@
 	const applyTheme = (_theme: string) => {
 		let themeToApply = _theme === 'oled-dark' ? 'dark' : _theme === 'her' ? 'light' : _theme;
 
-		if (_theme === 'system') {
-			themeToApply = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		if (_theme === 'dark') {
+			themeToApply = 'dark';
 		}
 
 		if (themeToApply === 'dark' && !_theme.includes('oled')) {
@@ -147,12 +147,9 @@
 
 		const metaThemeColor = document.querySelector('meta[name="theme-color"]');
 		if (metaThemeColor) {
-			if (_theme.includes('system')) {
-				const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-					? 'dark'
-					: 'light';
-				console.log('Setting system meta theme color: ' + systemTheme);
-				metaThemeColor.setAttribute('content', systemTheme === 'light' ? '#ffffff' : '#171717');
+			if (_theme === 'dark') {
+				console.log('Setting dark meta theme color');
+				metaThemeColor.setAttribute('content', '#171717');
 			} else {
 				console.log('Setting meta theme color: ' + _theme);
 				metaThemeColor.setAttribute(

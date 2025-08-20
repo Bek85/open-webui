@@ -1602,7 +1602,7 @@
 												</Tooltip>
 											{/if}
 
-											{#if codeInterpreterEnabled}
+											<!-- {#if codeInterpreterEnabled}
 												<Tooltip content={$i18n.t('Code Interpreter')} placement="top">
 													<button
 														aria-label={codeInterpreterEnabled
@@ -1626,7 +1626,7 @@
 														</div>
 													</button>
 												</Tooltip>
-											{/if}
+											{/if} -->
 										</div>
 									</div>
 
