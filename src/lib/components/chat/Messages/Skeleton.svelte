@@ -2,29 +2,63 @@
 	export let size = 'md';
 </script>
 
-<span class="relative flex {size === 'md' ? 'size-3 my-2' : 'size-2 my-1'} mx-1">
-	<span
-		class="absolute inline-flex h-full w-full animate-pulse rounded-full bg-gray-700 dark:bg-gray-200 opacity-75"
-	></span>
-	<span
-		class="relative inline-flex {size === 'md'
-			? 'size-3'
-			: 'size-2'} rounded-full bg-black dark:bg-white animate-size"
-	></span>
-</span>
+<div class="flex items-center {size === 'md' ? 'my-2' : 'my-1'} mx-1">
+	<!-- Three dots animation -->
+	<div class="flex items-center space-x-1">
+		<div class="dot-1 w-2 h-2 bg-gray-600 dark:bg-gray-300 rounded-full"></div>
+		<div class="dot-2 w-2 h-2 bg-gray-600 dark:bg-gray-300 rounded-full"></div>
+		<div class="dot-3 w-2 h-2 bg-gray-600 dark:bg-gray-300 rounded-full"></div>
+	</div>
+</div>
 
 <style>
-	@keyframes size {
+	@keyframes dotPulse {
 		0%,
+		80%,
 		100% {
-			transform: scale(1);
+			transform: scale(0.8);
+			opacity: 0.5;
 		}
-		50% {
-			transform: scale(1.25);
+		40% {
+			transform: scale(1);
+			opacity: 1;
 		}
 	}
 
-	.animate-size {
-		animation: size 1.5s ease-in-out infinite;
+	.dot-1 {
+		animation: dotPulse 1.4s ease-in-out infinite;
+		animation-delay: 0s;
+	}
+
+	.dot-2 {
+		animation: dotPulse 1.4s ease-in-out infinite;
+		animation-delay: 0.2s;
+	}
+
+	.dot-3 {
+		animation: dotPulse 1.4s ease-in-out infinite;
+		animation-delay: 0.4s;
+	}
+
+	@keyframes thinkingDots {
+		0%,
+		20% {
+			color: transparent;
+		}
+		50% {
+			color: currentColor;
+		}
+		100% {
+			color: transparent;
+		}
+	}
+
+	.thinking-dots {
+		animation: thinkingDots 1.5s ease-in-out infinite;
+	}
+
+	.thinking-text {
+		display: flex;
+		align-items: center;
 	}
 </style>
