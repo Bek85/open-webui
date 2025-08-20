@@ -1647,9 +1647,9 @@
 										</InputMenu>
 
 										{#if $_user && (showToolsButton || (toggleFilters && toggleFilters.length > 0) || showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton)}
-											<div
+											<!-- <div
 												class="flex self-center w-[1px] h-4 mx-1.5 bg-gray-50 dark:bg-gray-800"
-											/>
+											/> -->
 
 											<div class="flex gap-1 items-center overflow-x-auto scrollbar-none flex-1">
 												{#if showToolsButton}
@@ -1754,7 +1754,7 @@
 													</Tooltip>
 												{/if}
 
-												{#if showCodeInterpreterButton}
+												<!-- {#if showCodeInterpreterButton}
 													<Tooltip content={$i18n.t('Execute code for analysis')} placement="top">
 														<button
 															aria-label={codeInterpreterEnabled
@@ -1778,7 +1778,7 @@
 															>
 														</button>
 													</Tooltip>
-												{/if}
+												{/if} -->
 											</div>
 										{/if}
 									</div>
