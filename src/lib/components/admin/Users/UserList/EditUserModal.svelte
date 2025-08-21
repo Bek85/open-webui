@@ -153,11 +153,10 @@
 								<div class="flex-1">
 									<input
 										class="w-full text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
-										type="email"
+										type="text"
 										bind:value={_user.email}
 										placeholder={$i18n.t('Enter Your Email')}
 										autocomplete="off"
-										required
 									/>
 								</div>
 							</div>
@@ -172,7 +171,6 @@
 										bind:value={_user.name}
 										placeholder={$i18n.t('Enter Your Name')}
 										autocomplete="off"
-										required
 									/>
 								</div>
 							</div>
