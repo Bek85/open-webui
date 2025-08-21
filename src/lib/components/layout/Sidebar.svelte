@@ -1185,6 +1185,7 @@
 					</div>
 				</div>
 
+				<hr class=" border-gray-50 dark:border-[#376175] p-0" />
 				{#if ($models ?? []).length > 0 && (($settings?.pinnedModels ?? []).length > 0 || $config?.default_pinned_models)}
 					<Folder
 						id="sidebar-models"
@@ -1296,6 +1297,7 @@
 						{/each}
 					</Folder>
 				{/if}
+				<hr class=" border-gray-50 dark:border-[#376175] p-0" />
 
 				{#if $config?.features?.enable_folders && ($user?.role === 'admin' || ($user?.permissions?.features?.folders ?? true))}
 					<Folder
