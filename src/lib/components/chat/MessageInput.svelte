@@ -1808,7 +1808,7 @@
 												</Tooltip>
 											{/if}
 
-											<!-- {#if codeInterpreterEnabled}
+											{#if codeInterpreterEnabled}
 												<Tooltip content={$i18n.t('Code Interpreter')} placement="top">
 													<button
 														aria-label={codeInterpreterEnabled
@@ -1832,52 +1832,61 @@
 														</div>
 													</button>
 												</Tooltip>
-											{/if} -->
+											{/if}
 										</div>
 									</div>
 
 									<div class="self-end flex space-x-1 mr-1 shrink-0">
 										{#if (!history?.currentId || history.messages[history.currentId]?.done == true) && ($_user?.role === 'admin' || ($_user?.permissions?.chat?.stt ?? true))}
 											<!-- {$i18n.t('Record voice')} -->
-											<Tooltip content={$i18n.t('Dictate')}>
-												<button
-													type="button"
-													id="model-valves-button"
-													class="bg-transparent hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-800 rounded-full size-8 flex justify-center items-center outline-hidden focus:outline-hidden"
-													on:click={() => {
-														selectedValvesType = 'function';
-														selectedValvesItemId = selectedModelIds[0]?.split('.')[0];
-														showValvesModal = true;
-													}}
-												>
-													<Knobs className="size-4" strokeWidth="1.5" />
-												</button>
-											</Tooltip>
-										</div>
-									{/if}
+											{#if $user?.role === 'admin'}
+												<Tooltip content={$i18n.t('Dictate')}>
+													<button
+														id="voice-input-button"
+														class=" text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition rounded-full p-1.5 mr-0.5 self-center"
+														type="button"
+														on:click={async () => {
+															try {
+																let stream = await navigator.mediaDevices
+																	.getUserMedia({ audio: true })
+																	.catch(function (err) {
+																		toast.error(
+																			$i18n.t(
+																				`Permission denied when accessing microphone: {{error}}`,
+																				{
+																					error: err
+																				}
+																			)
+																		);
+																		return null;
+																	});
 
-									<div class="ml-1 flex gap-1.5">
-										{#if (selectedToolIds ?? []).length > 0}
-											<Tooltip
-												content={$i18n.t('{{COUNT}} Available Tools', {
-													COUNT: (selectedToolIds ?? []).length
-												})}
-											>
-												<button
-													class="translate-y-[0.5px] px-1 flex gap-1 items-center text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg self-center transition"
-													aria-label="Available Tools"
-													type="button"
-													on:click={() => {
-														showTools = !showTools;
-													}}
-												>
-													<Wrench className="size-4" strokeWidth="1.75" />
-
-													<span class="text-sm">
-														{(selectedToolIds ?? []).length}
-													</span>
-												</button>
-											</Tooltip>
+																if (stream) {
+																	recording = true;
+																	const tracks = stream.getTracks();
+																	tracks.forEach((track) => track.stop());
+																}
+																stream = null;
+															} catch {
+																toast.error($i18n.t('Permission denied when accessing microphone'));
+															}
+														}}
+														aria-label="Voice Input"
+													>
+														<svg
+															xmlns="http://www.w3.org/2000/svg"
+															viewBox="0 0 20 20"
+															fill="currentColor"
+															class="w-5 h-5 translate-y-[0.5px]"
+														>
+															<path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
+															<path
+																d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"
+															/>
+														</svg>
+													</button>
+												</Tooltip>
+											{/if}
 										{/if}
 
 										{#each selectedFilterIds as filterId (filterId)}
@@ -2131,65 +2140,69 @@
 										{#if prompt === '' && files.length === 0 && ($_user?.role === 'admin' || ($_user?.permissions?.chat?.call ?? true))}
 											<div class=" flex items-center">
 												<!-- {$i18n.t('Call')} -->
-												<Tooltip content={$i18n.t('Voice mode')}>
-													<button
-														class=" bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full p-1.5 self-center"
-														type="button"
-														on:click={async () => {
-															if (selectedModels.length > 1) {
-																toast.error($i18n.t('Select only one model to call'));
+												{#if $user?.role === 'admin'}
+													<Tooltip content={$i18n.t('Voice mode')}>
+														<button
+															class=" bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full p-1.5 self-center"
+															type="button"
+															on:click={async () => {
+																if (selectedModels.length > 1) {
+																	toast.error($i18n.t('Select only one model to call'));
 
-																return;
-															}
-
-															if ($config.audio.stt.engine === 'web') {
-																toast.error(
-																	$i18n.t('Call feature is not supported when using Web STT engine')
-																);
-
-																return;
-															}
-															// check if user has access to getUserMedia
-															try {
-																let stream = await navigator.mediaDevices.getUserMedia({
-																	audio: true
-																});
-																// If the user grants the permission, proceed to show the call overlay
-
-																if (stream) {
-																	const tracks = stream.getTracks();
-																	tracks.forEach((track) => track.stop());
+																	return;
 																}
 
-																stream = null;
+																if ($config.audio.stt.engine === 'web') {
+																	toast.error(
+																		$i18n.t(
+																			'Call feature is not supported when using Web STT engine'
+																		)
+																	);
 
-																if ($settings.audio?.tts?.engine === 'browser-kokoro') {
-																	// If the user has not initialized the TTS worker, initialize it
-																	if (!$TTSWorker) {
-																		await TTSWorker.set(
-																			new KokoroWorker({
-																				dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
-																			})
-																		);
+																	return;
+																}
+																// check if user has access to getUserMedia
+																try {
+																	let stream = await navigator.mediaDevices.getUserMedia({
+																		audio: true
+																	});
+																	// If the user grants the permission, proceed to show the call overlay
 
-																		await $TTSWorker.init();
+																	if (stream) {
+																		const tracks = stream.getTracks();
+																		tracks.forEach((track) => track.stop());
 																	}
-																}
 
-																showCallOverlay.set(true);
-																showControls.set(true);
-															} catch (err) {
-																// If the user denies the permission or an error occurs, show an error message
-																toast.error(
-																	$i18n.t('Permission denied when accessing media devices')
-																);
-															}
-														}}
-														aria-label={$i18n.t('Voice mode')}
-													>
-														<Voice className="size-5" strokeWidth="2.5" />
-													</button>
-												</Tooltip>
+																	stream = null;
+
+																	if ($settings.audio?.tts?.engine === 'browser-kokoro') {
+																		// If the user has not initialized the TTS worker, initialize it
+																		if (!$TTSWorker) {
+																			await TTSWorker.set(
+																				new KokoroWorker({
+																					dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
+																				})
+																			);
+
+																			await $TTSWorker.init();
+																		}
+																	}
+
+																	showCallOverlay.set(true);
+																	showControls.set(true);
+																} catch (err) {
+																	// If the user denies the permission or an error occurs, show an error message
+																	toast.error(
+																		$i18n.t('Permission denied when accessing media devices')
+																	);
+																}
+															}}
+															aria-label={$i18n.t('Voice mode')}
+														>
+															<Voice className="size-5" strokeWidth="2.5" />
+														</button>
+													</Tooltip>
+												{/if}
 											</div>
 										{:else}
 											<div class=" flex items-center">

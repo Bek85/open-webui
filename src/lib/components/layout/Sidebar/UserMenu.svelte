@@ -125,134 +125,26 @@
 		<div
 			class="{className} rounded-2xl px-1 py-1 border border-gray-100 dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg text-sm"
 		>
-			{#if profile}
-				<div class=" flex gap-3.5 w-full p-2.5 items-center">
-					<div class=" items-center flex shrink-0">
-						<img
-							src={`${WEBUI_API_BASE_URL}/users/${$user?.id}/profile/image`}
-							class=" size-10 object-cover rounded-full"
-							alt="profile"
-						/>
+			{#if $user?.role === 'admin'}
+				<DropdownMenu.Item
+					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-[#4CC9F0] transition cursor-pointer"
+					on:click={async () => {
+						show = false;
+
+						await showSettings.set(true);
+
+						if ($mobile) {
+							await tick();
+							showSidebar.set(false);
+						}
+					}}
+				>
+					<div class=" self-center mr-3">
+						<Settings className="w-5 h-5" strokeWidth="1.5" />
 					</div>
-
-					<div class=" flex flex-col w-full flex-1">
-						<div class="font-medium line-clamp-1 pr-2">
-							{$user.name}
-						</div>
-
-						<div class=" flex items-center gap-2">
-							{#if $user?.is_active ?? true}
-								<div>
-									<span class="relative flex size-2">
-										<span class="relative inline-flex rounded-full size-2 bg-green-500" />
-									</span>
-								</div>
-
-								<span class="text-xs"> {$i18n.t('Active')} </span>
-							{:else}
-								<div>
-									<span class="relative flex size-2">
-										<span class="relative inline-flex rounded-full size-2 bg-gray-500" />
-									</span>
-								</div>
-
-								<span class="text-xs"> {$i18n.t('Away')} </span>
-							{/if}
-						</div>
-					</div>
-				</div>
-
-				{#if $user?.status_emoji || $user?.status_message}
-					<div class="mx-1">
-						<button
-							class="mb-1 w-full gap-2 px-2.5 py-1.5 rounded-xl bg-gray-50 dark:text-white dark:bg-gray-900/50 text-black transition text-xs flex items-center"
-							type="button"
-							on:click={() => {
-								show = false;
-								showUserStatusModal = true;
-							}}
-						>
-							{#if $user?.status_emoji}
-								<div class=" self-center shrink-0">
-									<Emoji className="size-4" shortCode={$user?.status_emoji} />
-								</div>
-							{/if}
-
-							<Tooltip
-								content={$user?.status_message}
-								className=" self-center line-clamp-2 flex-1 text-left"
-							>
-								{$user?.status_message}
-							</Tooltip>
-
-							<div class="self-start">
-								<Tooltip content={$i18n.t('Clear status')}>
-									<button
-										type="button"
-										on:click={async (e) => {
-											e.preventDefault();
-											e.stopPropagation();
-											e.stopImmediatePropagation();
-
-											const res = await updateUserStatus(localStorage.token, {
-												status_emoji: '',
-												status_message: ''
-											});
-
-											if (res) {
-												toast.success($i18n.t('Status cleared successfully'));
-												user.set(await getSessionUser(localStorage.token));
-											} else {
-												toast.error($i18n.t('Failed to clear status'));
-											}
-										}}
-									>
-										<XMark className="size-4 opacity-50" strokeWidth="2" />
-									</button>
-								</Tooltip>
-							</div>
-						</button>
-					</div>
-				{:else}
-					<div class="mx-1">
-						<button
-							class="mb-1 w-full px-3 py-1.5 gap-1 rounded-xl bg-gray-50 dark:text-white dark:bg-gray-900/50 text-black transition text-xs flex items-center justify-center"
-							type="button"
-							on:click={() => {
-								show = false;
-								showUserStatusModal = true;
-							}}
-						>
-							<div class=" self-center">
-								<FaceSmile className="size-4" strokeWidth="1.5" />
-							</div>
-							<div class=" self-center truncate">{$i18n.t('Update your status')}</div>
-						</button>
-					</div>
-				{/if}
-
-				<hr class=" border-gray-50/30 dark:border-gray-800/30 my-1.5 p-0" />
+					<div class=" self-center truncate">{$i18n.t('Settings')}</div>
+				</DropdownMenu.Item>
 			{/if}
-
-			<button
-				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer select-none"
-				type="button"
-				on:click={async () => {
-					show = false;
-
-					await showSettings.set(true);
-
-					if ($mobile) {
-						await tick();
-						showSidebar.set(false);
-					}
-				}}
-			>
-				<div class=" self-center mr-3">
-					<Settings className="w-5 h-5" strokeWidth="1.5" />
-				</div>
-				<div class=" self-center truncate">{$i18n.t('Settings')}</div>
-			</button>
 
 			{#if role === 'admin'}
 				<a
