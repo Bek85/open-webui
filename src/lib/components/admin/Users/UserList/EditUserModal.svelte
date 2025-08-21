@@ -126,7 +126,9 @@
 									{#if userGroups.length}
 										<div class="flex flex-wrap gap-1 my-0.5 -mx-1">
 											{#each userGroups as userGroup}
-												<span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#082556] text-xs">
+												<span
+													class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#082556] text-xs"
+												>
 													{userGroup.name}
 												</span>
 											{/each}
@@ -143,11 +145,10 @@
 								<div class="flex-1">
 									<input
 										class="w-full text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
-										type="email"
+										type="text"
 										bind:value={_user.email}
 										placeholder={$i18n.t('Enter Your Email')}
 										autocomplete="off"
-										required
 									/>
 								</div>
 							</div>
@@ -162,7 +163,6 @@
 										bind:value={_user.name}
 										placeholder={$i18n.t('Enter Your Name')}
 										autocomplete="off"
-										required
 									/>
 								</div>
 							</div>
