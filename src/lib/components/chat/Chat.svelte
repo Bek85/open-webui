@@ -1337,6 +1337,23 @@
 			$models.map((m) => m.id).includes(modelId) ? modelId : ''
 		);
 
+		const userSettings = await getUserSettings(localStorage.token);
+
+		if (userSettings) {
+			// Preserve pinned models if they exist in current settings
+			const currentSettings = $settings;
+			const newSettings = userSettings.ui;
+
+			if (currentSettings?.pinnedModels && currentSettings.pinnedModels.length > 0) {
+				newSettings.pinnedModels = currentSettings.pinnedModels;
+				newSettings.userHasCustomizedPinnedModels = currentSettings.userHasCustomizedPinnedModels;
+			}
+
+			settings.set(newSettings);
+		} else {
+			settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+		}
+
 		const chatInput = document.getElementById('chat-input');
 		setTimeout(() => chatInput?.focus(), 0);
 	};
@@ -1379,13 +1396,24 @@
 						? chatContent.history
 						: convertMessagesToHistory(chatContent.messages);
 
-				// Sanitize history: repair orphaned references from failed regenerations (#24424)
-				for (const message of Object.values(history.messages)) {
-					if (message.childrenIds) {
-						message.childrenIds = message.childrenIds.filter(
-							(childId) => history.messages[childId]
-						);
+				chatTitle.set(chatContent.title);
+
+				const userSettings = await getUserSettings(localStorage.token);
+
+				if (userSettings) {
+					// Preserve pinned models if they exist in current settings
+					const currentSettings = $settings;
+					const newSettings = userSettings.ui;
+
+					if (currentSettings?.pinnedModels && currentSettings.pinnedModels.length > 0) {
+						newSettings.pinnedModels = currentSettings.pinnedModels;
+						newSettings.userHasCustomizedPinnedModels =
+							currentSettings.userHasCustomizedPinnedModels;
 					}
+
+					await settings.set(newSettings);
+				} else {
+					await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 				}
 				if (history.currentId && !history.messages[history.currentId]) {
 					const messageIds = Object.keys(history.messages);

@@ -13,7 +13,7 @@
 	import { getTools } from '$lib/apis/tools';
 	import { getBanners } from '$lib/apis/configs';
 	import { getTerminalServers } from '$lib/apis/terminal';
-	import { getUserSettings } from '$lib/apis/users';
+	import { getUserSettings, updateUserSettings } from '$lib/apis/users';
 
 	import { WEBUI_VERSION, WEBUI_API_BASE_URL } from '$lib/constants';
 	import { compareVersion } from '$lib/utils';
@@ -56,6 +56,7 @@
 	let localDBChats = [];
 
 	let version;
+	let hasInitializedDefaultModels = false;
 
 	const clearChatInputStorage = () => {
 		const chatInputKeys = Object.keys(localStorage).filter((key) => key.startsWith('chat-input'));
@@ -118,6 +119,26 @@
 			)
 		);
 	};
+
+	// Set all models as pinned by default only on first load
+	if (
+		!hasInitializedDefaultModels &&
+		(!$settings?.pinnedModels || $settings.pinnedModels.length === 0) &&
+		!$settings?.userHasCustomizedPinnedModels
+	) {
+		const allModelIds = $models.map((model) => model.id);
+		const updatedSettings = {
+			...$settings,
+			pinnedModels: allModelIds,
+			userHasCustomizedPinnedModels: true
+		};
+		settings.set(updatedSettings);
+
+		// Also save to server immediately to prevent overwriting
+		await updateUserSettings(localStorage.token, { ui: updatedSettings });
+
+		hasInitializedDefaultModels = true;
+	}
 
 	const setToolServers = async () => {
 		let toolServersData = await getToolServersData($settings?.toolServers ?? []);
@@ -365,6 +386,29 @@
 
 		loaded = true;
 	});
+
+	// Only set default pinned models on initial load, not reactively
+	// This prevents auto-pinning when user intentionally unpins all models
+	$: if (
+		$models &&
+		$models.length > 0 &&
+		!hasInitializedDefaultModels &&
+		(!$settings?.pinnedModels || $settings.pinnedModels.length === 0) &&
+		!$settings?.userHasCustomizedPinnedModels // Add this flag to track user customization
+	) {
+		const allModelIds = $models.map((model) => model.id);
+		const updatedSettings = {
+			...$settings,
+			pinnedModels: allModelIds,
+			userHasCustomizedPinnedModels: true // Mark that we've set defaults
+		};
+		settings.set(updatedSettings);
+
+		// Also save to server immediately to prevent overwriting
+		updateUserSettings(localStorage.token, { ui: updatedSettings });
+
+		hasInitializedDefaultModels = true;
+	}
 
 	const checkForVersionUpdates = async () => {
 		version = await getVersionUpdates(localStorage.token).catch((error) => {
