@@ -159,36 +159,38 @@
 						</DropdownMenu.Item>
 					</Tooltip>
 
-					<!-- <Tooltip
-						content={fileUploadCapableModels.length !== selectedModels.length
-							? $i18n.t('Model(s) do not support file upload')
-							: !fileUploadEnabled
-								? $i18n.t('You do not have permission to upload files.')
-								: ''}
-						className="w-full"
-					>
-						<DropdownMenu.Item
-							class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50  rounded-xl {!fileUploadEnabled
-								? 'opacity-50'
-								: ''}"
-							on:click={() => {
-								if (fileUploadEnabled) {
-									if (!detectMobile()) {
-										screenCaptureHandler();
-									} else {
-										const cameraInputElement = document.getElementById('camera-input');
+					{#if $user?.role === 'admin'}
+						<Tooltip
+							content={fileUploadCapableModels.length !== selectedModels.length
+								? $i18n.t('Model(s) do not support file upload')
+								: !fileUploadEnabled
+									? $i18n.t('You do not have permission to upload files.')
+									: ''}
+							className="w-full"
+						>
+							<DropdownMenu.Item
+								class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50  rounded-xl {!fileUploadEnabled
+									? 'opacity-50'
+									: ''}"
+								on:click={() => {
+									if (fileUploadEnabled) {
+										if (!detectMobile()) {
+											screenCaptureHandler();
+										} else {
+											const cameraInputElement = document.getElementById('camera-input');
 
-										if (cameraInputElement) {
-											cameraInputElement.click();
+											if (cameraInputElement) {
+												cameraInputElement.click();
+											}
 										}
 									}
-								}
-							}}
-						>
-							<Camera />
-							<div class=" line-clamp-1">{$i18n.t('Capture')}</div>
-						</DropdownMenu.Item>
-					</Tooltip> -->
+								}}
+							>
+								<Camera />
+								<div class=" line-clamp-1">{$i18n.t('Capture')}</div>
+							</DropdownMenu.Item>
+						</Tooltip>
+					{/if}
 
 					<Tooltip
 						content={fileUploadCapableModels.length !== selectedModels.length
