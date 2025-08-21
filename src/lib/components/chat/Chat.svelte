@@ -893,7 +893,16 @@
 		const userSettings = await getUserSettings(localStorage.token);
 
 		if (userSettings) {
-			settings.set(userSettings.ui);
+			// Preserve pinned models if they exist in current settings
+			const currentSettings = $settings;
+			const newSettings = userSettings.ui;
+
+			if (currentSettings?.pinnedModels && currentSettings.pinnedModels.length > 0) {
+				newSettings.pinnedModels = currentSettings.pinnedModels;
+				newSettings.userHasCustomizedPinnedModels = currentSettings.userHasCustomizedPinnedModels;
+			}
+
+			settings.set(newSettings);
 		} else {
 			settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 		}
@@ -945,7 +954,17 @@
 				const userSettings = await getUserSettings(localStorage.token);
 
 				if (userSettings) {
-					await settings.set(userSettings.ui);
+					// Preserve pinned models if they exist in current settings
+					const currentSettings = $settings;
+					const newSettings = userSettings.ui;
+
+					if (currentSettings?.pinnedModels && currentSettings.pinnedModels.length > 0) {
+						newSettings.pinnedModels = currentSettings.pinnedModels;
+						newSettings.userHasCustomizedPinnedModels =
+							currentSettings.userHasCustomizedPinnedModels;
+					}
+
+					await settings.set(newSettings);
 				} else {
 					await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 				}

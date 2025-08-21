@@ -842,7 +842,13 @@
 
 			<div class="relative flex flex-col flex-1">
 				{#if ($models ?? []).length > 0 && ($settings?.pinnedModels ?? []).length > 0}
+					<div class="px-2 py-1 text-xs text-gray-500 dark:text-gray-500 font-medium">Models</div>
 					<PinnedModelList bind:selectedChatId {shiftKey} />
+				{:else if ($models ?? []).length > 0 && ($settings?.pinnedModels ?? []).length === 0}
+					<div class="px-2 py-1 text-xs text-gray-500 dark:text-gray-500 font-medium">Models</div>
+					<div class="px-2 py-2 text-xs text-gray-400 dark:text-gray-500 text-center">
+						No models pinned. Hold Shift and click the pin button on any model to pin it.
+					</div>
 				{/if}
 
 				{#if $config?.features?.enable_channels && ($user?.role === 'admin' || $channels.length > 0)}
