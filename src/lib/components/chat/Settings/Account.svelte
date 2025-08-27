@@ -358,7 +358,6 @@
 					</div>
 				</div>
 			{/if}
-		</div>
 
 		<hr class="border-gray-50 dark:border-gray-850 my-4" />
 
@@ -525,8 +524,8 @@
 									>
 										<Plus strokeWidth="2" className=" size-3.5" />
 
-										{$i18n.t('Create new secret key')}</button
-									>
+										{$i18n.t('Create new secret key')}
+									</button>
 								{/if}
 							</div>
 						</div>
