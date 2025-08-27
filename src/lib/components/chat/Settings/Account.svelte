@@ -414,8 +414,8 @@
 									>
 										<Plus strokeWidth="2" className=" size-3.5" />
 
-										{$i18n.t('Create new secret key')}</button
-									>
+										{$i18n.t('Create new secret key')}
+									</button>
 								{/if}
 							</div>
 						</div>
