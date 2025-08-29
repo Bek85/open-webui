@@ -7,15 +7,15 @@ import requests
 
 class Pipeline:
     class Valves(BaseModel):
-        LEX_UZ_RAG_URL: str = ""
+        PROSECUTOR_RAG_URL: str = ""
         pass
 
     def __init__(self):
-        # self.id = "openai_pipeline"
-        self.name = "LexUz"
+        # self.id = "prosecutor_pipeline"
+        self.name = "Prosecutor"
         self.valves = self.Valves(
             **{
-                "LEX_UZ_RAG_URL": os.getenv("LEX_UZ_RAG_URL", "http://host.docker.internal:4040/lex_uz/stream")
+                "PROSECUTOR_RAG_URL": os.getenv("PROSECUTOR_RAG_URL", "http://host.docker.internal:4040/prosecutor/stream")
             }
         )
         self.session = requests.Session()
@@ -41,7 +41,7 @@ class Pipeline:
         print(messages)
         print(user_message)
 
-        LEX_UZ_RAG_URL = self.valves.LEX_UZ_RAG_URL
+        PROSECUTOR_RAG_URL = self.valves.PROSECUTOR_RAG_URL
 
         headers = {}
         headers["Content-Type"] = "application/json"
@@ -59,7 +59,7 @@ class Pipeline:
 
         try:
             r = self.session.post(
-                url=LEX_UZ_RAG_URL,
+                url=PROSECUTOR_RAG_URL,
                 json=payload,
                 headers=headers,
                 stream=True,
