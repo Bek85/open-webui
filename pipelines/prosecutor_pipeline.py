@@ -1,5 +1,4 @@
 from typing import List, Union, Generator, Iterator
-from schemas import OpenAIChatMessage
 from pydantic import BaseModel
 import os
 import requests
