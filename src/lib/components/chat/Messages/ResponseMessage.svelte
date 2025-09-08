@@ -603,7 +603,7 @@
 
 {#key message.id}
 	<div
-		class=" flex w-full message-{message.id}"
+		class=" flex w-full message-{message.id} mb-4"
 		id="message-{message.id}"
 		dir={$settings.chatDirection}
 	>
@@ -620,7 +620,7 @@
 		<div class="flex-auto w-0 pl-1 relative bg-[#ffffff] rounded-2xl dark:bg-[#0b367e] px-5 py-2">
 			<Name>
 				<Tooltip content={model?.name ?? message.model} placement="top-start">
-					<span class="line-clamp-1 text-black dark:text-white px-5">
+					<span class="line-clamp-1 text-black dark:text-white px-4">
 						{model?.name ?? message.model}
 					</span>
 				</Tooltip>
@@ -800,7 +800,7 @@
 								</div>
 							</div>
 						{:else}
-							<div class="w-full flex flex-col px-5 relative" id="response-content-container">
+							<div class="w-full flex flex-col px-4 relative" id="response-content-container">
 								{#if message.content === '' && !message.error && (message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]).length === 0}
 									<Skeleton />
 								{:else if message.content && message.error !== true}
