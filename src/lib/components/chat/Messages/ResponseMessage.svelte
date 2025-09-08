@@ -653,7 +653,7 @@
 
 {#key message.id}
 	<div
-		class=" flex w-full message-{message.id}"
+		class=" flex w-full message-{message.id} mb-4"
 		id="message-{message.id}"
 		dir={$settings.chatDirection}
 		style="scroll-margin-top: 3rem;"
@@ -668,7 +668,7 @@
 		<div class="flex-auto w-0 pl-1 relative bg-[#ffffff] rounded-2xl dark:bg-[#0b367e] px-5 py-2">
 			<Name>
 				<Tooltip content={model?.name ?? message.model} placement="top-start">
-					<span id="response-message-model-name" class="line-clamp-1 text-black dark:text-white px-5">
+					<span class="line-clamp-1 text-black dark:text-white px-4">
 						{model?.name ?? message.model}
 					</span>
 				</Tooltip>
@@ -819,6 +819,71 @@
 										</button>
 									</div>
 								</div>
+							</div>
+						{:else}
+							<div class="w-full flex flex-col px-4 relative" id="response-content-container">
+								{#if message.content === '' && !message.error && ((model?.info?.meta?.capabilities?.status_updates ?? true) ? (message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]).length === 0 || (message?.statusHistory?.at(-1)?.hidden ?? false) : true)}
+									<Skeleton />
+								{:else if message.content && message.error !== true}
+									<!-- always show message contents even if there's an error -->
+									<!-- unless message.error === true which is legacy error handling, where the error message is stored in message.content -->
+									<ContentRenderer
+										id={`${chatId}-${message.id}`}
+										messageId={message.id}
+										{history}
+										{selectedModels}
+										content={message.content}
+										sources={message.sources}
+										floatingButtons={message?.done &&
+											!readOnly &&
+											($settings?.showFloatingActionButtons ?? true)}
+										save={!readOnly}
+										preview={!readOnly}
+										{editCodeBlock}
+										{topPadding}
+										done={($settings?.chatFadeStreamingText ?? true)
+											? (message?.done ?? false)
+											: true}
+										{model}
+										onTaskClick={async (e) => {
+											console.log(e);
+										}}
+										onSourceClick={async (id, idx) => {
+											console.log(id, idx);
+
+											if (citationsElement) {
+												citationsElement?.showSourceModal(idx - 1);
+											}
+										}}
+										onAddMessages={({ modelId, parentId, messages }) => {
+											addMessages({ modelId, parentId, messages });
+										}}
+										onSave={({ raw, oldContent, newContent }) => {
+											history.messages[message.id].content = history.messages[
+												message.id
+											].content.replace(raw, raw.replace(oldContent, newContent));
+
+											updateChat();
+										}}
+									/>
+								{/if}
+
+								{#if message?.error}
+									<Error content={message?.error?.content ?? message.content} />
+								{/if}
+
+								{#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
+									<Citations
+										bind:this={citationsElement}
+										id={message?.id}
+										sources={message?.sources ?? message?.citations}
+										{readOnly}
+									/>
+								{/if}
+
+								{#if message.code_executions}
+									<CodeExecutions codeExecutions={message.code_executions} />
+								{/if}
 							</div>
 						{/if}
 
