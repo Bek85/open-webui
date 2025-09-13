@@ -14,7 +14,7 @@ class Pipeline:
         self.name = "LexUz"
         self.valves = self.Valves(
             **{
-                "LEX_UZ_RAG_URL": os.getenv("LEX_UZ_RAG_URL", "http://host.docker.internal:4040/lex_uz/stream"),
+                "LEX_UZ_RAG_URL": os.getenv("LEX_UZ_RAG_URL", "http://host.docker.internal:4040/lex_uz/stream").strip(),
                 "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "600"))
             }
         )

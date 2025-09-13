@@ -14,7 +14,7 @@ class Pipeline:
         self.name = "Prosecutor"
         self.valves = self.Valves(
             **{
-                "PROSECUTOR_RAG_URL": os.getenv("PROSECUTOR_RAG_URL", "http://host.docker.internal:4040/prosecutor/stream"),
+                "PROSECUTOR_RAG_URL": os.getenv("PROSECUTOR_RAG_URL", "http://host.docker.internal:4040/prosecutor/stream").strip(),
                 "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "600"))
             }
         )
