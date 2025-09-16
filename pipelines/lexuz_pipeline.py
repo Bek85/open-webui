@@ -3,6 +3,9 @@ from pydantic import BaseModel
 import os
 import requests
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Pipeline:
@@ -14,34 +17,38 @@ class Pipeline:
         self.name = "LexUz"
         self.valves = self.Valves(
             **{
-                "LEX_UZ_RAG_URL": os.getenv("LEX_UZ_RAG_URL", "http://host.docker.internal:4040/lex_uz/stream").strip(),
-                "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "600"))
+                "LEX_UZ_RAG_URL": os.getenv(
+                    "LEX_UZ_RAG_URL",
+                    "http://host.docker.internal:4040/lex_uz/stream"
+                ).strip(),
+                "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "600")),
             }
         )
         self.session = requests.Session()
 
     async def on_startup(self):
-        # This function is called when the server is started.
+        # Called when the server starts
         print(f"on_startup:{__name__}")
 
     async def on_shutdown(self):
-        # This function is called when the server is stopped.
+        # Called when the server stops
         print(f"on_shutdown:{__name__}")
         self.session.close()
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
-        # This is where you can add your custom pipelines like RAG.
+        """
+        Custom pipeline logic: sends the request to the RAG service
+        and streams the response back to the client.
+        """
         print(f"pipe:{__name__}")
         print(messages)
         print(user_message)
 
         LEX_UZ_RAG_URL = self.valves.LEX_UZ_RAG_URL
 
-        headers = {
-            "Content-Type": "application/json"
-        }
+        headers = {"Content-Type": "application/json"}
 
         # Create a copy of body to avoid mutating the original
         payload = body.copy()
@@ -49,7 +56,7 @@ class Pipeline:
         # Remove unnecessary fields
         fields_to_remove = ["user", "chat_id", "title"]
         for field in fields_to_remove:
-            payload.pop(field, None)  # Use pop with default to avoid KeyError
+            payload.pop(field, None)
 
         try:
             r = self.session.post(
@@ -57,20 +64,33 @@ class Pipeline:
                 json=payload,
                 headers=headers,
                 stream=True,
-                timeout=self.valves.REQUEST_TIMEOUT
+                timeout=self.valves.REQUEST_TIMEOUT,
             )
 
             r.raise_for_status()
 
             # Generator to properly decode streaming text response
             def stream_response():
-                for chunk in r.iter_content(chunk_size=1024, decode_unicode=True):
-                    if chunk:
-                        # If chunk is bytes, decode it
-                        if isinstance(chunk, bytes):
-                            yield chunk.decode('utf-8', errors='ignore')
-                        else:
-                            yield chunk
+                try:
+                    for chunk in r.iter_content(
+                        chunk_size=1024, decode_unicode=True
+                    ):
+                        if chunk:
+                            if isinstance(chunk, bytes):
+                                yield chunk.decode("utf-8", errors="ignore")
+                            else:
+                                yield chunk
+                except requests.exceptions.ChunkedEncodingError:
+                    logger.error("Upstream response ended prematurely")
+                    yield "Error: Upstream response ended prematurely"
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Request failed during streaming: {e}")
+                    yield f"Error: Request failed during streaming - {str(e)}"
+                except Exception as e:
+                    logger.error(f"Unexpected error during streaming: {e}")
+                    yield f"Error: Unexpected error during streaming - {str(e)}"
+                finally:
+                    r.close()
 
             return stream_response()
 
