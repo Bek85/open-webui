@@ -117,26 +117,6 @@
 		);
 	};
 
-	// Set all models as pinned by default only on first load
-	if (
-		!hasInitializedDefaultModels &&
-		(!$settings?.pinnedModels || $settings.pinnedModels.length === 0) &&
-		!$settings?.userHasCustomizedPinnedModels
-	) {
-		const allModelIds = $models.map((model) => model.id);
-		const updatedSettings = {
-			...$settings,
-			pinnedModels: allModelIds,
-			userHasCustomizedPinnedModels: true
-		};
-		settings.set(updatedSettings);
-
-		// Also save to server immediately to prevent overwriting
-		await updateUserSettings(localStorage.token, { ui: updatedSettings });
-
-		hasInitializedDefaultModels = true;
-	}
-
 	const setToolServers = async () => {
 		let toolServersData = await getToolServersData($settings?.toolServers ?? []);
 		toolServersData = toolServersData.filter((data) => {
@@ -322,14 +302,14 @@
 		$models &&
 		$models.length > 0 &&
 		!hasInitializedDefaultModels &&
-		(!$settings?.pinnedModels || $settings.pinnedModels.length === 0) &&
-		!$settings?.userHasCustomizedPinnedModels // Add this flag to track user customization
+		$settings?.hasAutoInitializedPinnedModels !== true &&
+		(!$settings?.pinnedModels || $settings.pinnedModels.length === 0)
 	) {
 		const allModelIds = $models.map((model) => model.id);
 		const updatedSettings = {
 			...$settings,
 			pinnedModels: allModelIds,
-			userHasCustomizedPinnedModels: true // Mark that we've set defaults
+			hasAutoInitializedPinnedModels: true
 		};
 		settings.set(updatedSettings);
 
