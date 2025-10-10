@@ -282,7 +282,7 @@
 										type={file.type}
 										size={file?.size}
 										small={true}
-                    colorClassName="bg-white dark:bg-[#082556]
+										colorClassName="bg-white dark:bg-[#082556]"
 									/>
 								{/if}
 							</div>
