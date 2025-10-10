@@ -30,7 +30,7 @@ RUN git clone https://github.com/Bek85/open-webui /app \
 
 WORKDIR /app
 RUN npm ci --force
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 ######## WebUI backend ########
 FROM python:3.12-slim-bookworm AS base
