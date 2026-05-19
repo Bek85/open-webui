@@ -161,10 +161,11 @@
 									: ''}
 							className="w-full"
 						>
-							<DropdownMenu.Item
-								class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50  rounded-xl {!fileUploadEnabled
+							<button
+								class="flex w-full gap-2 items-center px-3 py-1.5 text-sm select-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl {!fileUploadEnabled
 									? 'opacity-50'
 									: ''}"
+								type="button"
 								on:click={() => {
 									if (fileUploadEnabled) {
 										if (!detectMobile()) {
@@ -176,12 +177,13 @@
 												cameraInputElement.click();
 											}
 										}
+										show = false;
 									}
 								}}
 							>
 								<Camera />
 								<div class=" line-clamp-1">{$i18n.t('Capture')}</div>
-							</DropdownMenu.Item>
+							</button>
 						</Tooltip>
 					{/if}
 

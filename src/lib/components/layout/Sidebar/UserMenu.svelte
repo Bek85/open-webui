@@ -126,8 +126,9 @@
 			class="{className} rounded-2xl px-1 py-1 border border-gray-100 dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg text-sm"
 		>
 			{#if $user?.role === 'admin'}
-				<DropdownMenu.Item
+				<button
 					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-[#4CC9F0] transition cursor-pointer"
+					type="button"
 					on:click={async () => {
 						show = false;
 
@@ -143,7 +144,7 @@
 						<Settings className="w-5 h-5" strokeWidth="1.5" />
 					</div>
 					<div class=" self-center truncate">{$i18n.t('Settings')}</div>
-				</DropdownMenu.Item>
+				</button>
 			{/if}
 
 			{#if role === 'admin'}
