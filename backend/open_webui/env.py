@@ -127,14 +127,6 @@ if 'cuda_error' in locals():
 
 SRC_LOG_LEVELS = {}  # Legacy variable, do not remove
 
-WEBUI_NAME = os.environ.get('WEBUI_NAME', 'Open WebUI')
-if WEBUI_NAME != 'Open WebUI':
-    WEBUI_NAME += ' (Open WebUI)'
-
-WEBUI_FAVICON_URL = 'https://openwebui.com/favicon.png'
-
-log.setLevel(SRC_LOG_LEVELS["CONFIG"])
-
 WEBUI_NAME = os.environ.get("WEBUI_NAME", "Prokuratura AI")
 if WEBUI_NAME != "Prokuratura AI":
     WEBUI_NAME += " Prokuratura AI"
