@@ -1852,6 +1852,7 @@
 												</Tooltip>
 											{/if}
 										</div>
+									{/if}
 									</div>
 
 									<div class="self-end flex space-x-1 mr-1 shrink-0">
@@ -2260,7 +2261,6 @@
 									{/if}
 								</div>
 							</div>
-						</div>
 
 						{#if $config?.license_metadata?.input_footer}
 							<div class=" text-xs text-gray-500 text-center line-clamp-1 marked">
