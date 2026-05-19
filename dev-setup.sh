@@ -31,7 +31,7 @@ npm ci --quiet 2>/dev/null || npm install --quiet
 # ── 4. Start backend ─────────────────────────────────────────────────────────
 log "Starting backend on port $BACKEND_PORT..."
 BACKEND_LOG="/tmp/open-webui-backend.log"
-CORS_ALLOW_ORIGIN="http://localhost:$FRONTEND_PORT;http://localhost:$BACKEND_PORT" \
+CORS_ALLOW_ORIGIN="*" \
     "$UV" run --directory "$REPO_DIR/backend" \
     uvicorn open_webui.main:app \
     --port "$BACKEND_PORT" --host 0.0.0.0 \
