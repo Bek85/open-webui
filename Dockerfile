@@ -10,8 +10,13 @@ ARG USE_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ARG USE_RERANKING_MODEL=""
 ARG USE_TIKTOKEN_ENCODING_NAME="cl100k_base"
 
-# Tag/commit/branch to checkout from the repo
-ARG BUILD_HASH=${BUILD_HASH:-main}
+# Commit to check out from the Bek85/open-webui fork.
+# Pinned to a `custom/main` SHA (NOT branch `main` — that mirrors pristine upstream
+# with zero Prokuratura customizations). Bump this after each fork sync-upstream.sh
+# run (custom/main is rebased, so its tip SHA changes every sync). Pinning a SHA
+# keeps builds reproducible and auto-invalidates the cached git-clone layer.
+# Ad-hoc test against the live branch tip: --build-arg BUILD_HASH=custom/main
+ARG BUILD_HASH=${BUILD_HASH:-323bdce88ba88759339be90f2e9905c9c6e2b073}
 
 # Override at your own risk - non-root configurations are untested
 ARG UID=0
