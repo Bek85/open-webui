@@ -665,7 +665,7 @@
 			/>
 		</div>
 
-		<div class="flex-auto w-0 pl-1 relative bg-[#ffffff] rounded-2xl dark:bg-[#0b367e] px-5 py-2">
+		<div class="flex-auto w-0 relative bg-[#ffffff] rounded-2xl dark:bg-[#0b367e] px-5 py-2">
 			<Name>
 				<Tooltip content={model?.name ?? message.model} placement="top-start">
 					<span class="line-clamp-1 text-black dark:text-white px-4">
