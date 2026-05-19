@@ -31,6 +31,9 @@ npm ci --quiet 2>/dev/null || npm install --quiet
 # ── 4. Start backend ─────────────────────────────────────────────────────────
 log "Starting backend on port $BACKEND_PORT..."
 BACKEND_LOG="/tmp/open-webui-backend.log"
+# Load local env vars (backend/.env is gitignored — create from production .env)
+ENV_FILE="$REPO_DIR/backend/.env"
+[ -f "$ENV_FILE" ] && set -a && source "$ENV_FILE" && set +a && log "Loaded $ENV_FILE"
 CORS_ALLOW_ORIGIN="*" \
     "$UV" run --directory "$REPO_DIR/backend" \
     uvicorn open_webui.main:app \
