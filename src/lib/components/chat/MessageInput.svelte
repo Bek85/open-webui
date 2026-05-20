@@ -2051,7 +2051,6 @@
 											</Tooltip>
 										{/each}
 									</div>
-								</div>
 
 								<div class="self-end flex space-x-1 mr-1 shrink-0 gap-[0.5px]">
 									{#if isActive && prompt === '' && files.length === 0}
