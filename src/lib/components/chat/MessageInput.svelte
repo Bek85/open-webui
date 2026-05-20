@@ -1607,7 +1607,7 @@
 							</div>
 
 							<div class=" flex justify-between items-end mt-0.5 mb-2.5 mx-0.5 max-w-full" dir="ltr">
-								<div class="ml-1 flex items-center flex-1 max-w-[80%]">
+								<div class="ml-1 flex items-end flex-1 max-w-[80%]">
 									<InputMenu
 										bind:files
 										selectedModels={atSelectedModel ? [atSelectedModel.id] : selectedModels}
