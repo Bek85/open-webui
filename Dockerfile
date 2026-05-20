@@ -16,7 +16,7 @@ ARG USE_TIKTOKEN_ENCODING_NAME="cl100k_base"
 # run (custom/main is rebased, so its tip SHA changes every sync). Pinning a SHA
 # keeps builds reproducible and auto-invalidates the cached git-clone layer.
 # Ad-hoc test against the live branch tip: --build-arg BUILD_HASH=custom/main
-ARG BUILD_HASH=${BUILD_HASH:-c10f78e5bf77a7624ae5f3a4fdab722dc80e6d18}
+ARG BUILD_HASH=${BUILD_HASH:-6d9eb28074d67ff3a395cee47044630f91f03771}
 
 # Override at your own risk - non-root configurations are untested
 ARG UID=0
