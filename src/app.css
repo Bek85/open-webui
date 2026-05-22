@@ -853,3 +853,19 @@ body {
 #note-content-container .ProseMirror {
 	padding-bottom: 2rem; /* space for the bottom toolbar */
 }
+
+@media (prefers-reduced-motion: reduce) {
+	.shimmer,
+	:global(.dark) .shimmer {
+		animation: none;
+		background: none;
+		-webkit-text-fill-color: inherit;
+		color: inherit;
+	}
+	.status-description {
+		animation: none;
+	}
+	.animate-breathing {
+		animation: none !important;
+	}
+}

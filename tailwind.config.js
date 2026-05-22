@@ -39,6 +39,15 @@ export default {
 			},
 			transitionProperty: {
 				width: 'width'
+			},
+			keyframes: {
+				breathing: {
+					'0%, 100%': { transform: 'scale(1)' },
+					'50%': { transform: 'scale(1.15)' }
+				}
+			},
+			animation: {
+				breathing: 'breathing 1.6s ease-in-out infinite'
 			}
 		}
 	},
