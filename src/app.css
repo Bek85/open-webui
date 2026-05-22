@@ -770,3 +770,19 @@ body {
 	position: relative;
 	z-index: 0;
 }
+
+@media (prefers-reduced-motion: reduce) {
+	.shimmer,
+	:global(.dark) .shimmer {
+		animation: none;
+		background: none;
+		-webkit-text-fill-color: inherit;
+		color: inherit;
+	}
+	.status-description {
+		animation: none;
+	}
+	.animate-breathing {
+		animation: none !important;
+	}
+}
