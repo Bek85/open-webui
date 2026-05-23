@@ -86,10 +86,10 @@
 						delay: Math.min(itemIdx, 6) * 40,
 						easing: cubicOut
 					}}
-					class="flex w-full items-center p-1 px-3 group/item justify-between text-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-850 rounded-lg font-normal! no-underline! mb-1 min-w-0"
+					class="flex w-full items-center p-1 px-3 group/item justify-between text-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 rounded-lg font-normal! no-underline! mb-1 min-w-0"
 				>
 					<div class="flex items-center gap-3 min-w-0 flex-1">
-						<div class="w-fit shrink-0">
+						<div class="shrink-0 dark:bg-white/95 dark:rounded-sm dark:p-px">
 							<img
 								src="https://www.google.com/s2/favicons?sz=32&domain={item.link}"
 								alt="{item?.title ?? item.link} favicon"
@@ -140,10 +140,10 @@
 						delay: Math.min(urlIdx, 6) * 40,
 						easing: cubicOut
 					}}
-					class="flex w-full items-center p-1 px-3 group/item justify-between text-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-850 rounded-lg no-underline mb-1 min-w-0"
+					class="flex w-full items-center p-1 px-3 group/item justify-between text-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 rounded-lg no-underline mb-1 min-w-0"
 				>
 					<div class="flex items-center gap-3 min-w-0 flex-1">
-						<div class="w-fit shrink-0">
+						<div class="shrink-0 dark:bg-white/95 dark:rounded-sm dark:p-px">
 							<img
 								src="https://www.google.com/s2/favicons?sz=32&domain={url}"
 								alt="{url} favicon"

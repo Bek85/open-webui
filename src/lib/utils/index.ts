@@ -95,8 +95,30 @@ export const sanitizeResponseContent = (content: string) => {
 
 export const processResponseContent = (content: string) => {
 	content = processChineseContent(content);
+	content = normalizeMalformedMarkdown(content);
 	return content.trim();
 };
+
+// Some upstream models emit `**Heading:****Item:**` with no whitespace, which causes the
+// markdown parser to leave a stray `*` open and render large blocks as italic. Also normalises
+// inline `*   ` list bullets that should be on their own line.
+function normalizeMalformedMarkdown(content: string): string {
+	// Strip OpenAI-style stream terminator if it leaked into the content.
+	content = content.replace(/\s*\[DONE\]\s*$/g, '');
+
+	// 1. Blank line after `**Heading:**` when next char isn't whitespace.
+	content = content.replace(/\*\*([^*\n]+?):\*\*(?=\S)/g, '**$1:**\n\n');
+
+	// 2. Each `*   bullet` on its own line if currently inline. Only literal spaces — never
+	// match `\n` after `*`, otherwise we'd break the closing `**` of a bold pair followed by
+	// the blank line inserted in step 1.
+	content = content.replace(/([^\n])\* {2,}/g, '$1\n*   ');
+
+	// 3. Adjacent reference links `](url)[` -> insert space + soft break.
+	content = content.replace(/\]\(([^)]+)\)\[/g, ']($1)\n[');
+
+	return content;
+}
 
 function isChineseChar(char: string): boolean {
 	return /\p{Script=Han}/u.test(char);
