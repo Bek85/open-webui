@@ -693,7 +693,7 @@
 				{/if}
 			</Name>
 
-			<div class="px-4 mt-1">
+			<div class="mt-1">
 				<div class="chat-{message.role} w-full min-w-full markdown-prose">
 					<div>
 						{#if model?.info?.meta?.capabilities?.status_updates ?? true}
