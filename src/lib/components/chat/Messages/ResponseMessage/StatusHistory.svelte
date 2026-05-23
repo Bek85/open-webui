@@ -29,8 +29,42 @@
 		status = history.at(-1);
 	}
 
+	function dedupeHistory(arr: any[] = []) {
+		// Pipelines re-emit the same step (e.g. done:false then done:true) carrying the same
+		// `started_at`. Without deduping, two entries share a key and Svelte's keyed `{#each}`
+		// crashes ("duplicate keys"). Keep only the latest emit per (action, started_at).
+		// Also drop content-less events (no action, no description, no payload) — those
+		// render as orphan dots with no text and look broken.
+		if (!arr || arr.length === 0) return [];
+		const seen = new Map<string, number>();
+		const result: any[] = [];
+		for (const item of arr) {
+			if (!item) continue;
+			const hasContent =
+				item.action ||
+				(item.description && String(item.description).trim() !== '') ||
+				item.query ||
+				(Array.isArray(item.items) && item.items.length > 0) ||
+				(Array.isArray(item.urls) && item.urls.length > 0) ||
+				item.count != null ||
+				(Array.isArray(item.queries) && item.queries.length > 0);
+			if (!hasContent) continue;
+			const key =
+				typeof item.started_at === 'number'
+					? `${item.action ?? ''}#${item.started_at}`
+					: null;
+			if (key !== null && seen.has(key)) {
+				result[seen.get(key) as number] = item;
+			} else {
+				if (key !== null) seen.set(key, result.length);
+				result.push(item);
+			}
+		}
+		return result;
+	}
+
 	$: if (JSON.stringify(statusHistory) !== JSON.stringify(history)) {
-		history = statusHistory;
+		history = dedupeHistory(statusHistory);
 	}
 
 	$: inFlightCount = (history ?? []).filter(
@@ -126,7 +160,7 @@
 				>
 					{#if history.length > 1 || showIdleThinking}
 						<div class="w-full">
-							{#each timelineItems as item, idx (item?.started_at ?? idx)}
+							{#each timelineItems as item, idx (typeof item?.started_at === 'number' ? `${item.action ?? ''}#${item.started_at}` : `idx#${idx}`)}
 								<div
 									class="flex items-stretch gap-2 mb-1"
 									in:fly={{ y: 6, duration: 220, easing: cubicOut }}
@@ -143,7 +177,7 @@
 										</div>
 
 										<div
-											class="w-[0.5px] ml-[6.5px] h-[calc(100%-14px)] bg-gray-300 dark:bg-gray-700"
+											class="w-px ml-[6px] h-[calc(100%-14px)] bg-gray-300 dark:bg-white/20"
 										/>
 									</div>
 
@@ -170,7 +204,7 @@
 											</span>
 										</div>
 										<div
-											class="w-[0.5px] ml-[6.5px] h-[calc(100%-14px)] bg-gray-300 dark:bg-gray-700"
+											class="w-px ml-[6px] h-[calc(100%-14px)] bg-gray-300 dark:bg-white/20"
 										/>
 									</div>
 									<StatusItem

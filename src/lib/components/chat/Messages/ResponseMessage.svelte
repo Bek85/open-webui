@@ -617,7 +617,7 @@
 			/>
 		</div>
 
-		<div class="flex-auto w-0 pl-1 relative bg-[#ffffff] rounded-2xl dark:bg-[#0b367e] px-5 py-2">
+		<div class="flex-auto w-0 pl-1 relative bg-[#ffffff] rounded-2xl dark:bg-[#0b367e] px-6 py-4">
 			<Name>
 				<Tooltip content={model?.name ?? message.model} placement="top-start">
 					<span class="line-clamp-1 text-black dark:text-white px-4">
@@ -645,7 +645,7 @@
 				{/if}
 			</Name>
 
-			<div>
+			<div class="px-4 mt-1">
 				<div class="chat-{message.role} w-full min-w-full markdown-prose">
 					<div>
 						{#if model?.info?.meta?.capabilities?.status_updates ?? true}
