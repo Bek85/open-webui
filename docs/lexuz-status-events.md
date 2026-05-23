@@ -80,6 +80,7 @@ A Qdrant query and its hit list. Renders as a collapsible card with query header
         "title":   "Ўзбекистон Республикасининг Жиноят кодекси",
         "link":    "https://lex.uz/docs/111453",
         "date":    "22.09.1994",
+        "article": "103-1",
         "snippet": "...optional chunk text, reserved for v2 (not displayed in v1)...",
         "score":   0.84
       }
@@ -93,7 +94,9 @@ A Qdrant query and its hit list. Renders as a collapsible card with query header
 
 - `items[].link` is REQUIRED. Used for favicon (Google s2 service), domain on the right, and click-through.
 - `items[].title` falls back to `link` when missing.
-- `items[].date` is prefixed to the title in the UI in gray (`DD.MM.YYYY. Title`).
+- `items[].article` (optional) — the article number alone, e.g., `"103-1"` or `"103.1"`. The UI renders it via i18n as `103-1-modda` (Uzbek) / `Art. 103-1` (English). Send the raw identifier WITHOUT the word `modda` / `Art.`. Do not send literal `"None"`, `"null"`, or empty strings — omit the field instead; the UI defensively drops those sentinels but new pipeline versions should not emit them.
+- `items[].document_type` (optional) — fallback shown when the document is not an article (resolution, decree, ruling, etc.). Send a short localized noun like `"Қарор"` / `"Qaror"`. Only used when `article` is missing.
+- `items[].date` (optional) — appears after the article/document-type in the same subtitle line (e.g., `103-1-modda · 22.09.1994`). Send any human-readable format; the UI does not parse it.
 - `items[].snippet` is reserved — store it now, the v2 UI will show it on row click without any pipeline change.
 - `count` should equal `items.length` (or be the total when paginated). Used in the "Retrieved N results" header.
 - For a single bare URL fetch, use `urls: ["https://lex.uz/docs/3515278"]` instead of `items`.

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
@@ -6,7 +7,17 @@
 	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 
-	type Item = { title?: string; link: string; date?: string; snippet?: string; score?: number };
+	const i18n: any = getContext('i18n');
+
+	type Item = {
+		title?: string;
+		link: string;
+		date?: string;
+		snippet?: string;
+		score?: number;
+		article?: string;
+		document_type?: string;
+	};
 	type Status = {
 		urls?: string[];
 		items?: Item[];
@@ -24,6 +35,34 @@
 		} catch {
 			return '';
 		}
+	}
+
+	// Normalised string check: trims, drops empty / literal "None" / "null" sentinels
+	// the pipeline sometimes emits for missing values.
+	function cleanField(value: unknown): string {
+		if (value === null || value === undefined) return '';
+		const str = String(value).trim();
+		if (!str) return '';
+		const lower = str.toLowerCase();
+		if (lower === 'none' || lower === 'null') return '';
+		return str;
+	}
+
+	// Build the subtitle line. Order: article (formatted via i18n as "{n}-modda" /
+	// "Art. {n}") OR document_type when there's no article, then date. Returns '' when
+	// nothing useful is available so the row stays single-line instead of showing "Art. None".
+	function subtitleFor(item: Item): string {
+		const parts: string[] = [];
+		const article = cleanField(item?.article);
+		const docType = cleanField(item?.document_type);
+		const date = cleanField(item?.date);
+		if (article) {
+			parts.push($i18n.t('{{article}}-modda', { article }));
+		} else if (docType) {
+			parts.push(docType);
+		}
+		if (date) parts.push(date);
+		return parts.join(' · ');
 	}
 </script>
 
@@ -56,7 +95,7 @@
 				</div>
 
 				<div
-					class=" ml-1 text-white dark:text-gray-900 group-hover/item:text-gray-600 dark:group-hover/item:text-white transition"
+					class=" ml-1 text-gray-400 dark:text-gray-300 group-hover/item:text-gray-700 dark:group-hover/item:text-white transition"
 				>
 					<!--  -->
 					<svg
@@ -97,9 +136,15 @@
 							/>
 						</div>
 
-						<div class="text-sm line-clamp-1 min-w-0">
-							{#if item?.date}<span class="text-gray-500 mr-1">{item.date}</span>{/if}{item?.title ??
-								item.link}
+						<div class="min-w-0 flex flex-col">
+							<div class="text-sm line-clamp-1">
+								{item?.title ?? item.link}
+							</div>
+							{#if subtitleFor(item)}
+								<div class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+									{subtitleFor(item)}
+								</div>
+							{/if}
 						</div>
 					</div>
 
@@ -111,7 +156,7 @@
 						</div>
 					{:else}
 						<div
-							class=" ml-1 text-white dark:text-gray-900 group-hover/item:text-gray-600 dark:group-hover/item:text-white transition"
+							class=" ml-1 text-gray-400 dark:text-gray-300 group-hover/item:text-gray-700 dark:group-hover/item:text-white transition"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -164,7 +209,7 @@
 						</div>
 					{:else}
 						<div
-							class=" ml-1 text-white dark:text-gray-900 group-hover/item:text-gray-600 dark:group-hover/item:text-white transition"
+							class=" ml-1 text-gray-400 dark:text-gray-300 group-hover/item:text-gray-700 dark:group-hover/item:text-white transition"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"

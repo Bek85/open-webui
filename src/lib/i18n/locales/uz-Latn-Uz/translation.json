@@ -27,6 +27,7 @@
 	"{{COUNT}}w_time_ago": "",
 	"{{COUNT}}y_time_ago": "",
 	"{{LOCALIZED_DATE}} at {{LOCALIZED_TIME}}": "",
+	"{{article}}-modda": "{{article}}-modda",
 	"{{model}} download has been canceled": "",
 	"{{modelName}} profile image": "",
 	"{{NAMES}} reacted with {{REACTION}}": "",
