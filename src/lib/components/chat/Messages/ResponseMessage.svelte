@@ -895,7 +895,7 @@
 				{#if !edit}
 					<div
 						bind:this={buttonsContainerElement}
-						class="flex justify-start overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5 px-5"
+						class="flex justify-start overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5 -ml-1.5"
 					>
 						{#if message.done || siblings.length > 1}
 							{#if siblings.length > 1}
