@@ -62,13 +62,6 @@ class Pipeline:
             r.raise_for_status()
 
             def gen():
-                # Open the timeline so any stale rendering is cleared.
-                yield {
-                    "event": {
-                        "type": "status",
-                        "data": {"description": "", "done": False},
-                    }
-                }
                 try:
                     yield from _parse_and_forward(r)
                 except requests.exceptions.ChunkedEncodingError:
@@ -81,13 +74,6 @@ class Pipeline:
                     logger.exception(f"Unexpected error during streaming: {e}")
                     yield f"Error: Unexpected error during streaming - {e}"
                 finally:
-                    # Close the timeline.
-                    yield {
-                        "event": {
-                            "type": "status",
-                            "data": {"description": "", "done": True},
-                        }
-                    }
                     r.close()
 
             return gen()
@@ -108,7 +94,7 @@ def _parse_and_forward(response):
       data: <line 1>
       data: <line 2>
 
-    For multi-line `data` fields the concatenated lines are joined with \\n,
+    For multi-line `data` fields the concatenated lines are joined with \n,
     per the SSE spec. We forward `event: message` (and bare frames) as content,
     and `event: status` as parsed-JSON events.
     """
@@ -158,6 +144,10 @@ def _emit_frame(event_name, data_str):
             logger.warning("status frame had invalid JSON; dropping: %r", data_str[:200])
             return
         yield {"event": {"type": "status", "data": payload}}
+        return
+
+    # Drop SSE terminator frames (OpenAI-style stream end marker).
+    if event_name == "done" or data_str.strip() == "[DONE]":
         return
 
     # Default branch: treat as content. Covers `event: message`, no event name,
