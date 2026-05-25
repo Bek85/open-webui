@@ -1,13 +1,22 @@
 from typing import List, Union, Generator, Iterator
 from pydantic import BaseModel
 import os
-import requests
+import json
 import logging
+import requests
 
 logger = logging.getLogger(__name__)
 
 
 class Pipeline:
+    """Prosecutor RAG pipe with structured research-timeline events.
+
+    Translates named SSE frames from the prosecutor backend (`event: message`,
+    `event: status`) into open-webui Pipelines events. See
+    docs/lexuz-status-events.md in the open-webui repo for the event contract
+    (shared with LexUz).
+    """
+
     class Valves(BaseModel):
         PROSECUTOR_RAG_URL: str = ""
         REQUEST_TIMEOUT: int = 600
@@ -18,7 +27,7 @@ class Pipeline:
             **{
                 "PROSECUTOR_RAG_URL": os.getenv(
                     "PROSECUTOR_RAG_URL",
-                    "http://host.docker.internal:4040/prosecutor/stream"
+                    "http://host.docker.internal:4040/prosecutor/stream",
                 ).strip(),
                 "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "600")),
             }
@@ -26,35 +35,20 @@ class Pipeline:
         self.session = requests.Session()
 
     async def on_startup(self):
-        # Called when the server is started.
         print(f"on_startup:{__name__}")
 
     async def on_shutdown(self):
-        # Called when the server is stopped.
         print(f"on_shutdown:{__name__}")
         self.session.close()
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
-        """
-        Custom pipeline logic: sends the request to the Prosecutor RAG service
-        and streams the response back to the client.
-        """
-        print(f"pipe:{__name__}")
-        print(messages)
-        print(user_message)
-
         PROSECUTOR_RAG_URL = self.valves.PROSECUTOR_RAG_URL
+        headers = {"Content-Type": "application/json", "Accept": "text/event-stream"}
 
-        headers = {"Content-Type": "application/json"}
-
-        # Create a copy of body to avoid mutating the original
         payload = body.copy()
-
-        # Remove unnecessary fields
-        fields_to_remove = ["user", "chat_id", "title"]
-        for field in fields_to_remove:
+        for field in ("user", "chat_id", "title"):
             payload.pop(field, None)
 
         try:
@@ -65,37 +59,91 @@ class Pipeline:
                 stream=True,
                 timeout=self.valves.REQUEST_TIMEOUT,
             )
-
             r.raise_for_status()
 
-            # Generator to properly decode streaming text response
-            def stream_response():
+            def gen():
                 try:
-                    for chunk in r.iter_content(
-                        chunk_size=1024, decode_unicode=True
-                    ):
-                        if chunk:
-                            if isinstance(chunk, bytes):
-                                yield chunk.decode("utf-8", errors="ignore")
-                            else:
-                                yield chunk
+                    yield from _parse_and_forward(r)
                 except requests.exceptions.ChunkedEncodingError:
-                    logger.error("Upstream response ended prematurely (Prosecutor RAG)")
+                    logger.error("Upstream response ended prematurely")
                     yield "Error: Upstream response ended prematurely"
                 except requests.exceptions.RequestException as e:
                     logger.error(f"Request failed during streaming: {e}")
-                    yield f"Error: Request failed during streaming - {str(e)}"
+                    yield f"Error: Request failed during streaming - {e}"
                 except Exception as e:
-                    logger.error(f"Unexpected error during streaming: {e}")
-                    yield f"Error: Unexpected error during streaming - {str(e)}"
+                    logger.exception(f"Unexpected error during streaming: {e}")
+                    yield f"Error: Unexpected error during streaming - {e}"
                 finally:
                     r.close()
 
-            return stream_response()
+            return gen()
 
         except requests.exceptions.Timeout:
-            return f"Error: Request timed out after {self.valves.REQUEST_TIMEOUT} seconds"
+            return f"Error: Request timed out after {self.valves.REQUEST_TIMEOUT}s"
         except requests.exceptions.RequestException as e:
-            return f"Error: Request failed - {str(e)}"
+            return f"Error: Request failed - {e}"
         except Exception as e:
-            return f"Error: Unexpected error - {str(e)}"
+            return f"Error: Unexpected error - {e}"
+
+
+def _parse_and_forward(response):
+    """Iterate an SSE response and yield content strings or event dicts.
+
+    SSE frames are delimited by blank lines. Each frame may contain:
+      event: <name>
+      data: <line 1>
+      data: <line 2>
+
+    For multi-line `data` fields the concatenated lines are joined with \n,
+    per the SSE spec. We forward `event: message` (and bare frames) as content,
+    and `event: status` as parsed-JSON events.
+    """
+    event_name = None
+    data_lines: List[str] = []
+
+    for raw_line in response.iter_lines(decode_unicode=True):
+        if raw_line is None:
+            continue
+        line = raw_line.rstrip("\r")
+
+        if line == "":
+            if data_lines or event_name:
+                yield from _emit_frame(event_name, "\n".join(data_lines))
+            event_name = None
+            data_lines = []
+            continue
+
+        if line.startswith(":"):
+            continue
+
+        if line.startswith("event:"):
+            event_name = line[len("event:"):].strip()
+        elif line.startswith("data:"):
+            chunk = line[len("data:"):]
+            if chunk.startswith(" "):
+                chunk = chunk[1:]
+            data_lines.append(chunk)
+
+    if data_lines or event_name:
+        yield from _emit_frame(event_name, "\n".join(data_lines))
+
+
+def _emit_frame(event_name, data_str):
+    """Yield the right shape based on event name."""
+    if event_name == "status":
+        try:
+            payload = json.loads(data_str)
+        except json.JSONDecodeError:
+            logger.warning("status frame had invalid JSON; dropping: %r", data_str[:200])
+            return
+        yield {"event": {"type": "status", "data": payload}}
+        return
+
+    # Drop SSE terminator frames (OpenAI-style stream end marker).
+    if event_name == "done" or data_str.strip() == "[DONE]":
+        return
+
+    # Default branch: treat as content. Covers `event: message`, no event name,
+    # and any unknown event we want to be forgiving about.
+    if data_str:
+        yield data_str
