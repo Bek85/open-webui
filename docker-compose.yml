@@ -1,0 +1,82 @@
+# openwebui — chat UI (open-webui, built from the upstream fork) + RAG pipelines.
+# Extracted from the ocr-server monorepo on 2026-06-18 (polyrepo decomposition).
+#
+# Networking: bridge model (ai_network + legacy ocr_default_network) until the
+# dedicated network/env cleanup pass. open-webui reaches docling + postgres
+# (the OCR_SERVER_DATABASE_URL direct-read debt) and nginx reaches open-webui:8080
+# over ocr_default_network; vllm is reached via the host (OPENAI_API_BASE_URL).
+name: openwebui
+
+networks:
+  ai_network:
+    external: true
+  ocr_default_network:
+    external: true
+
+volumes:
+  # Adopt the existing UI state volume (users, chats, settings). Do NOT recreate.
+  open_webui:
+    external: true
+    name: ocr-server_open_webui
+
+services:
+  open-webui:
+    container_name: open-webui
+    image: ocr-server/open-webui:latest   # existing built image; rename deferred (cosmetic)
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - open_webui:/app/backend/data
+    ports:
+      - "8080:8080"
+    env_file:
+      # INTERIM: monorepo .env until /ai/.env.shared exists (deferred cleanup pass).
+      - /home/user/ocr-server/.env
+    environment:
+      ENV: "prod"
+      WEBUI_NAME: "ai.prokuratura.uz"
+      ENABLE_OPENAI_API: true
+      ENABLE_OLLAMA_API: false
+      DEFAULT_LOCALE: "ru"
+      DEFAULT_PROMPT_SUGGESTIONS: null
+      ENABLE_WEB_LOADER_SSL_VERIFICATION: false
+      ENABLE_CODE_EXECUTION: false
+      ENABLE_CODE_INTERPRETER: false
+      ENABLE_DIRECT_CONNECTIONS: false
+      ENABLE_AUTOCOMPLETE_GENERATION: false
+      ENABLE_EVALUATION_ARENA_MODELS: false
+      ENABLE_MESSAGE_RATING: false
+      ENABLE_COMMUNITY_SHARING: false
+      # Uzbek TTS via speech-uzbek-tts (172.18.35.124:8000), OpenAI-compatible.
+      AUDIO_TTS_ENGINE: openai
+      AUDIO_TTS_OPENAI_API_BASE_URL: http://172.18.35.124:8000/v1
+      AUDIO_TTS_OPENAI_API_KEY: ${UZBEK_TTS_TOKEN}
+      AUDIO_TTS_MODEL: tts-1
+      AUDIO_TTS_VOICE: female
+    networks:
+      - ai_network
+      - ocr_default_network   # reach docling + postgres until they migrate
+    restart: unless-stopped
+
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:main
+    container_name: pipelines
+    restart: always
+    ports:
+      - "9099:9099"
+    volumes:
+      - ./pipelines:/app/pipelines
+    env_file:
+      - /home/user/ocr-server/.env
+    environment:
+      - LEX_UZ_RAG_URL=${LEX_UZ_RAG_URL}
+      - PROSECUTOR_RAG_URL=${PROSECUTOR_RAG_URL}
+      - MINIMUM_BUILD=true
+      - PIPELINES_REQUIREMENTS_PATH=/app/pipelines/requirements.txt
+      - PIPELINES_API_KEY=${PIPELINES_API_KEY}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - ai_network
+      - ocr_default_network
