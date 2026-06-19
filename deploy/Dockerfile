@@ -26,13 +26,18 @@ WORKDIR /app
 # Build from the local custom/main checkout (this Dockerfile lives in deploy/; the Docker
 # build context is the repo root). No git clone — the source you pushed IS the context.
 # Deps first, so `npm ci` stays cached across deploys unless package-lock.json changes.
+# Skip cypress's ~200MB test binary — it's a devDependency the production image never runs.
+ENV CYPRESS_INSTALL_BINARY=0
 COPY package.json package-lock.json ./
 RUN npm ci --force
 # Source + version stamp last, so `npm run build` re-runs only when they change.
 COPY . /app
 ARG BUILD_HASH
 ENV APP_BUILD_HASH=${BUILD_HASH}
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
+# `npm run build` = `pyodide:fetch && vite build`. Pyodide (Python-in-WASM) exists only for the
+# code-execution feature, which this deploy disables (ENABLE_CODE_EXECUTION/INTERPRETER=false),
+# so skip its large download and run vite build directly. Restore `npm run build` to re-enable.
+RUN NODE_OPTIONS="--max-old-space-size=4096" npx vite build
 
 ######## WebUI backend ########
 FROM python:3.12-slim-bookworm AS base
