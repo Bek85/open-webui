@@ -1,28 +1,21 @@
 # openwebui — chat UI (open-webui, built from the upstream fork) + RAG pipelines.
-# Extracted from the ocr-server monorepo on 2026-06-18 (polyrepo decomposition).
-#
-# Networking: bridge model (ai_network + legacy ocr_default_network) until the
-# dedicated network/env cleanup pass. open-webui reaches docling + postgres
-# (the OCR_SERVER_DATABASE_URL direct-read debt) and nginx reaches open-webui:8080
-# over ocr_default_network; vllm is reached via the host (OPENAI_API_BASE_URL).
+# Polyrepo unit on the shared ai_network. (Transition bridge retired 2026-06-19;
+# volume → openwebui_open_webui; env_file → ocr-service's real .env path.)
 name: openwebui
 
 networks:
   ai_network:
     external: true
-  ocr_default_network:
-    external: true
 
 volumes:
-  # Adopt the existing UI state volume (users, chats, settings). Do NOT recreate.
   open_webui:
     external: true
-    name: ocr-server_open_webui
+    name: openwebui_open_webui
 
 services:
   open-webui:
     container_name: open-webui
-    image: ocr-server/open-webui:latest   # existing built image; rename deferred (cosmetic)
+    image: openwebui/open-webui:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -31,8 +24,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      # INTERIM: monorepo .env until /ai/.env.shared exists (deferred cleanup pass).
-      - /home/user/ocr-server/.env
+      - .env
     environment:
       ENV: "prod"
       WEBUI_NAME: "ai.prokuratura.uz"
@@ -56,7 +48,6 @@ services:
       AUDIO_TTS_VOICE: female
     networks:
       - ai_network
-      - ocr_default_network   # reach docling + postgres until they migrate
     restart: unless-stopped
 
   pipelines:
@@ -68,7 +59,7 @@ services:
     volumes:
       - ./pipelines:/app/pipelines
     env_file:
-      - /home/user/ocr-server/.env
+      - .env
     environment:
       - LEX_UZ_RAG_URL=${LEX_UZ_RAG_URL}
       - PROSECUTOR_RAG_URL=${PROSECUTOR_RAG_URL}
@@ -79,4 +70,3 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - ai_network
-      - ocr_default_network
