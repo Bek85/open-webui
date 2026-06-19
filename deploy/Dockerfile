@@ -10,13 +10,11 @@ ARG USE_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ARG USE_RERANKING_MODEL=""
 ARG USE_TIKTOKEN_ENCODING_NAME="cl100k_base"
 
-# Commit to check out from the Bek85/open-webui fork.
-# Pinned to a `custom/main` SHA (NOT branch `main` — that mirrors pristine upstream
-# with zero Prokuratura customizations). Bump this after each fork sync-upstream.sh
-# run (custom/main is rebased, so its tip SHA changes every sync). Pinning a SHA
-# keeps builds reproducible and auto-invalidates the cached git-clone layer.
-# Ad-hoc test against the live branch tip: --build-arg BUILD_HASH=custom/main
-ARG BUILD_HASH=${BUILD_HASH:-1c80423f550944ec2ff85f080ee1518da193a2e5}
+# Version stamp shown in the UI footer (WEBUI_BUILD_VERSION). Injected at build time by
+# deploy/deploy.sh as the checkout's short SHA. No longer used to clone the source — this
+# Dockerfile now builds from the local custom/main checkout it lives in (see build stage
+# below). Ad-hoc override: --build-arg BUILD_HASH=<anything>.
+ARG BUILD_HASH=${BUILD_HASH:-custom}
 
 # Override at your own risk - non-root configurations are untested
 ARG UID=0
@@ -24,17 +22,16 @@ ARG GID=0
 
 ######## WebUI frontend ########
 FROM --platform=$BUILDPLATFORM node:22-alpine3.20 AS build
+WORKDIR /app
+# Build from the local custom/main checkout (this Dockerfile lives in deploy/; the Docker
+# build context is the repo root). No git clone — the source you pushed IS the context.
+# Deps first, so `npm ci` stays cached across deploys unless package-lock.json changes.
+COPY package.json package-lock.json ./
+RUN npm ci --force
+# Source + version stamp last, so `npm run build` re-runs only when they change.
+COPY . /app
 ARG BUILD_HASH
 ENV APP_BUILD_HASH=${BUILD_HASH}
-# install git and clone repo
-RUN apk add --no-cache git
-RUN git clone https://github.com/Bek85/open-webui /app \
-    && cd /app \
-    && git checkout ${BUILD_HASH}
-# install deps + build frontend
-
-WORKDIR /app
-RUN npm ci --force
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 ######## WebUI backend ########

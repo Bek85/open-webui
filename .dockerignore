@@ -18,3 +18,7 @@ uploads
 **/*.db
 _test
 backend/data/*
+
+# local-source build hygiene (build context is now the repo root)
+.git
+deploy

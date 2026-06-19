@@ -17,8 +17,10 @@ services:
     container_name: open-webui
     image: openwebui/open-webui:latest
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..                       # custom/main repo root = the open-webui source
+      dockerfile: deploy/Dockerfile
+      args:
+        BUILD_HASH: ${OWUI_VERSION:-dev} # set by deploy.sh to the checkout's short SHA
     volumes:
       - open_webui:/app/backend/data
     ports:
