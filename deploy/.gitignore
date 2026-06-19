@@ -1,0 +1,7 @@
+# Secrets — never commit
+.env
+.env.*
+
+# Python build cruft
+__pycache__/
+*.pyc
