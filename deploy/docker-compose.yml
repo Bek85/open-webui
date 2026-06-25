@@ -35,6 +35,11 @@ services:
       DEFAULT_LOCALE: "ru"
       DEFAULT_PROMPT_SUGGESTIONS: null
       ENABLE_WEB_LOADER_SSL_VERIFICATION: false
+      # Docling OCR for scanned Cyrillic/Uzbek PDFs. This fork's DoclingLoader
+      # only forwards DOCLING_PARAMS to docling-serve; the admin-panel OCR
+      # engine/lang fields are ignored. Lang codes must match the tesseract
+      # langpacks in docling.Dockerfile (rus, uzb, uzb_cyrl) — NOT "uzb_cyrlic".
+      DOCLING_PARAMS: '{"ocr_engine":"tesseract","ocr_lang":["rus","uzb_cyrl","uzb"]}'
       ENABLE_CODE_EXECUTION: false
       ENABLE_CODE_INTERPRETER: false
       ENABLE_DIRECT_CONNECTIONS: false
