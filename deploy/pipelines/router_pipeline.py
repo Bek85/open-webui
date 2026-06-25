@@ -25,7 +25,12 @@ prosecutor — agar so'rov quyidagilardan biriga tegishli:
   • Jinoyat protsessual huquqi amaliyoti
   • Prokurorning vakolatlari yoki mas'uliyati
 
-Faqat bitta so'z yoz: lexuz YOKI prosecutor"""
+general — agar so'rov yuqoridagilarning hech biriga tegishli bo'lmasa:
+  • Umumiy savollar, salomlashish, muloqot
+  • Texnik, ilmiy, madaniy va boshqa mavzular
+  • O'zbekiston huquqi yoki prokuratura bilan bog'liq bo'lmagan har qanday so'rov
+
+Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI general"""
 
 
 class Pipeline:
@@ -92,7 +97,12 @@ class Pipeline:
             )
             resp.raise_for_status()
             text = resp.json()["choices"][0]["message"]["content"].strip().lower()
-            route = "prosecutor" if "prosecutor" in text else "lexuz"
+            if "prosecutor" in text:
+                route = "prosecutor"
+            elif "general" in text:
+                route = "general"
+            else:
+                route = "lexuz"
             logger.info(f"Router: classified as {route!r} (model said: {text!r})")
             return route
         except Exception as e:
@@ -103,6 +113,10 @@ class Pipeline:
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         route = self._classify(user_message)
+
+        if route == "general":
+            return self._forward_to_model(messages, body)
+
         target_url = (
             self.valves.PROSECUTOR_URL if route == "prosecutor" else self.valves.LEX_UZ_URL
         )
@@ -124,7 +138,6 @@ class Pipeline:
             r.raise_for_status()
 
             def gen():
-                # Show routing decision in the research timeline
                 yield {
                     "event": {
                         "type": "status",
@@ -146,6 +159,60 @@ class Pipeline:
                 except Exception as e:
                     logger.exception(f"Unexpected error during streaming: {e}")
                     yield f"Error: Unexpected error during streaming - {e}"
+                finally:
+                    r.close()
+
+            return gen()
+
+        except requests.exceptions.Timeout:
+            return f"Error: Request timed out after {self.valves.REQUEST_TIMEOUT}s"
+        except requests.exceptions.RequestException as e:
+            return f"Error: Request failed - {e}"
+        except Exception as e:
+            return f"Error: Unexpected error - {e}"
+
+    def _forward_to_model(self, messages: List[dict], body: dict) -> Generator:
+        """Stream directly from the model endpoint for general (non-legal) queries."""
+        payload = {
+            "model": self.valves.CLASSIFIER_MODEL,
+            "messages": messages,
+            "stream": True,
+        }
+        for key in ("temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty"):
+            if key in body:
+                payload[key] = body[key]
+
+        try:
+            r = self.session.post(
+                url=f"{self.valves.CLASSIFIER_BASE_URL.rstrip('/')}/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.valves.CLASSIFIER_KEY}",
+                    "Accept": "text/event-stream",
+                },
+                json=payload,
+                stream=True,
+                timeout=self.valves.REQUEST_TIMEOUT,
+            )
+            r.raise_for_status()
+
+            def gen():
+                try:
+                    for raw_line in r.iter_lines(decode_unicode=True):
+                        if not raw_line or raw_line.startswith(":"):
+                            continue
+                        line = raw_line.rstrip("\r")
+                        if line.startswith("data:"):
+                            chunk = line[5:].lstrip(" ")
+                            if chunk == "[DONE]":
+                                break
+                            try:
+                                delta = json.loads(chunk)
+                                content = delta["choices"][0]["delta"].get("content")
+                                if content:
+                                    yield content
+                            except (json.JSONDecodeError, KeyError, IndexError):
+                                continue
                 finally:
                     r.close()
 
