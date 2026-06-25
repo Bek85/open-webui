@@ -7,15 +7,25 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-# Classifier prompt — deliberately brief so the model outputs one token
-CLASSIFY_SYSTEM = """You are a query router for a Uzbek legal AI system.
-Decide which specialist backend should handle the user query.
+# Classifier prompt in Uzbek — model handles Uzbek legal queries better than English labels
+CLASSIFY_SYSTEM = """Sen O'zbekiston huquqiy tizimi uchun so'rovlarni yo'naltiruvchi sistemasan.
 
-Reply with EXACTLY one word — no punctuation, no explanation:
-  lexuz      → general Uzbek legislation, laws, articles, normative acts, codex, regulatory questions
-  prosecutor → prosecution procedures, criminal cases, indictments, charges, prosecutor office duties, criminal investigations
+Foydalanuvchi so'rovini o'qi va qaysi backend qayta ishlashi kerakligini aniqlang:
 
-Reply: lexuz OR prosecutor"""
+lexuz — agar so'rov quyidagilardan biriga tegishli:
+  • O'zbekiston qonunchiligi, kodekslar, moddalar (JK, FuK, MK va boshqalar)
+  • Qonun va me'yoriy hujjatlarni qidirish yoki tushuntirish
+  • Lex.uz saytidagi hujjatlar
+  • Huquqiy normalar, qoidalar, nizomlar
+
+prosecutor — agar so'rov quyidagilardan biriga tegishli:
+  • Prokuratura faoliyati, vakolatlari, tarkibi
+  • Jinoyat ishlari, tergov, ayblov, jinoiy ta'qib
+  • Prokuraturaga shikoyat yoki ariza berish tartibi
+  • Jinoyat protsessual huquqi amaliyoti
+  • Prokurorning vakolatlari yoki mas'uliyati
+
+Faqat bitta so'z yoz: lexuz YOKI prosecutor"""
 
 
 class Pipeline:
