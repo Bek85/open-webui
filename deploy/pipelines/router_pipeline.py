@@ -7,28 +7,36 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-# Classifier prompt in Uzbek — model handles Uzbek legal queries better than English labels
+# Classifier prompt in Uzbek — model handles Uzbek legal queries better than English labels.
+# NOTE (2026-07-04): the `prosecutor` backend is an internal RAG over "Bosh prokuror buyruqlari"
+# (Prosecutor General's orders / internal prosecutor-office directives) — NOT a criminal-law
+# advice service. The old prompt described it as "jinoyat ishlari, tergov, ayblov", which mis-routed
+# citizen criminal questions (e.g. "moshinada odam urib kettim, nima bo'ladi?") there instead of
+# to lexuz. Prosecutor is now restricted to internal-directive lookups; all public legal/criminal
+# questions — even first-person — go to lexuz.
 CLASSIFY_SYSTEM = """Sen O'zbekiston huquqiy tizimi uchun so'rovlarni yo'naltiruvchi sistemasan.
 
-Foydalanuvchi so'rovini o'qi va qaysi backend qayta ishlashi kerakligini aniqlang:
+Foydalanuvchi so'rovini o'qi va qaysi backend qayta ishlashi kerakligini aniqla:
 
-lexuz — agar so'rov quyidagilardan biriga tegishli:
-  • O'zbekiston qonunchiligi, kodekslar, moddalar (JK, FuK, MK va boshqalar)
-  • Qonun va me'yoriy hujjatlarni qidirish yoki tushuntirish
+lexuz — O'zbekiston qonunchiligi bo'yicha har qanday huquqiy savol (fuqarolar uchun):
+  • Kodekslar, qonunlar, moddalar (JK, FK, MK, JPK, Mehnat kodeksi va boshqalar)
+  • Biror harakat, jinoyat yoki huquqbuzarlik uchun javobgarlik, jazo yoki oqibat —
+    HATTO so'rov birinchi shaxsda bo'lsa ham ("men ... qildim, endi nima bo'ladi?")
+  • Huquqiy normalar, qoidalar, nizomlarni qidirish yoki tushuntirish
+  • Fuqaroning huquqiy holati, huquq va majburiyatlari
   • Lex.uz saytidagi hujjatlar
-  • Huquqiy normalar, qoidalar, nizomlar
 
-prosecutor — agar so'rov quyidagilardan biriga tegishli:
-  • Prokuratura faoliyati, vakolatlari, tarkibi
-  • Jinoyat ishlari, tergov, ayblov, jinoiy ta'qib
-  • Prokuraturaga shikoyat yoki ariza berish tartibi
-  • Jinoyat protsessual huquqi amaliyoti
-  • Prokurorning vakolatlari yoki mas'uliyati
+prosecutor — FAQAT prokuraturaning ichki idoraviy hujjatlari:
+  • Bosh prokurorning buyruqlari, ko'rsatmalari, farmoyishlari
+  • Prokuratura ichki reglamentlari, tartib-qoidalari, direktivalari
+  • Prokuratura xodimlariga mo'ljallangan idoraviy hujjatlar
+  Eslatma: fuqaroning jinoyat, huquqbuzarlik yoki qonun mazmuni haqidagi savoli
+  BU YERGA EMAS — u lexuz ga tegishli.
 
-general — agar so'rov yuqoridagilarning hech biriga tegishli bo'lmasa:
+general — yuqoridagilarning hech biriga tegishli bo'lmasa:
   • Umumiy savollar, salomlashish, muloqot
   • Texnik, ilmiy, madaniy va boshqa mavzular
-  • O'zbekiston huquqi yoki prokuratura bilan bog'liq bo'lmagan har qanday so'rov
+  • Huquq yoki prokuratura bilan bog'liq bo'lmagan har qanday so'rov
 
 Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI general"""
 
