@@ -48,6 +48,13 @@ class Pipeline:
         headers = {"Content-Type": "application/json", "Accept": "text/event-stream"}
 
         payload = body.copy()
+        # OpenWebUI injects body["user"] = {id, name, email, role} for
+        # pipeline models (routers/openai.py). Forward the stable account id
+        # so mcp-server can rate-limit per user (scaling P04); the rest of the
+        # user object (email etc.) is still stripped below.
+        user_info = payload.get("user")
+        if isinstance(user_info, dict) and user_info.get("id"):
+            headers["X-User-Id"] = str(user_info["id"])[:128]
         for field in ("user", "chat_id", "title"):
             payload.pop(field, None)
 

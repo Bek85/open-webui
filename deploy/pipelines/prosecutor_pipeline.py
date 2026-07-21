@@ -48,6 +48,11 @@ class Pipeline:
         headers = {"Content-Type": "application/json", "Accept": "text/event-stream"}
 
         payload = body.copy()
+        # Forward the stable OpenWebUI account id for per-user rate limiting
+        # (scaling P04) — same contract as lexuz_pipeline.py.
+        user_info = payload.get("user")
+        if isinstance(user_info, dict) and user_info.get("id"):
+            headers["X-User-Id"] = str(user_info["id"])[:128]
         for field in ("user", "chat_id", "title"):
             payload.pop(field, None)
 
