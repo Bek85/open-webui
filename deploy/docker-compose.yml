@@ -45,7 +45,11 @@ services:
       ENABLE_DIRECT_CONNECTIONS: false
       ENABLE_AUTOCOMPLETE_GENERATION: false
       ENABLE_EVALUATION_ARENA_MODELS: false
-      ENABLE_MESSAGE_RATING: false
+      # Thumbs up/down on answers (parity P2): feeds Open WebUI's own feedback
+      # store, which scripts/pull_webui_feedback.py copies into qa_feedback for
+      # the admin dashboard. Arena models stay off — we rate answers, not
+      # model match-ups.
+      ENABLE_MESSAGE_RATING: true
       ENABLE_COMMUNITY_SHARING: false
       # Uzbek TTS via speech-uzbek-tts (172.18.35.124:8000), OpenAI-compatible.
       AUDIO_TTS_ENGINE: openai
@@ -73,6 +77,9 @@ services:
       - MINIMUM_BUILD=true
       - PIPELINES_REQUIREMENTS_PATH=/app/pipelines/requirements.txt
       - PIPELINES_API_KEY=${PIPELINES_API_KEY}
+      # Parity P1: shared HMAC secret for signed identity headers the pipes
+      # mint toward mcp-server (must equal MCP_AUTH_SECRET in legal-rag/.env).
+      - MCP_AUTH_SECRET=${MCP_AUTH_SECRET:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

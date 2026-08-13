@@ -1,11 +1,84 @@
 from typing import List, Union, Generator, Iterator
 from pydantic import BaseModel
+import hashlib
+import hmac
 import os
 import json
 import logging
+import time
 import requests
 
 logger = logging.getLogger(__name__)
+
+# Shown when mcp-server denies the prosecutor corpus (401/403) in enforce mode.
+ACCESS_DENIED_MESSAGE = (
+    "Kechirasiz, sizda prokuraturaning ichki idoraviy hujjatlariga kirish "
+    "huquqi yo'q. Umumiy huquqiy savollar bo'yicha yordam bera olaman — "
+    "savolingizni qonunchilik nuqtai nazaridan qayta yuboring."
+)
+
+
+def _sanitize(value) -> str:
+    """Strip and drop separator/control chars before signing (parity P1).
+
+    The canonical string is "|"-joined, so a field containing "|" would make
+    the encoding ambiguous and let a caller re-partition a valid signature
+    into a higher-privilege identity. mcp-server rejects such fields outright;
+    we remove them here so legitimate users with odd emails still work.
+    Mirror of sanitize_field() in legal-rag/llamaindex/auth_signing.py.
+    """
+    return "".join(
+        ch for ch in str(value or "").strip() if ch != "|" and ch.isprintable()
+    )
+
+
+def _chat_id(payload) -> str:
+    """Resolve the chat id, which OpenWebUI nests under `metadata`.
+
+    Newer OpenWebUI builds send {"metadata": {"chat_id": ..., "message_id": ...}}
+    rather than a top-level `chat_id`; the top-level lookup silently yielded ""
+    and broke the feedback->turn join (parity P2). Check both, metadata first.
+    """
+    meta = payload.get("metadata")
+    if isinstance(meta, dict) and meta.get("chat_id"):
+        return str(meta["chat_id"])
+    return str(payload.get("chat_id") or "")
+
+
+def _identity_headers(user_info, chat_id) -> dict:
+    """HMAC-signed identity headers (parity P1).
+
+    mcp-server verifies these with the shared MCP_AUTH_SECRET and gates the
+    prosecutor corpus on them. Canonical string MUST stay in sync with
+    legal-rag/llamaindex/auth_signing.py: "v1|id|email|role|chat|ts".
+    Self-contained copy in each pipeline file — this container can't import
+    the legal-rag repo.
+    """
+    headers = {}
+    if not (isinstance(user_info, dict) and user_info.get("id")):
+        return headers
+    uid = _sanitize(user_info["id"])[:128]
+    email = _sanitize(user_info.get("email"))[:128]
+    role = _sanitize(user_info.get("role"))[:64]
+    cid = _sanitize(chat_id)[:128]
+    if not uid:
+        return headers
+    headers["X-User-Id"] = uid
+    if email:
+        headers["X-User-Email"] = email
+    if role:
+        headers["X-User-Role"] = role
+    if cid:
+        headers["X-Chat-Id"] = cid
+    secret = os.getenv("MCP_AUTH_SECRET", "").strip()
+    if secret:
+        ts = str(int(time.time()))
+        msg = "|".join(("v1", uid, email, role, cid, ts))
+        headers["X-Auth-Ts"] = ts
+        headers["X-Auth-Sig"] = hmac.new(
+            secret.encode(), msg.encode(), hashlib.sha256
+        ).hexdigest()
+    return headers
 
 
 class Pipeline:
@@ -48,11 +121,9 @@ class Pipeline:
         headers = {"Content-Type": "application/json", "Accept": "text/event-stream"}
 
         payload = body.copy()
-        # Forward the stable OpenWebUI account id for per-user rate limiting
-        # (scaling P04) — same contract as lexuz_pipeline.py.
-        user_info = payload.get("user")
-        if isinstance(user_info, dict) and user_info.get("id"):
-            headers["X-User-Id"] = str(user_info["id"])[:128]
+        # Signed identity headers (parity P1): id for rate limiting (P04),
+        # email/role for prosecutor-corpus authz, chat_id for Q&A joins (P2).
+        headers.update(_identity_headers(payload.get("user"), _chat_id(payload)))
         for field in ("user", "chat_id", "title"):
             payload.pop(field, None)
 
@@ -85,6 +156,13 @@ class Pipeline:
 
         except requests.exceptions.Timeout:
             return f"Error: Request timed out after {self.valves.REQUEST_TIMEOUT}s"
+        except requests.exceptions.HTTPError as e:
+            # mcp-server enforce mode: unsigned (401) or unauthorized (403).
+            status = e.response.status_code if e.response is not None else 0
+            if status in (401, 403):
+                logger.info(f"Prosecutor pipe: access denied ({status})")
+                return ACCESS_DENIED_MESSAGE
+            return f"Error: Request failed - {e}"
         except requests.exceptions.RequestException as e:
             return f"Error: Request failed - {e}"
         except Exception as e:
