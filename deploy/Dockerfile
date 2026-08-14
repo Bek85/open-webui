@@ -34,6 +34,12 @@ RUN npm ci --force
 COPY . /app
 ARG BUILD_HASH
 ENV APP_BUILD_HASH=${BUILD_HASH}
+# Fail the build on identifiers that are used but never imported. `vite build` does NOT
+# resolve identifier scope, so those compile cleanly and only throw ReferenceError in the
+# browser — how the v0.11.0 merge shipped a UI that rendered no assistant output (1d091a0d0).
+# Deliberately narrow: svelte-check has ~8274 pre-existing upstream errors and eslint 8.57.1
+# crashes on this tree, so neither can gate the build. See the script header.
+RUN node scripts/check-missing-imports.mjs
 # `npm run build` = `pyodide:fetch && vite build`. Pyodide (Python-in-WASM) exists only for the
 # code-execution feature, which this deploy disables (ENABLE_CODE_EXECUTION/INTERPRETER=false),
 # so skip its large download and run vite build directly. Restore `npm run build` to re-enable.
