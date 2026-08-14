@@ -51,6 +51,12 @@ services:
       # model match-ups.
       ENABLE_MESSAGE_RATING: true
       ENABLE_COMMUNITY_SHARING: false
+      # Pinned JWT signing key (rotated 2026-08-14, killing the never-expiring
+      # tokens from the jwt_expiry=-1 era). Without this the image regenerates
+      # /app/backend/.webui_secret_key on EVERY recreate — container FS, not
+      # the volume — silently logging out all users on each deploy. Rotate by
+      # changing the value in .env + recreate; users just re-login.
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?set WEBUI_SECRET_KEY in deploy/.env}
       # Finite session lifetime. Persistent config: the live value sits in
       # webui.db (auth.jwt_expiry) and wins over this env after first boot —
       # change it in Admin Settings > General, not just here. Was -1 (tokens
