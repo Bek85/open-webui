@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
+	import dayjs from 'dayjs';
 
 	import { createEventDispatcher, onDestroy } from 'svelte';
 	import { onMount, tick, getContext } from 'svelte';
@@ -31,6 +32,7 @@
 		getMessageContentParts,
 		sanitizeResponseContent,
 		createMessagesList,
+		formatDate,
 		formatMessageTimestamp,
 		formatMessageTimestampFull,
 		removeDetails,
