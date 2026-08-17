@@ -739,7 +739,7 @@
 				id="folder-{folderId}-button"
 				class="relative w-full py-1 px-1.5 rounded-xl flex items-center gap-1.5 hover:bg-gray-50/40 dark:hover:bg-gray-800/40 transition {$selectedFolder?.id ===
 				folderId
-					? 'bg-gray-100/80 dark:bg-gray-850/50 selected'
+					? 'bg-gray-100/80 dark:bg-white/[0.045] selected'
 					: ''}"
 				on:dblclick={(e) => {
 					if (folders[folderId]?.shared && folders[folderId]?.permission !== 'write') return;
