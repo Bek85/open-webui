@@ -31,6 +31,7 @@
 <script>
 	import { onDestroy } from 'svelte';
 	import { replaceTokens, processResponseContent } from '$lib/utils';
+	import { neutralizeUnclosedStrong } from '$lib/utils/marked/streaming';
 	import { user } from '$lib/stores';
 
 	import MarkdownTokens from './Markdown/MarkdownTokens.svelte';
@@ -61,22 +62,29 @@
 	let tokens = [];
 	let pendingUpdate = null;
 	let lastContent = '';
+	let lastDone = true;
 	let lastParsedContent = '';
 
 	const parseTokens = () => {
-		if (content === lastContent) return;
+		if (content === lastContent && done === lastDone) return;
 		lastContent = content;
+		lastDone = done;
 
 		const processed = replaceTokens(processResponseContent(content), model?.name, $user?.name);
-		if (processed === lastParsedContent) return;
-		lastParsedContent = processed;
+		const renderContent = done ? processed : neutralizeUnclosedStrong(processed);
+		if (renderContent === lastParsedContent) return;
+		lastParsedContent = renderContent;
 
-		tokens = marked.lexer(processed);
+		tokens = marked.lexer(renderContent);
 	};
 
-	const updateHandler = (content) => {
-		if (content) {
-			if (done) {
+	/**
+	 * @param {string} nextContent
+	 * @param {boolean} isDone
+	 */
+	const updateHandler = (nextContent, isDone) => {
+		if (nextContent) {
+			if (isDone) {
 				cancelAnimationFrame(pendingUpdate);
 				pendingUpdate = null;
 				parseTokens();
@@ -89,7 +97,7 @@
 		}
 	};
 
-	$: updateHandler(content);
+	$: updateHandler(content, done);
 
 	// Throttle parsing to once per animation frame while streaming
 	onDestroy(() => {
