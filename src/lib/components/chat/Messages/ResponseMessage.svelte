@@ -697,7 +697,7 @@
 				</Name>
 			{/if}
 
-			<div>
+			<div class="clear-both pt-3">
 				<div class="chat-{message.role} w-full min-w-full">
 					<div>
 						{#if model?.info?.meta?.capabilities?.status_updates ?? true}
