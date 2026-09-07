@@ -2,8 +2,6 @@
 	import Fuse from 'fuse.js';
 	import Bolt from '$lib/components/icons/Bolt.svelte';
 	import { getContext } from 'svelte';
-	import { settings } from '$lib/stores';
-	import { WEBUI_VERSION } from '$lib/constants';
 
 	const i18n = getContext('i18n');
 
@@ -68,16 +66,6 @@
 	{#if filteredPrompts.length > 0}
 		<Bolt />
 		{$i18n.t('Suggested')}
-	{:else}
-		<!-- Keine Vorschläge -->
-
-		<div
-			class="flex w-full justify-end text-right {$settings?.landingPageMode === 'chat'
-				? '-mt-1'
-				: ''} self-start text-gray-600 dark:text-gray-400"
-		>
-			Prokuratura AI · v{WEBUI_VERSION}
-		</div>
 	{/if}
 </div>
 

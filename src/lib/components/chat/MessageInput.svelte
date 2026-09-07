@@ -1,5 +1,6 @@
 <script lang="ts">
 	import DOMPurify from 'dompurify';
+	import { WEBUI_VERSION } from '$lib/constants';
 	import { toast } from 'svelte-sonner';
 
 	import { marked } from 'marked';
@@ -2446,6 +2447,10 @@
 					{#if Object.values(history?.messages ?? {}).some((message) => message.role === 'user')}
 						<p class="px-2 pt-2 pb-2 text-left text-xs leading-5 text-gray-500 dark:text-gray-400">
 							{$i18n.t('AI can make mistakes. Please double-check responses.')}
+						</p>
+					{:else}
+						<p class="px-2 pt-2 pb-2 text-right text-xs leading-5 text-gray-500 dark:text-gray-400">
+							Prokuratura AI · v{WEBUI_VERSION}
 						</p>
 					{/if}
 				</div>
