@@ -3985,7 +3985,7 @@
 							{:else}
 								<div
 									id={embedded ? messageInputDropzoneId : undefined}
-									class=" pb-2 {dragged ? 'z-0' : 'z-10'}"
+									class="shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] {dragged ? 'z-0' : 'z-10'}"
 								>
 									<MessageInput
 										bind:this={messageInput}
@@ -4072,12 +4072,6 @@
 											}
 										}}
 									/>
-
-									<div
-										class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
-									>
-										<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
-									</div>
 								</div>
 							{/if}
 						{:else if embedded}

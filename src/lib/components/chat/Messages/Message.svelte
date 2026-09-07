@@ -55,7 +55,7 @@
 
 <div
 	role="listitem"
-	class="flex flex-col justify-between px-3.5 w-full {($settings?.widescreenMode ?? null)
+	class="flex flex-col justify-between px-2.5 w-full {($settings?.widescreenMode ?? null)
 		? 'max-w-full'
 		: 'max-w-[58rem]'} mx-auto rounded-lg group {isSafari ? '' : 'message-listitem'}"
 >
