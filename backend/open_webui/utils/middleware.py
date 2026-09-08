@@ -2600,6 +2600,14 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                     )
 
     tool_ids = form_data.pop('tool_ids', None)
+    # Model-required tools are a server-side contract for UI chats, not a
+    # dependency on the browser's cached tool selections. get_tools still
+    # checks every requested tool against the current user's access grants.
+    if metadata.get('session_id'):
+        required_tool_ids = model.get('info', {}).get('meta', {}).get('requiredToolIds') or []
+        if isinstance(required_tool_ids, list):
+            required_tool_ids = [tool_id for tool_id in required_tool_ids if isinstance(tool_id, str) and tool_id]
+            tool_ids = list(dict.fromkeys([*(tool_ids or []), *required_tool_ids])) or None
     terminal_id = form_data.pop('terminal_id', None)
     files = form_data.pop('files', None)
     form_data.pop('folder_id', None)

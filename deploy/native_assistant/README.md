@@ -14,10 +14,21 @@ opt-in native citation contract (`self.citation = True`, returned `citations`
 array) turns bibliography links into native source cards and numbered citation
 context. Search hits alone are not promoted to cited evidence.
 
-Document reading uses built-in `list_chat_files`, `view_file`, `grep_chat_files`
-and `query_chat_files`. `file_context=false` avoids automatic full-file RAG
-injection before every turn. Other built-in tool categories are disabled for
-this initial rollout, except time utilities. File generators are not installed.
+Public model/tool access uses `principal_type=user, principal_id=*`, meaning
+signed-in users. `anyone` means anonymous sharing and is stripped by these APIs.
+The main model's `requiredToolIds` are merged server-side for UI requests, with
+normal per-user access checks, so stale browser selections cannot omit research.
+API/task requests without a UI session do not receive hidden required tools.
+Display captions are localized independently of stable function identifiers.
+
+Document reading uses Open WebUI's automatic extracted/retrieved file context
+(`file_context=true`). This grounds the initial answer in document content even
+when the model does not choose a file-reading tool. A live smoke test caught
+that omission with optional native file tools, so automatic context is enabled.
+Legal services still receive only the focused question formulated by the legal
+tool, never the attachment-enriched message array. Whole-document coverage is
+not implied by retrieved excerpts. Other built-in tool categories are disabled
+for this initial rollout, except time utilities. File generators are not installed.
 
 ## Image limitation
 
@@ -65,7 +76,7 @@ only. No real chat is modified. Run the regression tests and canary probe:
 docker exec -w /tmp/native-assistant-20260908 open-webui \
   python -m unittest -v test_legal_research
 docker exec -e PYTHONPATH=/app/backend -w /tmp/native-assistant-20260908 open-webui \
-  python -m unittest -v test_tool_citations
+  python -m unittest -v test_tool_citations test_manage
 docker exec -e PYTHONPATH=/app/backend -w /app/backend open-webui \
   python /tmp/native-assistant-20260908/probe.py workflow
 ```
@@ -79,6 +90,9 @@ underlying image endpoint; it is expected to fail until vision is enabled.
 signed unprivileged identity. `probe.py prosecutor` tests authorized native
 research without printing the internal answer. The pre-activation selective
 rollback and restaging were also exercised successfully.
+`probe.py visibility` checks model/tool visibility through read-only API calls
+as a non-admin account. Chat smoke tests deliberately omit client `tool_ids` to
+exercise server-side required-tool binding.
 
 Build and recreate **only** `open-webui` with the standard compose deployment.
 This supplies the host-gateway alias needed for RAG and the provider

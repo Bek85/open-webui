@@ -16,6 +16,7 @@
 	import Image from './Image.svelte';
 	import FullHeightIframe from './FullHeightIframe.svelte';
 	import { settings } from '$lib/stores';
+	import { getToolDisplayName } from '$lib/utils/tool-names';
 
 	export let id: string = '';
 	export let attributes: {
@@ -95,6 +96,10 @@
 
 	$: parsedArgs = parseArguments(args);
 	$: parsedResult = parseJSONString(result);
+	$: displayName = getToolDisplayName(attributes.name, (key) => $i18n.t(key));
+	$: isLegalResearch = ['research_uzbek_law', 'research_prosecutor_orders'].includes(
+		attributes.name ?? ''
+	);
 </script>
 
 <div {id} class={className}>
@@ -102,7 +107,7 @@
 		<!-- Embed Mode: Show iframes without collapsible behavior -->
 		<div class="py-1 w-full cursor-pointer">
 			<div class="w-full text-xs text-gray-500">
-				{attributes.name}
+				{displayName}
 			</div>
 			{#each embeds as embed, idx}
 				<div class="my-2" id={`${componentId}-tool-call-embed-${idx}`}>
@@ -149,13 +154,13 @@
 				<!-- Label -->
 				<div class="flex-1 line-clamp-1">
 					<!-- Short label (below md) -->
-					<span class="@md:hidden text-black dark:text-white">{attributes.name}</span>
+					<span class="@md:hidden text-black dark:text-white">{displayName}</span>
 					<!-- Full label (md and above) -->
 					<span class="hidden @md:inline font-normal">
 						{#if isDone}
-							{$i18n.t('View Result from {{NAME}}', { NAME: attributes.name })}
+							{$i18n.t('View Result from {{NAME}}', { NAME: displayName })}
 						{:else}
-							{$i18n.t('Executing {{NAME}}...', { NAME: attributes.name })}
+							{$i18n.t('Executing {{NAME}}...', { NAME: displayName })}
 						{/if}
 					</span>
 				</div>
@@ -190,7 +195,7 @@
 									{#each Object.entries(parsedArgs) as [key, value]}
 										<div class="flex gap-2 text-xs py-0.5">
 											<span class="font-normal text-gray-600 dark:text-gray-400 shrink-0"
-												>{key}</span
+												>{isLegalResearch && key === 'query' ? $i18n.t('Legal research query') : key}</span
 											>
 											<span class="text-gray-800 dark:text-gray-200 break-all"
 												>{typeof value === 'object' ? JSON.stringify(value) : value}</span

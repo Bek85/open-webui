@@ -18,11 +18,11 @@ from manage import CANARY_ID, TOOL_ID, api, database
 from PIL import Image, ImageDraw
 
 
-def auth_headers():
+def auth_headers(user_id=None):
     from open_webui.utils.auth import create_token
 
     with database() as db:
-        uid = db.execute("SELECT user_id FROM model WHERE id='ProkuraturaAI'").fetchone()[0]
+        uid = user_id or db.execute("SELECT user_id FROM model WHERE id='ProkuraturaAI'").fetchone()[0]
     return {'Authorization': 'Bearer ' + create_token({'id': uid}, dt.timedelta(minutes=20))}
 
 
@@ -63,7 +63,8 @@ def chat(messages, model, files=None, label='chat', show_answer=True):
         'model': model,
         'messages': messages,
         'stream': True,
-        'tool_ids': [TOOL_ID],
+        # Deliberately omit tool_ids: the model's required tools must bind
+        # server-side even when browser selections are stale or empty.
         'params': {'function_calling': 'native', 'temperature': 0.1},
         'session_id': sid,
         'chat_id': 'temporary:' + sid,
@@ -310,10 +311,27 @@ def access_boundary():
     print('PASS: real prosecutor service rejects a signed unprivileged identity (403)', flush=True)
 
 
+def user_visibility():
+    # Read-only API visibility check. No messages, settings or files are
+    # accessed or changed on this account, and no token/identity is printed.
+    with database() as db:
+        row = db.execute("SELECT id FROM user WHERE role='user' LIMIT 1").fetchone()
+    assert row, 'A non-admin account is required for the visibility check'
+    headers = auth_headers(row[0])
+    for path, key, target in (('/api/v1/tools/', None, TOOL_ID), ('/api/models', 'data', 'router_pipeline')):
+        response = requests.get('http://127.0.0.1:8080' + path, headers=headers, timeout=20)
+        response.raise_for_status()
+        items = response.json()
+        if key:
+            items = items[key]
+        assert any(item['id'] == target for item in items), f'{target} is hidden from a non-admin user'
+    print('PASS: authenticated non-admin users can see the main model and legal tool', flush=True)
+
+
 if __name__ == '__main__':
     os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['capabilities', 'workflow', 'access', 'prosecutor'])
+    parser.add_argument('action', choices=['capabilities', 'workflow', 'access', 'prosecutor', 'visibility'])
     parser.add_argument('--model', default=CANARY_ID)
     args = parser.parse_args()
     if args.action == 'capabilities':
@@ -322,5 +340,7 @@ if __name__ == '__main__':
         access_boundary()
     elif args.action == 'prosecutor':
         prosecutor(args.model)
+    elif args.action == 'visibility':
+        user_visibility()
     else:
         workflow(args.model)

@@ -1,4 +1,6 @@
 {
+	"Prosecutor General’s orders": "Приказы Генерального прокурора",
+	"Legal research query": "Вопрос",
 	"-1 for no limit, or a positive integer for a specific limit": "-1 для отсутствия ограничений или положительное целое число для определенного ограничения.",
 	"(latest)": "(последняя)",
 	"(leave blank for to use commercial endpoint)": "(оставьте пустым поле для использования коммерческой конечной точки)",

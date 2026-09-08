@@ -1,4 +1,6 @@
 {
+	"Prosecutor General’s orders": "Бош прокурор буйруқлари",
+	"Legal research query": "Савол",
 	"(latest)": "(охирги)",
 	"(leave blank for to use commercial endpoint)": "(тижорий сўнгги нуқтадан фойдаланиш учун бўш қолдиринг)",
 	"*Prompt node ID(s) are required for image generation": "*Расм яратиш учун тезкор тугун идентификаторлари талаб қилинади",

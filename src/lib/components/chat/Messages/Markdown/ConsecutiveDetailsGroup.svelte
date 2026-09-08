@@ -13,6 +13,7 @@
 	import FullHeightIframe from '$lib/components/common/FullHeightIframe.svelte';
 
 	import { settings } from '$lib/stores';
+	import { getToolDisplayName } from '$lib/utils/tool-names';
 
 	const i18n = getContext('i18n');
 
@@ -64,7 +65,7 @@
 				if (Array.isArray(parsed) && parsed.length > 0) {
 					for (const embed of parsed) {
 						result.push({
-							name: t.attributes?.name ?? '',
+							name: getToolDisplayName(t.attributes?.name, (key) => $i18n.t(key)),
 							embed,
 							args: decode(t.attributes?.arguments ?? '')
 						});
@@ -84,7 +85,7 @@
 			tokens
 				.filter((t) => t?.attributes?.type === 'tool_calls')
 				.forEach((t) => {
-					const name = t?.attributes?.name ?? 'tool';
+					const name = getToolDisplayName(t?.attributes?.name ?? 'tool', (key) => $i18n.t(key));
 					nameCounts[name] = (nameCounts[name] || 0) + 1;
 				});
 

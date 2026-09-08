@@ -12,7 +12,9 @@ from urllib.request import Request, urlopen
 TOOL_ID = 'prokuratura_legal_research'
 CANARY_ID = 'prokuratura_native_canary'
 MAIN_ID = 'router_pipeline'
-PUBLIC_READ = [{'principal_type': 'anyone', 'principal_id': '*', 'permission': 'read'}]
+# 'user' + '*' means authenticated users. 'anyone' is an anonymous-sharing
+# grant, which these model/tool APIs deliberately strip even for admins.
+PUBLIC_READ = [{'principal_type': 'user', 'principal_id': '*', 'permission': 'read'}]
 ROOT = Path(__file__).resolve().parent
 
 
@@ -79,10 +81,11 @@ def native_model(mid, public=False):
         'meta': {
             'description': 'Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.',
             'toolIds': [TOOL_ID],
+            'requiredToolIds': [TOOL_ID],
             'capabilities': {
                 'vision': False,
                 'file_upload': True,
-                'file_context': False,
+                'file_context': True,
                 'builtin_tools': True,
                 'citations': True,
                 'status_updates': True,
@@ -168,8 +171,13 @@ def activate(destination):
     with (destination / 'applied-openai.json').open('x') as out:
         os.chmod(out.name, 0o600)
         json.dump(updated, out)
-    api('/api/v1/tools/id/' + TOOL_ID + '/update', tool_form(public=True))
-    api('/api/v1/models/create', native_model(MAIN_ID, public=True))
+    tool = api('/api/v1/tools/id/' + TOOL_ID + '/update', tool_form(public=True))
+    model = api('/api/v1/models/create', native_model(MAIN_ID, public=True))
+    for resource in (tool, model):
+        assert any(
+            grant['principal_type'] == 'user' and grant['principal_id'] == '*' and grant['permission'] == 'read'
+            for grant in resource['access_grants']
+        ), 'Authenticated-user grant was not retained by the API'
     api('/openai/config/update', updated)
     main = next(m for m in api('/api/models')['data'] if m['id'] == MAIN_ID)
     assert main.get('info', {}).get('base_model_id') == 'ProkuraturaAI', 'Native mapping not effective'
