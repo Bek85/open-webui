@@ -306,6 +306,10 @@ def get_citation_source_from_tool_result(
             pass  # keep tool_result as-is (e.g. fetch_url returns plain text)
         if isinstance(tool_result, dict) and 'error' in tool_result:
             return []
+        if isinstance(tool_result, dict) and 'citations' in tool_result:
+            from open_webui.utils.tool_citations import native_tool_sources
+
+            return native_tool_sources(tool_result)
 
         # Validate tool_result type based on what the branch expects
         if tool_name in _EXPECTS_LIST and not isinstance(tool_result, list):
@@ -5058,15 +5062,18 @@ async def streaming_chat_response_handler(response, ctx):
                         # Extract citation sources from tool results
                         if (
                             citations_enabled
-                            and tool_function_name
-                            in [
-                                'search_web',
-                                'fetch_url',
-                                'view_file',
-                                'view_knowledge_file',
-                                'query_knowledge_files',
-                                'query_chat_files',
-                            ]
+                            and (
+                                tool_function_name
+                                in [
+                                    'search_web',
+                                    'fetch_url',
+                                    'view_file',
+                                    'view_knowledge_file',
+                                    'query_knowledge_files',
+                                    'query_chat_files',
+                                ]
+                                or (tool or {}).get('metadata', {}).get('citation', False)
+                            )
                             and tool_result
                         ):
                             try:

@@ -25,6 +25,10 @@ services:
       - open_webui:/app/backend/data
     ports:
       - "8080:8080"
+    # Native legal tools run in WebUI, so they need the same host alias as
+    # the legacy pipelines when calling RAG_BASE_URL on port 4040.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     environment:

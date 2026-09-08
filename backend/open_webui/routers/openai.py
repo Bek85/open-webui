@@ -591,6 +591,13 @@ async def get_all_models_responses(request: Request, user: UserModel) -> list:
                 # Catch non-list responses
                 model_list = []
 
+            # Hide selected upstream IDs without losing dynamic discovery or
+            # pipeline metadata. A workspace preset can then reuse a legacy
+            # ID while pointing at a new backend, preserving existing chats.
+            excluded_ids = api_config.get('exclude_model_ids', [])
+            if isinstance(excluded_ids, list) and excluded_ids:
+                model_list[:] = [model for model in model_list if model.get('id') not in excluded_ids]
+
             for model in model_list:
                 # Remove name key if its value is None #16689
                 if 'name' in model and model['name'] is None:
