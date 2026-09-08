@@ -2212,6 +2212,8 @@
 	"Roles Claim": "",
 	"RTL": "",
 	"Run": "",
+	"Routing to LexUz pipeline…": "Sending your request to LexUz…",
+	"Routing to Prosecutor pipeline…": "Sending your request to Prosecutor…",
 	"Run AI on your own terms. Connect any model, extend with code, and protect what matters without compromise. Your models, your data, your machine, wherever you open it.": "Run AI on your own terms. Connect any model, extend with code, and protect what matters without compromise. Your models, your data, your machine, wherever you open it.",
 	"Run All": "",
 	"Run embedding tasks concurrently to speed up processing.": "",

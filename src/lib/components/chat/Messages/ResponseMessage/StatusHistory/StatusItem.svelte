@@ -15,6 +15,15 @@
 	export let status: any = null;
 	export let done: boolean = false;
 
+	// Translate known router notices, including those stored in existing chats.
+	// Other reasoning descriptions are model content and must stay verbatim.
+	$: reasoningDescription =
+		status?.description === 'Routing to LexUz pipeline…'
+			? $i18n.t('Routing to LexUz pipeline…')
+			: status?.description === 'Routing to Prosecutor pipeline…'
+				? $i18n.t('Routing to Prosecutor pipeline…')
+				: (status?.description ?? '');
+
 	$: isDone =
 		(done || status?.done) === true ||
 		typeof status?.ended_at === 'number';
@@ -131,7 +140,7 @@
 						? 'shimmer'
 						: ''} text-sm text-gray-700 dark:text-gray-300 leading-relaxed flex-1 min-w-0 markdown-prose-sm"
 				>
-					<Markdown id={`reasoning-${status?.started_at ?? ''}`} content={status?.description ?? ''} done={isDone} />
+					<Markdown id={`reasoning-${status?.started_at ?? ''}`} content={reasoningDescription} done={isDone} />
 				</div>
 				{#if showDuration}
 					<div class="ml-2 mt-1 shrink-0 text-xs text-gray-500 tabular-nums">

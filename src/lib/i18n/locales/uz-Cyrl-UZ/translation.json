@@ -2231,6 +2231,8 @@
 	"Roles Claim": "Роллар claim'и",
 	"RTL": "RTL",
 	"Run": "Ишга тушириш",
+	"Routing to LexUz pipeline…": "Сўров LexUz’га юборилмоқда…",
+	"Routing to Prosecutor pipeline…": "Сўров Prosecutor’га юборилмоқда…",
 	"Run AI on your own terms. Connect any model, extend with code, and protect what matters without compromise. Your models, your data, your machine, wherever you open it.": "Сунъий интеллектни ўз шартларингиз асосида ишлатинг. Исталган моделни уланг, код билан кенгайтиринг ва муҳим нарсаларни муросасиз ҳимоя қилинг. Сизнинг моделларингиз, сизнинг маълумотларингиз, сизнинг машинангиз — қаерда очмайлик.",
 	"Run All": "Барчасини ишга тушириш",
 	"Run embedding tasks concurrently to speed up processing.": "Қайта ишлашни тезлаштириш учун эмбеддинг вазифаларини параллел бажариш.",
