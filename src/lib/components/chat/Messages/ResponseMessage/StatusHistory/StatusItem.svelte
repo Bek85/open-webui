@@ -147,7 +147,7 @@
 				<div
 					class="{labelShimmer
 						? 'shimmer'
-						: ''} text-sm text-gray-700 dark:text-gray-300 leading-relaxed flex-1 min-w-0 markdown-prose-sm"
+						: ''} text-sm text-gray-700 dark:text-gray-300 leading-relaxed flex-1 min-w-0 markdown-prose-sm max-w-none"
 				>
 					<Markdown id={`reasoning-${status?.started_at ?? ''}`} content={reasoningDescription} done={isDone} />
 				</div>

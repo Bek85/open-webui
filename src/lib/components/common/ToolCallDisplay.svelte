@@ -118,12 +118,6 @@
 			}
 		: null;
 	let showGeneratedPreview = false;
-	let generatedFileOpened = false;
-	$: if (!generatedFile) generatedFileOpened = false;
-	$: if (generatedFile && isDone && !generatedFileOpened) {
-		open = true;
-		generatedFileOpened = true;
-	}
 	$: hasError = isDone && toolResultFailed(result);
 	$: displayName = getToolDisplayName(attributes.name, (key) => $i18n.t(key));
 	$: isLegalResearch = ['research_uzbek_law', 'research_prosecutor_orders'].includes(
@@ -249,8 +243,8 @@
 						</div>
 					{/if}
 
-					<!-- Output -->
-					{#if isDone && result}
+					<!-- Output (a generated file is shown as a card below the details instead) -->
+					{#if isDone && result && !generatedFile}
 						<div>
 							<div
 								class="text-[10px] uppercase tracking-wider font-normal text-gray-400 dark:text-gray-500 mb-1.5 px-1"
@@ -267,38 +261,12 @@
 										<pre class="mt-2 whitespace-pre-wrap break-words">{formatJSONString(result)}</pre>
 									</details>
 								{:else if typeof parsedResult === 'object' && parsedResult !== null}
-									{#if generatedFile}
-										<div class="flex items-center justify-between gap-3 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
-											<div class="min-w-0">
-												<div class="truncate text-sm text-gray-800 dark:text-gray-200">{generatedFile.filename}</div>
-												<div class="text-xs text-gray-500">{generatedFile.content_type}</div>
-											</div>
-											<div class="flex shrink-0 items-center gap-2">
-												<button
-													class="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
-													on:click|stopPropagation={() => (showGeneratedPreview = true)}
-												>
-													{$i18n.t('Preview')}
-												</button>
-												<a
-													class="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
-													href={generatedFile.url}
-													download={generatedFile.filename}
-													on:click|stopPropagation
-												>
-													<Download className="size-3.5" />
-													{$i18n.t('Download')}
-												</a>
-											</div>
-										</div>
-									{:else}
-										<pre
-											class="text-xs text-gray-600 dark:text-gray-300 whitespace-pre font-mono bg-gray-50 dark:bg-gray-900 rounded-lg p-2 overflow-x-auto">{JSON.stringify(
-												parsedResult,
-												null,
-												2
-											)}</pre>
-									{/if}
+									<pre
+										class="text-xs text-gray-600 dark:text-gray-300 whitespace-pre font-mono bg-gray-50 dark:bg-gray-900 rounded-lg p-2 overflow-x-auto">{JSON.stringify(
+											parsedResult,
+											null,
+											2
+										)}</pre>
 								{:else}
 									{@const resultStr = String(parsedResult)}
 									{@const isTruncated = resultStr.length > RESULT_PREVIEW_LIMIT && !expandedResult}
@@ -322,6 +290,33 @@
 							</div>
 						</div>
 					{/if}
+				</div>
+			</div>
+		{/if}
+
+		<!-- Generated file: always visible once done, independent of the details block -->
+		{#if isDone && generatedFile}
+			<div class="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50 dark:border-gray-850/50 dark:bg-gray-900 p-3 my-1.5">
+				<div class="min-w-0">
+					<div class="truncate text-sm text-gray-800 dark:text-gray-200">{generatedFile.filename}</div>
+					<div class="text-xs text-gray-500">{generatedFile.content_type}</div>
+				</div>
+				<div class="flex shrink-0 items-center gap-2">
+					<button
+						class="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+						on:click|stopPropagation={() => (showGeneratedPreview = true)}
+					>
+						{$i18n.t('Preview')}
+					</button>
+					<a
+						class="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+						href={generatedFile.url}
+						download={generatedFile.filename}
+						on:click|stopPropagation
+					>
+						<Download className="size-3.5" />
+						{$i18n.t('Download')}
+					</a>
 				</div>
 			</div>
 		{/if}

@@ -232,6 +232,7 @@ from open_webui.utils.chat_variables import (
 from open_webui.utils.embeddings import generate_embeddings
 from open_webui.utils.json_response import apply_orjson_http_json
 from open_webui.utils.logger import start_logger
+from open_webui.utils.legal_fast_path import start_legal_fast_path
 from open_webui.utils.middleware import (
     background_tasks_handler,
     build_chat_response_context,
@@ -1550,7 +1551,13 @@ async def chat_completion(
         try:
             form_data, metadata, events = await process_chat_payload(request, form_data, user, metadata, model)
 
-            response = await chat_completion_handler(request, form_data, user)
+            response = None
+            fast_path_plan = metadata.pop('legal_fast_path', None)
+            if fast_path_plan:
+                # Stream the legal specialist as the answer; None falls back to the model.
+                response = await start_legal_fast_path(form_data, user, metadata, fast_path_plan)
+            if response is None:
+                response = await chat_completion_handler(request, form_data, user)
 
             # When the upstream provider returns an error (e.g. HTTP 400
             # content-filter, quota exceeded), generate_chat_completion
@@ -1567,7 +1574,13 @@ async def chat_completion(
                     detail = f'Provider returned HTTP {response.status_code}'
                 raise Exception(detail)
 
-            ctx = await build_chat_response_context(request, form_data, user, model, metadata, tasks, events)
+            try:
+                ctx = await build_chat_response_context(request, form_data, user, model, metadata, tasks, events)
+            except BaseException:
+                close_upstream = getattr(response, 'close_upstream', None)
+                if close_upstream:  # legal fast path opened a specialist stream that was never iterated
+                    await close_upstream()
+                raise
 
             return await process_chat_response(response, ctx)
         except asyncio.CancelledError:

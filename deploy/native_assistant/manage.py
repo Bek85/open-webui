@@ -206,6 +206,37 @@ def rollback(destination):
     print('Legacy routing restored. Chats, uploads and other model settings preserved.')
 
 
+def refresh():
+    """Push updated tool code and system prompt to the existing presets without touching access or restore points."""
+    with database() as db:
+        tool_grants = db.execute('SELECT id FROM tool WHERE id=?', (TOOL_ID,)).fetchone()
+        assert tool_grants, 'Tool is not installed; run stage first'
+        model_ids = [r[0] for r in db.execute('SELECT id FROM model WHERE id IN (?,?)', (MAIN_ID, CANARY_ID))]
+    files_dir = ROOT.parent / 'file_generation'
+    tools = {TOOL_ID: tool_form()}
+    if (files_dir / 'workspace_tool.py').is_file():
+        tools['prokuratura_file_generation'] = {
+            'id': 'prokuratura_file_generation',
+            'name': 'Word / PDF / Excel',
+            'content': (files_dir / 'workspace_tool.py').read_text(),
+            'meta': {'description': 'Private document generation; downloads expire after 30 days.'},
+        }
+    installed = {t['id'] for t in api('/api/v1/tools/')}
+    for tid, form in tools.items():
+        if tid in installed:
+            current = api('/api/v1/tools/id/' + tid)
+            api('/api/v1/tools/id/' + tid + '/update', {**form, 'access_grants': current.get('access_grants', [])})
+    for mid in model_ids:
+        model = api('/api/v1/models/model?id=' + mid)
+        system = (ROOT / 'system.txt').read_text()
+        if 'prokuratura_file_generation' in (model.get('meta') or {}).get('toolIds', []):
+            # Same composition as file_generation/manage_files.py augmented(): prompt + file instructions.
+            system += '\n\n' + (files_dir / 'instructions.txt').read_text()
+        model['params'] = {**(model.get('params') or {}), 'system': system}
+        api('/api/v1/models/model/update', model)
+    print('Refreshed tools', sorted(tools), 'and system prompt for:', model_ids)
+
+
 def inventory():
     print(
         'Available models:',
@@ -221,11 +252,13 @@ def inventory():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        'action', choices=['snapshot', 'backup-base-models', 'inventory', 'stage', 'activate', 'rollback']
+        'action', choices=['snapshot', 'backup-base-models', 'inventory', 'stage', 'activate', 'rollback', 'refresh']
     )
     parser.add_argument('--restore-dir', type=Path)
     args = parser.parse_args()
-    if args.action != 'inventory':
+    if args.action == 'refresh':
+        refresh()
+    elif args.action != 'inventory':
         assert args.restore_dir, '--restore-dir is required'
         {
             'snapshot': snapshot,

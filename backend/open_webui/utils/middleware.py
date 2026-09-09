@@ -2923,6 +2923,16 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                 ]
                 if inlet_filter_tools:
                     form_data['tools'].extend(inlet_filter_tools)
+
+                # Legal-only UI turns bypass the model's unreliable tool choice:
+                # a temperature-0 route decision, then the specialist streams
+                # directly (see utils/legal_fast_path.py). Document turns keep
+                # the native tool loop.
+                from open_webui.utils.legal_fast_path import plan_legal_fast_path
+
+                fast_path_plan = await plan_legal_fast_path(request, form_data, user, metadata, model, tools_dict.keys())
+                if fast_path_plan:
+                    metadata['legal_fast_path'] = fast_path_plan
             else:
                 # If the function calling is not native, then call the tools function calling handler
                 try:
@@ -5576,6 +5586,14 @@ async def streaming_chat_response_handler(response, ctx):
                 if hasattr(response, 'body_iterator') and hasattr(response.body_iterator, 'aclose'):
                     try:
                         await asyncio.shield(response.body_iterator.aclose())
+                    except (asyncio.CancelledError, Exception):
+                        pass
+                # A never-started generator runs no finally block: release the
+                # legal fast path's upstream connection explicitly.
+                close_upstream = getattr(response, 'close_upstream', None)
+                if close_upstream:
+                    try:
+                        await asyncio.shield(close_upstream())
                     except (asyncio.CancelledError, Exception):
                         pass
 

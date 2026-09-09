@@ -1,7 +1,7 @@
 """
 title: Prokuratura AI legal research
 description: Research Uzbekistan legislation and authorized Prosecutor General orders.
-version: 1.0.0
+version: 1.1.0
 """
 
 import asyncio
@@ -96,10 +96,11 @@ class Tools:
         self, query: str, __user__: dict = None, __metadata__: dict = None, __event_emitter__=None
     ) -> str:
         """Research Uzbekistan's public legislation in LexUz.
-        Use for legal rules, articles, rights, liability and legal verification, including criminal law.
-        Send a self-contained question with relevant facts, NOT whole files, images or conversation history.
-        Not for merely summarizing an attachment.
-        :param query: A self-contained legal research question in the user's language, at most 12000 characters.
+        REQUIRED for any question whose answer depends on Uzbek law: legal rules, articles, rights, liability,
+        penalties, procedures, deadlines, including practical 'what should I do' or 'what happens if' questions,
+        even when the user does not ask to search. Not for greetings, general chat or merely summarizing an attachment.
+        Send ONE focused, self-contained question with only the relevant facts, NOT whole files, images or history.
+        :param query: One focused legal question in the user's language, ideally under 400 characters (limit 12000).
         """
         return await self._research('lex_uz', query, __user__, __metadata__, __event_emitter__)
 

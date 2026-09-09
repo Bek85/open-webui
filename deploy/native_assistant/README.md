@@ -35,8 +35,9 @@ text or exception message is logged by this diagnostic. Intermittent transport
 failures are not yet explained: a live LexUz test succeeded with seven sources,
 but took about 180 seconds inside the specialist service (its retrieval summary
 arrived at about 96 seconds). The outer model still synthesizes a final answer
-after that. These UI fixes do not remove this two-stage latency or repair the
-research service's independent search-branch timeouts.
+after that. The legal fast path below removes this two-stage latency for
+legal-only turns; the research service's independent search-branch timeouts
+remain.
 
 Document reading uses Open WebUI's automatic extracted/retrieved file context
 (`file_context=true`). This grounds the initial answer in document content even
@@ -46,6 +47,42 @@ Legal services still receive only the focused question formulated by the legal
 tool, never the attachment-enriched message array. Whole-document coverage is
 not implied by retrieved excerpts. Other built-in tool categories are disabled
 for this initial rollout, except time utilities. File generators are not installed.
+
+## Legal fast path (deterministic routing)
+
+Measured on 2026-09-09: with native tool choice the model called
+`research_uzbek_law` on only 5 of 8 implicit legal questions at every sampling
+temperature, and the tool path answered ~135 s after the question (specialist
+synthesis plus its gap addendum, then a second synthesis by the outer model).
+
+`backend/open_webui/utils/legal_fast_path.py` now handles legal-only UI turns
+the way the legacy router did: a temperature-0 one-word classification on the
+base model (15/15 correct in the probe set, ~0.3 s), then the specialist stream
+is relayed directly as the assistant answer with its research timeline and
+source cards. Text appears when the specialist starts writing, not after the
+outer model re-synthesizes. Conditions: UI session, `research_uzbek_law` bound,
+no attachments in the chat (images included), no attached knowledge, no toggled
+web search / image generation / code interpreter, model meta `legalFastPath`
+not false. Anything else (documents, API calls, classifier failure, specialist
+unreachable or 401/403) falls back to the native tool loop unchanged, so the
+existing access and error behaviour is preserved.
+
+The stronger tool description and system-prompt rule (one focused question,
+under 400 characters) still apply to the tool path. Push them with:
+
+```sh
+docker cp deploy/. open-webui:/tmp/deploy/
+docker exec -e PYTHONPATH=/app/backend -w /app/backend open-webui \
+  python /tmp/deploy/native_assistant/manage.py refresh
+```
+
+`refresh` updates both Workspace tools (legal research, file generation) and the
+system prompt of the existing presets, re-composing it from `system.txt` plus
+`file_generation/instructions.txt` when the file tool is bound; access grants
+and provider settings are untouched. The fast path itself is
+backend code and needs an image rebuild of `open-webui` only.
+
+Tests: `python -m unittest -v test_legal_fast_path` alongside the existing ones.
 
 ## Image limitation
 
