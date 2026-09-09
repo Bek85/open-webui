@@ -44,6 +44,7 @@ class RouteParsing(unittest.TestCase):
         self.assertEqual(lfp.parse_route('prosecutor'), 'prosecutor')
         self.assertEqual(lfp.parse_route('general'), 'general')
         self.assertEqual(lfp.parse_route('wiki'), 'wiki')
+        self.assertEqual(lfp.parse_route('file'), 'file')
         self.assertEqual(lfp.parse_route(''), 'general')
         self.assertEqual(lfp.parse_route(None), 'general')
 
@@ -90,6 +91,37 @@ class Eligibility(unittest.TestCase):
         history = lfp.specialist_messages(messages)
         self.assertEqual(len(history), lfp.MAX_HISTORY_MESSAGES)
         self.assertEqual(history[-1], {'role': 'user', 'content': 'q19'})
+
+
+class ForcedFileTools(unittest.TestCase):
+    """Exports must not depend on sampling: the file route forces the call."""
+
+    def form(self):
+        return {
+            'tools': [
+                {'type': 'function', 'function': {'name': 'research_uzbek_law'}},
+                {'type': 'function', 'function': {'name': 'create_document'}},
+                {'type': 'function', 'function': {'name': 'create_spreadsheet'}},
+            ]
+        }
+
+    def test_only_file_tools_remain_and_a_call_is_required(self):
+        form = self.form()
+        self.assertTrue(lfp.force_file_tools(form, ['research_uzbek_law', 'create_document', 'create_spreadsheet']))
+        self.assertEqual(
+            [spec['function']['name'] for spec in form['tools']], ['create_document', 'create_spreadsheet']
+        )
+        self.assertEqual(form['tool_choice'], 'required')
+
+    def test_unbound_file_tools_leave_the_turn_alone(self):
+        form = self.form()
+        self.assertFalse(lfp.force_file_tools(form, ['research_uzbek_law']))
+        self.assertNotIn('tool_choice', form)
+        self.assertEqual(len(form['tools']), 3)
+
+    def test_file_route_plan_keeps_the_model_answering(self):
+        # 'file' is a context-shaping route like 'wiki': no corpus, so no specialist relay.
+        self.assertIsNone(lfp.CORPUS_BY_ROUTE.get('file'))
 
 
 class Relay(unittest.TestCase):

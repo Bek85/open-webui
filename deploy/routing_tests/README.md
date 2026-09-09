@@ -16,6 +16,7 @@ prompt, a tool description, the classifier prompt, or the model server.
 | `baseline.json` | recorded hit rate per category and mode; the runner exits 1 below it |
 
 Categories: `legal-research`, `prosecutor-orders`, `encyclopedia`, `file-creation`, `no-tool`.
+Classifier classes: `lexuz`, `prosecutor`, `wiki`, `file`, `general`.
 
 ## Running
 
@@ -37,7 +38,9 @@ Legal categories count the specialist fast path (status `Researching legal sourc
 or a research tool call; `encyclopedia` counts encyclopedia sources (the
 server-side lookup delivers them as `sources` in the completion payload) or a
 tool call; `file-creation` counts either file tool; `no-tool` requires none of
-these.
+these. `file-creation` is forced rather than sampled: the `file` class narrows the
+turn to the file tools and sets `tool_choice=required`, so a miss there now means
+the classifier misrouted, not that the model declined.
 
 ## Adding a tool category
 

@@ -1,6 +1,6 @@
 {
   "category": "file-creation",
-  "route": "general",
+  "route": "file",
   "tool": "create_document",
   "cases": [
     {
@@ -42,5 +42,5 @@
       "content": "## Ishdan asossiz bo'shatish\n\n1. **Sudga murojaat** — ishga tiklash to'g'risidagi da'vo bevosita sudda ko'riladi.\n2. **Muddat** — buyruq topshirilgan kundan boshlab bir oy.\n3. **Zararni qoplash** — majburiy prog'ul davri uchun o'rtacha ish haqi.\n\n| Bosqich | Muddat | Hujjat |\n|---|---|---|\n| Da'vo | 1 oy | Buyruq nusxasi |\n| Sud | 1 oygacha | Mehnat daftarchasi |\n"
     }
   ],
-  "note": "e2e cases run after this canned exchange because exports refer to a previous answer"
+  "note": "Exports are forced: the classifier's 'file' class narrows the turn to the file tools and sets tool_choice=required, because free tool choice dropped ~1 export in 7 (measured 2026-09-09, independent of wording)."
 }

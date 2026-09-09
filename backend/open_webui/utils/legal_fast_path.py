@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 RESEARCH_TOOL = 'research_uzbek_law'
 CORPUS_BY_ROUTE = {'lexuz': 'lex_uz', 'prosecutor': 'prosecutor'}
+FILE_TOOLS = ('create_document', 'create_spreadsheet')
 MAX_HISTORY_MESSAGES = 12
 MAX_MESSAGE_CHARS = 12000
 CLASSIFY_TIMEOUT_SECONDS = 20
@@ -53,12 +54,19 @@ wiki — huquqqa aloqasi bo'lmagan umumiy bilim (ensiklopedik) savollari:
   • Atamalar va tushunchalarning umumiy ta'rifi ("... nima?", "... kim?", "qachon ...")
   Eslatma: qonun, kodeks, javobgarlik, huquq va prokuraturaga oid savollar BU YERGA EMAS.
 
+file — suhbatdagi mavjud javobni yoki ma'lumotni yuklab olinadigan faylga aylantirish:
+  • "PDF qilib ber", "Word faylga chiqarib ber", "Excel jadval qilib ber"
+  • "yuklab olishim uchun tayyorla", "shu ma'lumotlarni faylga saqlab ber"
+  Eslatma: FAQAT suhbatda ALLAQACHON mavjud matnni faylga o'tkazish.
+  Agar avval qonunchilikni o'rganish kerak bo'lsa — lexuz; prokuratura
+  hujjatlarini o'rganib yangi hisobot tuzish kerak bo'lsa — prosecutor.
+
 general — yuqoridagilarning hech biriga tegishli bo'lmasa:
   • Salomlashish, muloqot, matn yozish yoki tarjima qilish iltimoslari
   • Yuklangan hujjat bilan ishlash
   • Yordamchining o'zi haqidagi savollar ("sen kimsan?", "nimalar qila olasan?", "qanday yordam berasan?")
 
-Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI wiki YOKI general"""
+Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI wiki YOKI file YOKI general"""
 
 
 def parse_route(text) -> str:
@@ -70,6 +78,8 @@ def parse_route(text) -> str:
         return 'lexuz'
     if 'wiki' in text:
         return 'wiki'
+    if 'file' in text:
+        return 'file'
     return 'general'
 
 
@@ -110,6 +120,25 @@ def specialist_messages(messages: list) -> list:
         if isinstance(text, str) and text.strip():
             history.append({'role': message['role'], 'content': text.strip()[:MAX_MESSAGE_CHARS]})
     return history[-MAX_HISTORY_MESSAGES:]
+
+
+def force_file_tools(form_data: dict, tool_names) -> bool:
+    """Restrict the turn to the file tools and require one of them to be called.
+
+    Free tool choice drops roughly one export in seven at the serving temperature
+    (measured 2026-09-09, and independent of wording), so the model's discretion is
+    removed here just as it is for the legal and encyclopedia routes. Only this first
+    request is forced: the tool-call follow-up in process_chat_response drops
+    `tool_choice`, otherwise the model would be made to call a tool forever.
+    """
+    available = {name for name in FILE_TOOLS if name in (tool_names or ())}
+    specs = [spec for spec in (form_data.get('tools') or []) if (spec.get('function') or {}).get('name') in available]
+    if not specs:
+        log.warning('File route: no file tool bound to this model; using native tools')
+        return False
+    form_data['tools'] = specs
+    form_data['tool_choice'] = 'required'
+    return True
 
 
 async def classify_route(request, user, model_id: str, text: str) -> str:
@@ -153,9 +182,10 @@ async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, m
             'question': question,
             'messages': specialist_messages(form_data.get('messages', [])),
         }
-    if route == 'wiki':
-        # Handled in process_chat_payload: server-side encyclopedia lookup, model still answers.
-        return {'route': 'wiki', 'question': question}
+    if route in ('wiki', 'file'):
+        # Both are handled in process_chat_payload and the model still writes the answer:
+        # 'wiki' gets a server-side lookup, 'file' gets a forced file-tool call.
+        return {'route': route, 'question': question}
     return None
 
 

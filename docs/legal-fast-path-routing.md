@@ -27,12 +27,23 @@ UI session AND research_uzbek_law bound AND no files AND no knowledge AND legalF
      wiki              -> search_encyclopedia runs server-side; its article and snippets are
                           attached as a docs file item (cited sources); the model answers
                           (utils/encyclopedia_context.py; see deploy/encyclopedia/README.md)
+     file              -> the turn is narrowed to create_document / create_spreadsheet and
+                          tool_choice is set to required, so the export cannot be answered in
+                          prose; the model still picks format, title and arguments
+                          (legal_fast_path.force_file_tools)
      general           -> native tool loop (model may still call tools)
 ```
 
 Classifier accuracy on the mixed probe set (2026-09-09): 18/20; every legal question
 stayed on the legal routes. Free model choice had called the encyclopedia on 4/8
 factual questions, which is why the lookup is deterministic.
+
+Exports are forced for the same reason. Measured 2026-09-09 on a repeat run of the
+same request, free tool choice produced the file 6/7 times and, on a second wording
+that had passed the suite, 5/6 — the miss moves between phrasings, so it is sampling
+variance rather than a prompt defect. `tool_choice` is applied to the first request
+only; the tool-call follow-up in `process_chat_response` drops it, otherwise the model
+would be required to call a tool on every subsequent iteration.
 
 The specialist receives the last 12 user/assistant turns as plain text (each
 capped at 12 000 characters); it builds its own context. Attachments always take

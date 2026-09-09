@@ -74,6 +74,15 @@
     {
       "text": "Как оформить наследство по закону?",
       "script": "ru"
+    },
+    {
+      "text": "Mehnat kodeksi bo'yicha ta'til muddatlarini o'rganib, PDF hisobot tayyorla",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Изучи закон об обращениях граждан и сделай отчёт в Word",
+      "script": "ru"
     }
-  ]
+  ],
+  "note": " Includes research-plus-file requests: these must stay on the research route, because the forced file route would otherwise build a document with no research behind it."
 }

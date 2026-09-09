@@ -34,6 +34,11 @@
     {
       "text": "Какой порядок внутренней отчётности установлен приказом Генпрокурора?",
       "script": "ru"
+    },
+    {
+      "text": "Bosh prokuror buyruqlari asosida hisobot tuzib, excel jadval qilib ber",
+      "script": "uz-latn"
     }
-  ]
+  ],
+  "note": " Includes research-plus-file requests: these must stay on the research route, because the forced file route would otherwise build a document with no research behind it."
 }

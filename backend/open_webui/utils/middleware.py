@@ -2933,6 +2933,12 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                 fast_path_plan = await plan_legal_fast_path(request, form_data, user, metadata, model, tools_dict.keys())
                 if fast_path_plan and fast_path_plan.get('corpus'):
                     metadata['legal_fast_path'] = fast_path_plan
+                elif fast_path_plan and fast_path_plan.get('route') == 'file':
+                    # Exporting an existing answer: force a file-tool call instead of
+                    # leaving it to sampling, which drops ~1 export in 7.
+                    from open_webui.utils.legal_fast_path import force_file_tools
+
+                    force_file_tools(form_data, tools_dict.keys())
                 elif fast_path_plan and fast_path_plan.get('route') == 'wiki':
                     # General knowledge: look the article up here and hand it to the model as
                     # cited context; files with docs are turned into sources just below.
@@ -5257,6 +5263,9 @@ async def streaming_chat_response_handler(response, ctx):
                             'stream': True,
                             'metadata': metadata,
                         }
+                        # A forced tool_choice applies to the first decision only;
+                        # carrying it over would make every follow-up call a tool again.
+                        new_form_data.pop('tool_choice', None)
 
                         if ENABLE_RESPONSES_API_STATEFUL and last_response_id:
                             system_message = get_system_message(form_data['messages'])
@@ -5510,6 +5519,8 @@ async def streaming_chat_response_handler(response, ctx):
                                     ),
                                 ],
                             }
+                            # As above: the forced tool_choice covers the first decision only.
+                            new_form_data.pop('tool_choice', None)
 
                             res = await generate_chat_completion(
                                 request,
