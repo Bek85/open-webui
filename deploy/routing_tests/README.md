@@ -34,9 +34,10 @@ lower one to make a run pass.
 ## What "used" means in e2e mode
 
 Legal categories count the specialist fast path (status `Researching legal sources…`)
-or a research tool call; `encyclopedia` counts encyclopedia source cards
-(server-side lookup) or a tool call; `file-creation` counts either file tool;
-`no-tool` requires none of these.
+or a research tool call; `encyclopedia` counts encyclopedia sources (the
+server-side lookup delivers them as `sources` in the completion payload) or a
+tool call; `file-creation` counts either file tool; `no-tool` requires none of
+these.
 
 ## Adding a tool category
 

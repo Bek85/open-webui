@@ -59,6 +59,10 @@ def turn(messages: list, model: str = 'router_pipeline', timeout: int = 600) -> 
             if '/wiki/' in json.dumps(payload, ensure_ascii=False):
                 result.wiki_sources += 1
         elif kind == 'chat:completion':
+            # Retrieved context (server-side encyclopedia lookup) arrives as `sources` in this payload.
+            for source in payload.get('sources') or []:
+                if '/wiki/' in json.dumps(source, ensure_ascii=False):
+                    result.wiki_sources += 1
             for item in payload.get('output') or []:
                 if item.get('type') == 'function_call' and item.get('status') == 'completed':
                     try:
