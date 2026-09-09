@@ -4,13 +4,20 @@
 name: openwebui
 
 networks:
+  file_generation_network:
+    internal: true
   ai_network:
     external: true
 
 volumes:
+  generated_files:
   open_webui:
     external: true
     name: openwebui_open_webui
+
+secrets:
+  file_generation_key:
+    file: ./file_generation/secrets/signing.key
 
 services:
   open-webui:
@@ -23,6 +30,8 @@ services:
         BUILD_HASH: ${OWUI_VERSION:-dev} # set by deploy.sh to the checkout's short SHA
     volumes:
       - open_webui:/app/backend/data
+    secrets:
+      - file_generation_key
     ports:
       - "8080:8080"
     # Native legal tools run in WebUI, so they need the same host alias as
@@ -74,6 +83,30 @@ services:
       AUDIO_TTS_VOICE: female
     networks:
       - ai_network
+      - file_generation_network
+    restart: unless-stopped
+
+  file-generation:
+    image: openwebui/file-generation:1
+    build:
+      context: ./file_generation
+      target: runtime
+    volumes:
+      - generated_files:/data
+    secrets:
+      - file_generation_key
+    networks:
+      - file_generation_network
+    read_only: true
+    tmpfs:
+      - /tmp:size=67108864,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 512m
+    cpus: 1.0
     restart: unless-stopped
 
   pipelines:

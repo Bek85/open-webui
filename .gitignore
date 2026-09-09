@@ -312,3 +312,4 @@ cypress/screenshots
 .vscode/settings.json
 .cptr
 deploy/restore-points/
+deploy/file_generation/secrets/

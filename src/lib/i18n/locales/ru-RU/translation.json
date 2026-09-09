@@ -1,4 +1,6 @@
 {
+	"Document creation": "Создание документа",
+	"Spreadsheet creation": "Создание таблицы",
 	"{{NAME}} failed": "{{NAME}}: ошибка",
 	"Completed with errors": "Завершено с ошибками",
 	"Legal research did not complete. No verified answer was returned.": "Правовой анализ не завершён. Подтверждённый ответ не получен.",
