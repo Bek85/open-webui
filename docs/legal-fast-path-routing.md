@@ -73,6 +73,13 @@ tool path, where the model explains the denial in the user's language.
 
 ## Tests
 
+Routing accuracy is gated by `deploy/routing_tests/` (classifier and end-to-end
+modes with a recorded baseline); run it after any prompt, tool-description or
+classifier change.
+
+### Unit tests
+
+
 `deploy/native_assistant/test_legal_fast_path.py` (offline: route parsing,
 eligibility, history trimming, relay/finalize/failure shapes, identity headers).
 Live probes used during the investigation live only in the container under

@@ -1,0 +1,46 @@
+{
+  "category": "file-creation",
+  "route": "general",
+  "tool": "create_document",
+  "cases": [
+    {
+      "text": "shu ma'lumotlarni pdf formatda qilib ber",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Javobni Word faylga chiqarib ber",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Jadvaldagi bosqichlarni excel faylga chiqarib ber",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Yuqoridagi tahlilni PDF qilib yuklab olishim uchun tayyorla",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Шу маълумотларни Word форматида тайёрлаб бер",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Сделай из этого ответа PDF",
+      "script": "ru"
+    },
+    {
+      "text": "Сохрани таблицу в Excel",
+      "script": "ru"
+    }
+  ],
+  "history": [
+    {
+      "role": "user",
+      "content": "Ishdan asossiz bo'shatishdi, nima qilishim kerak?"
+    },
+    {
+      "role": "assistant",
+      "content": "## Ishdan asossiz bo'shatish\n\n1. **Sudga murojaat** — ishga tiklash to'g'risidagi da'vo bevosita sudda ko'riladi.\n2. **Muddat** — buyruq topshirilgan kundan boshlab bir oy.\n3. **Zararni qoplash** — majburiy prog'ul davri uchun o'rtacha ish haqi.\n\n| Bosqich | Muddat | Hujjat |\n|---|---|---|\n| Da'vo | 1 oy | Buyruq nusxasi |\n| Sud | 1 oygacha | Mehnat daftarchasi |\n"
+    }
+  ],
+  "note": "e2e cases run after this canned exchange because exports refer to a previous answer"
+}

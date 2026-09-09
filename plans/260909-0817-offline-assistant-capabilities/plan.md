@@ -12,7 +12,7 @@ Every phase below ships with a probe suite so this stays measurable.
 | Phase | Scope | Status |
 |---|---|---|
 | [01](phase-01-offline-encyclopedia.md) | Offline encyclopedia (kiwix + Wikipedia uz/ru) as a tool and reader | In progress |
-| [02](phase-02-routing-test-suite-and-category-router.md) | Routing test suite + per-category deterministic router | Planned |
+| [02](phase-02-routing-test-suite-and-category-router.md) | Routing test suite + per-category deterministic router | In progress (suite done) |
 | [03](phase-03-document-intelligence.md) | Long-document summarization, comparison, structure-preserving translation | Planned |
 | [04](phase-04-legal-calculators.md) | Deterministic legal calculators (BHM by date, procedural deadlines, fine ranges) | Planned |
 | [05](phase-05-code-interpreter-and-spreadsheet-analytics.md) | Offline code interpreter (Pyodide) for calculations and uploaded spreadsheets | Planned |

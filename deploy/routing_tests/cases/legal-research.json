@@ -1,0 +1,79 @@
+{
+  "category": "legal-research",
+  "route": "lexuz",
+  "tool": "research_uzbek_law",
+  "cases": [
+    {
+      "text": "Ishdan asossiz bo'shatishdi, nima qilishim kerak?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Aliment to'lamasa nima bo'ladi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Pora berish uchun qancha jazo beriladi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "16 yoshli bola jinoyat qilsa javobgarlikka tortiladimi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ijaraga bergan kvartiramdan ijarachi chiqmayapti, nima qilay?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Uy sotib olganda qanday soliqlar to'lanadi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Qo'shnim mening mashinamni urib ketdi va qochib ketdi. Endi u javobgar bo'ladimi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ish beruvchim 3 oydan beri maosh bermayapti",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Jinoyat kodeksi 168-modda nimani nazarda tutadi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Voyaga yetmaganlarga nisbatan jinoyat ishlarida tergov muddati qancha?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Aliment nima?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Mehnat shartnomasini bekor qilish tartibi qanday?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Менга Меҳнат кодекси бўйича таътил муддатини айтинг",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Қарздорлик учун жиноий жавобгарлик борми?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Давлат божи миқдори қандай белгиланади?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Какая ответственность за дачу взятки по УК Узбекистана?",
+      "script": "ru"
+    },
+    {
+      "text": "Что грозит за неуплату алиментов?",
+      "script": "ru"
+    },
+    {
+      "text": "Как оформить наследство по закону?",
+      "script": "ru"
+    }
+  ]
+}

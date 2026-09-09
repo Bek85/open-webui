@@ -1,0 +1,67 @@
+{
+  "category": "encyclopedia",
+  "route": "wiki",
+  "tool": "search_encyclopedia",
+  "cases": [
+    {
+      "text": "Amir Temur kim bo'lgan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Samarqand shahri haqida qisqacha ma'lumot ber",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Fotosintez nima?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Orol dengizi nega quriyapti?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Toshkent metrosi qachon ochilgan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "O'zbekiston davlat madhiyasi haqida ma'lumot ber",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Yer necha marta Quyosh atrofida aylanadi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Beruniy qaysi asrda yashagan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Алишер Навоий қачон туғилган?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Тошкент шаҳри қачон ташкил топган?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "ДНК нима?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Кто такой Юрий Гагарин?",
+      "script": "ru"
+    },
+    {
+      "text": "Что такое инфляция?",
+      "script": "ru"
+    },
+    {
+      "text": "Что такое ДНК?",
+      "script": "ru"
+    },
+    {
+      "text": "Когда была основана Бухара?",
+      "script": "ru"
+    }
+  ]
+}

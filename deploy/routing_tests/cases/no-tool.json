@@ -1,0 +1,67 @@
+{
+  "category": "no-tool",
+  "route": "general",
+  "tool": null,
+  "cases": [
+    {
+      "text": "Salom, yaxshimisiz?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Rahmat, tushunarli",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ushbu matnni ruschaga tarjima qil: bugun ob-havo yaxshi",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Menga xat yozib ber: ishga kelmaganim uchun uzr",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Bu matnni qisqartirib ber: (matn keyin yuboriladi)",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Sen kimsan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ассалому алайкум",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Раҳмат, яхши",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Привет, как дела?",
+      "script": "ru"
+    },
+    {
+      "text": "Переведи на узбекский: спасибо за помощь",
+      "script": "ru"
+    },
+    {
+      "text": "Напиши вежливый отказ на приглашение",
+      "script": "ru"
+    },
+    {
+      "text": "nimalar qila olasan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Sen qanday yordam bera olasan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Нима қила оласан?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Что ты умеешь?",
+      "script": "ru"
+    }
+  ]
+}

@@ -2938,7 +2938,7 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                     # cited context; files with docs are turned into sources just below.
                     from open_webui.utils.encyclopedia_context import attach_encyclopedia_context
 
-                    await attach_encyclopedia_context(form_data, tools_dict, fast_path_plan['question'])
+                    await attach_encyclopedia_context(metadata, tools_dict, fast_path_plan['question'])
             else:
                 # If the function calling is not native, then call the tools function calling handler
                 try:

@@ -1,7 +1,7 @@
 # Phase 02: routing test suite and category router
 
 **Context:** `plans/reports/debugger-260909-0518-native-legal-tool-routing-latency.md`, `backend/open_webui/utils/legal_fast_path.py`
-**Priority:** high (foundation for every later tool). **Status:** planned.
+**Priority:** high (foundation for every later tool). **Status:** in progress (suite shipped 2026-09-09; forced-tool mechanism pending).
 
 ## Overview
 Turn today's ad-hoc probes into a repo-tracked suite and generalize the
@@ -18,9 +18,9 @@ document tools) is selected deterministically, not by sampling.
 - Modify: `legal_fast_path.py` (classification categories), tool loop in `utils/middleware.py` (one-shot `tool_choice`), README.
 
 ## Steps
-1. Collect 15-20 requests per category from real chats (anonymized).
-2. Runner + baseline numbers committed to `plans/reports/`.
-3. Category classifier with forced `tool_choice`; re-measure.
+1. [x] `deploy/routing_tests/`: 59 cases in five categories (three scripts), runner with `classifier` and `e2e` modes, `baseline.json` gate. Classifier baseline 1.00 in every category.
+2. [ ] Grow cases from real (anonymized) chats as new request shapes appear.
+3. [ ] Generic category -> forced tool mechanism (one-shot `tool_choice`, stripped after the first iteration) when the first new tool category (document flow) arrives; until then legal and encyclopedia routes are deterministic and file creation relies on model choice (3/3 in tests).
 
 ## Success criteria
 >= 90% correct tool per category; greetings/writing never trigger a tool.

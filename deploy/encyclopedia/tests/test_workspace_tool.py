@@ -47,7 +47,17 @@ class Parsing(unittest.TestCase):
             '<html><head><style>x{}</style></head><body><h1>Toshkent</h1><script>1</script>'
             '<p>Poytaxt<sup>[1]</sup>.</p><table><tr><td>t</td></tr></table></body></html>'
         )
-        self.assertEqual(tool.html_to_text(page, 100), 'Toshkent\nPoytaxt .')
+        self.assertEqual(tool.html_to_text(page, 100), 'Toshkent\nPoytaxt .\nt |')
+
+    def test_infobox_dropped_but_lyrics_table_kept(self):
+        page = (
+            '<body><table class="infobox vcard"><tr><td>noise</td></tr></table>'
+            '<h2>Matni</h2><table><tr><td><dl><dd>Serquyosh, hur oʻlkam</dd>'
+            '<dd>Sen oʻzing</dd></dl></td></tr></table></body>'
+        )
+        text = tool.html_to_text(page, 500)
+        self.assertNotIn('noise', text)
+        self.assertIn('Serquyosh, hur oʻlkam\nSen oʻzing', text)
         self.assertTrue(tool.html_to_text('<p>' + 'a' * 50 + '</p>', 10).endswith('…'))
 
 
@@ -64,6 +74,13 @@ class Ranking(unittest.TestCase):
         merged = tool.merge_hits('samarqand', suggestions, search)
         self.assertEqual([h['path'] for h in merged], ['Samarqand', 'Samarqand_vokzali', 'Registon'])
         self.assertEqual(tool.merge_hits('x', [], []), [])
+
+    def test_fulltext_hits_naming_a_term_in_the_title_come_first(self):
+        search = [
+            {'title': 'Ishoq ibn Ibrohim', 'path': 'i', 'snippet': ''},
+            {'title': 'Abu Rayhon Beruniy', 'path': 'b', 'snippet': ''},
+        ]
+        self.assertEqual([h['path'] for h in tool.merge_hits('Beruniy yashagan', [], search)], ['b', 'i'])
 
 
 class SearchTerms(unittest.TestCase):
@@ -95,6 +112,16 @@ class SuggestionAcceptance(unittest.TestCase):
         self.assertTrue(tool.mentions('ruscha: Ю́рий Алексе́евич Гага́рин', ['Юрий', 'Гагарин']))
         self.assertFalse(tool.mentions('Chery eQ7 avtomobili', ['инфляция']))
         self.assertFalse(tool.mentions('abc', ['ab']))
+
+
+class ExactTitles(unittest.TestCase):
+    def test_only_exact_titles_survive(self):
+        hits = [
+            {'title': 'Бинокор (футбольный клуб, Бухара)', 'path': 'f', 'snippet': ''},
+            {'title': 'Бухара', 'path': 'b', 'snippet': ''},
+        ]
+        self.assertEqual([h['path'] for h in tool.exact_title_hits('бухара', hits)], ['b'])
+        self.assertEqual(tool.exact_title_hits('Beruniy', []), [])
 
 
 class LanguageChoice(unittest.TestCase):

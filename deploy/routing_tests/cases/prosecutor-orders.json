@@ -1,0 +1,39 @@
+{
+  "category": "prosecutor-orders",
+  "route": "prosecutor",
+  "tool": "research_prosecutor_orders",
+  "cases": [
+    {
+      "text": "Bosh prokurorning tergov nazorati bo'yicha buyrug'ida nima deyilgan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Prokuratura xodimlari uchun murojaatlarni ko'rib chiqish reglamenti qanday?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Bosh prokuror buyrug'iga ko'ra hisobot muddatlari qanday?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Prokuratura organlarida ichki nazorat tartibi to'g'risidagi buyruqni tushuntiring",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Бош прокурорнинг кадрлар сиёсати бўйича буйруғида нима белгиланган?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Прокуратура ички регламенти бўйича иш юритиш тартиби қандай?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Что говорится в приказе Генерального прокурора о надзоре за следствием?",
+      "script": "ru"
+    },
+    {
+      "text": "Какой порядок внутренней отчётности установлен приказом Генпрокурора?",
+      "script": "ru"
+    }
+  ]
+}

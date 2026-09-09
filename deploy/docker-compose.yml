@@ -57,7 +57,7 @@ services:
       # reader URL users can open, and language:book-id pairs (ZIM basenames).
       ENCYCLOPEDIA_KIWIX_URL: "http://kiwix:8080/wiki"
       ENCYCLOPEDIA_PUBLIC_URL: "https://ai.prokuratura.uz/wiki"
-      ENCYCLOPEDIA_BOOKS: "uz:wikipedia_uz_all_maxi_2026-07"
+      ENCYCLOPEDIA_BOOKS: "uz:wikipedia_uz_all_maxi_2026-07,ru:wikipedia_ru_all_nopic_2026-01"
       ENABLE_CODE_EXECUTION: false
       ENABLE_CODE_INTERPRETER: false
       ENABLE_DIRECT_CONNECTIONS: false
@@ -123,6 +123,7 @@ services:
     command: >-
       --urlRootLocation /wiki
       /data/wikipedia_uz_all_maxi_2026-07.zim
+      /data/wikipedia_ru_all_nopic_2026-01.zim
     volumes:
       - /home/user/ai/kiwix/zim:/data:ro
     networks:

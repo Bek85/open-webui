@@ -212,7 +212,7 @@ class EncyclopediaContext(unittest.TestCase):
         async def fake(query):
             return json.dumps(self.result)
 
-        form = {'files': []}
+        form = {'files': None}
         attached = asyncio.run(
             enc.attach_encyclopedia_context(form, {'search_encyclopedia': {'callable': fake}}, 'Samarqand haqida')
         )

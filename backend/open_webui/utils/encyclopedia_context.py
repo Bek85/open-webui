@@ -36,8 +36,13 @@ def encyclopedia_docs(result: dict) -> list:
     return docs
 
 
-async def attach_encyclopedia_context(form_data: dict, tools_dict: dict, question: str) -> bool:
-    """Run the bound encyclopedia tool for `question`; attach its docs to form_data['files']."""
+async def attach_encyclopedia_context(metadata: dict, tools_dict: dict, question: str) -> bool:
+    """Run the bound encyclopedia tool for `question`; attach its docs to metadata['files'].
+
+    process_chat_payload has already moved the request's files into `metadata['files']`
+    (form_data['metadata'] is the same dict) by the time routing runs, and the files
+    handler reads from there, so that is the only list that reaches the model.
+    """
     tool = (tools_dict or {}).get(ENCYCLOPEDIA_TOOL) or {}
     callable_ = tool.get('callable')
     if not callable_:
@@ -55,14 +60,13 @@ async def attach_encyclopedia_context(form_data: dict, tools_dict: dict, questio
         log.info('Encyclopedia context: no article for the question; model answers unaided')
         return False
     log.info('Encyclopedia context: attached %d doc(s)', len(docs))
-    files = list(form_data.get('files') or [])
-    files.append(
+    metadata['files'] = [
+        *(metadata.get('files') or []),
         {
             'type': 'web_search',  # docs items bypass embedding and become cited sources
             'name': question[:200],
             'docs': docs,
             'urls': [doc['metadata']['source'] for doc in docs],
-        }
-    )
-    form_data['files'] = files
+        },
+    ]
     return True

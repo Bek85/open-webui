@@ -56,6 +56,7 @@ wiki — huquqqa aloqasi bo'lmagan umumiy bilim (ensiklopedik) savollari:
 general — yuqoridagilarning hech biriga tegishli bo'lmasa:
   • Salomlashish, muloqot, matn yozish yoki tarjima qilish iltimoslari
   • Yuklangan hujjat bilan ishlash
+  • Yordamchining o'zi haqidagi savollar ("sen kimsan?", "nimalar qila olasan?", "qanday yordam berasan?")
 
 Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI wiki YOKI general"""
 

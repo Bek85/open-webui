@@ -35,13 +35,8 @@ has a `wiki` class for general-knowledge questions. For those turns the backend
 calls the tool itself with the user's question and attaches the article and
 snippets as cited context before the model answers
 (`backend/open_webui/utils/encyclopedia_context.py`). The model can still call
-the tool on its own for follow-ups. Measure with:
-
-```sh
-docker cp deploy/. open-webui:/tmp/deploy/
-docker exec -e PYTHONPATH=/app/backend:/tmp/deploy/native_assistant -w /app/backend open-webui \
-  python /tmp/deploy/encyclopedia/probe_encyclopedia.py
-```
+the tool on its own for follow-ups. Measure with the routing suite
+(`deploy/routing_tests/`, category `encyclopedia`, modes `classifier` and `e2e`).
 
 ## Dumps in use
 

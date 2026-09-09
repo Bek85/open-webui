@@ -84,6 +84,14 @@ backend code and needs an image rebuild of `open-webui` only.
 
 Tests: `python -m unittest -v test_legal_fast_path` alongside the existing ones.
 
+## Model list hygiene
+
+The staging canaries (`prokuratura_native_canary`, `prokuratura_files_canary`)
+were deleted on 2026-09-09 after both rollouts were activated; `stage` recreates
+one when needed. The internal base model `ProkuraturaAI` must stay active (the
+preset resolves through it) but carries `meta.hidden = true`, so the selector
+shows only LexUz, Bosh Prokuror buyruqlari, ProkuraturaAI and LexUz v7.
+
 ## Image limitation
 
 On 2026-09-08 the model server accepted native tool calls but rejected the
