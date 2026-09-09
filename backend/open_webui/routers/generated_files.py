@@ -62,18 +62,37 @@ async def generate_file(payload, user):
     content, _ = await renderer_request('POST', '/render', owner, payload)
     result = json.loads(content)
     identifier = str(UUID(result['id']))
-    return {**result, 'url': f'/api/v1/generated-files/{identifier}'}
+    base_url = f'/api/v1/generated-files/{identifier}'
+    return {
+        **result,
+        'url': base_url,
+        'preview_url': f'/api/v1/generated-files/preview/{identifier}',
+    }
+
+
+def _file_response(content, headers, *, inline=False):
+    disposition = headers.get('content-disposition', 'attachment')
+    if inline:
+        disposition = disposition.replace('attachment', 'inline', 1)
+    return Response(
+        content,
+        media_type=headers.get('content-type', 'application/octet-stream'),
+        headers={
+            'Content-Disposition': disposition,
+            'Cache-Control': 'private, no-store',
+            'X-Content-Type-Options': 'nosniff',
+        },
+    )
 
 
 @router.get('/{identifier}')
 async def download_generated_file(identifier: UUID, user=Depends(get_verified_user)):
     content, headers = await renderer_request('GET', f'/files/{identifier}', user.id)
-    return Response(
-        content,
-        media_type=headers.get('content-type', 'application/octet-stream'),
-        headers={
-            'Content-Disposition': headers.get('content-disposition', 'attachment'),
-            'Cache-Control': 'private, no-store',
-            'X-Content-Type-Options': 'nosniff',
-        },
-    )
+    return _file_response(content, headers)
+
+
+@router.get('/preview/{identifier}')
+async def preview_generated_file(identifier: UUID, user=Depends(get_verified_user)):
+    """Serve a generated artifact inline for the authenticated owner's preview viewer."""
+    content, headers = await renderer_request('GET', f'/files/{identifier}', user.id)
+    return _file_response(content, headers, inline=True)

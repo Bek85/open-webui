@@ -31,6 +31,7 @@
 	export let item;
 	export let show = false;
 	export let edit = false;
+	export let contentUrl: string | null = null;
 
 	let enableFullContent = false;
 	let loading = false;
@@ -62,6 +63,17 @@
 	let panzoomRef: PanzoomContainer;
 	const resetImageView = () => {
 		panzoomRef?.reset();
+	};
+
+	const getContent = async () => {
+		if (!contentUrl) return getFileContentById(item.id);
+		const response = await fetch(contentUrl, {
+			method: 'GET',
+			headers: { Accept: 'application/octet-stream' },
+			credentials: 'include'
+		});
+		if (!response.ok) throw new Error(`Unable to load generated file (${response.status})`);
+		return response.arrayBuffer();
 	};
 
 	$: isPDF =
@@ -140,7 +152,7 @@
 		try {
 			excelError = '';
 			const [arrayBuffer, { read }] = await Promise.all([
-				getFileContentById(item.id),
+				getContent(),
 				import('xlsx')
 			]);
 			excelWorkbook = read(arrayBuffer, { type: 'array' });
@@ -173,7 +185,7 @@
 		try {
 			docxError = '';
 			const [arrayBuffer, mammoth] = await Promise.all([
-				getFileContentById(item.id),
+				getContent(),
 				import('mammoth')
 			]);
 			const result = await mammoth.convertToHtml({ arrayBuffer });
@@ -188,7 +200,7 @@
 		try {
 			pptxError = '';
 			const [arrayBuffer, { pptxToImages }] = await Promise.all([
-				getFileContentById(item.id),
+				getContent(),
 				import('$lib/utils/pptxToHtml')
 			]);
 			const result = await pptxToImages(arrayBuffer);
@@ -218,14 +230,17 @@
 		} else if (item?.type === 'file') {
 			loading = true;
 
-			const file = await getFileById(localStorage.token, item.id).catch((e) => {
-				console.error('Error fetching file:', e);
-				return null;
-			});
+			const file = contentUrl
+			? item
+			: await getFileById(localStorage.token, item.id).catch((e) => {
+					console.error('Error fetching file:', e);
+					return null;
+				});
 
 			if (file) {
-				item.file = file || {};
+				item.file = file || item.file || {};
 			}
+			if (contentUrl) selectedTab = 'preview';
 
 			// Load Excel content if it's an Excel file
 			if (isExcel) {
@@ -272,7 +287,7 @@
 										item.type === 'file'
 											? item?.url?.startsWith('http')
 												? item.url
-												: `${WEBUI_API_BASE_URL}/files/${fileId}/content`
+												: (contentUrl ?? `${WEBUI_API_BASE_URL}/files/${fileId}/content`)
 											: item.url,
 										'_blank'
 									);
@@ -431,7 +446,7 @@
 						</div>
 						<PanzoomContainer bind:this={panzoomRef}>
 							<img
-								src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
+								src={contentUrl ?? `${WEBUI_API_BASE_URL}/files/${item.id}/content`}
 								alt={item?.name ?? 'Image'}
 								class="w-full object-contain rounded-lg"
 								loading="lazy"
@@ -508,14 +523,14 @@
 				{:else if selectedTab === 'preview'}
 					{#if isAudio}
 						<audio
-							src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
+								src={contentUrl ?? `${WEBUI_API_BASE_URL}/files/${item.id}/content`}
 							class="w-full border-0 rounded-lg mb-2"
 							controls
 							playsinline
 						/>
 					{:else if isPDF}
 						<PDFViewer
-							url={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
+							url={contentUrl ?? `${WEBUI_API_BASE_URL}/files/${item.id}/content`}
 							className="w-full h-[70vh] border-0 rounded-lg"
 						/>
 					{:else if isExcel}

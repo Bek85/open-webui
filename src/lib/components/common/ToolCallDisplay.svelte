@@ -16,6 +16,8 @@
 	import XMark from '../icons/XMark.svelte';
 	import Image from './Image.svelte';
 	import FullHeightIframe from './FullHeightIframe.svelte';
+	import FileItemModal from './FileItemModal.svelte';
+	import Download from '../icons/Download.svelte';
 	import { settings } from '$lib/stores';
 	import { getToolDisplayName } from '$lib/utils/tool-names';
 	import { toolResultFailed } from '$lib/utils/tool-result';
@@ -98,6 +100,24 @@
 
 	$: parsedArgs = parseArguments(args);
 	$: parsedResult = parseJSONString(result);
+	$: generatedFile =
+		typeof parsedResult === 'object' &&
+		parsedResult !== null &&
+		typeof parsedResult.url === 'string' &&
+		typeof parsedResult.preview_url === 'string' &&
+		typeof parsedResult.filename === 'string'
+			? parsedResult
+			: null;
+	$: generatedFileItem = generatedFile
+		? {
+				id: generatedFile.id,
+				type: 'file',
+				name: generatedFile.filename,
+				size: generatedFile.size,
+				meta: { content_type: generatedFile.content_type }
+			}
+		: null;
+	let showGeneratedPreview = false;
 	$: hasError = isDone && toolResultFailed(result);
 	$: displayName = getToolDisplayName(attributes.name, (key) => $i18n.t(key));
 	$: isLegalResearch = ['research_uzbek_law', 'research_prosecutor_orders'].includes(
@@ -241,12 +261,38 @@
 										<pre class="mt-2 whitespace-pre-wrap break-words">{formatJSONString(result)}</pre>
 									</details>
 								{:else if typeof parsedResult === 'object' && parsedResult !== null}
-									<pre
-										class="text-xs text-gray-600 dark:text-gray-300 whitespace-pre font-mono bg-gray-50 dark:bg-gray-900 rounded-lg p-2 overflow-x-auto">{JSON.stringify(
-											parsedResult,
-											null,
-											2
-										)}</pre>
+									{#if generatedFile}
+										<div class="flex items-center justify-between gap-3 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+											<div class="min-w-0">
+												<div class="truncate text-sm text-gray-800 dark:text-gray-200">{generatedFile.filename}</div>
+												<div class="text-xs text-gray-500">{generatedFile.content_type}</div>
+											</div>
+											<div class="flex shrink-0 items-center gap-2">
+												<button
+													class="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+													on:click|stopPropagation={() => (showGeneratedPreview = true)}
+												>
+													{$i18n.t('Preview')}
+												</button>
+												<a
+													class="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
+													href={generatedFile.url}
+													download={generatedFile.filename}
+													on:click|stopPropagation
+												>
+													<Download className="size-3.5" />
+													{$i18n.t('Download')}
+												</a>
+											</div>
+										</div>
+									{:else}
+										<pre
+											class="text-xs text-gray-600 dark:text-gray-300 whitespace-pre font-mono bg-gray-50 dark:bg-gray-900 rounded-lg p-2 overflow-x-auto">{JSON.stringify(
+												parsedResult,
+												null,
+												2
+											)}</pre>
+									{/if}
 								{:else}
 									{@const resultStr = String(parsedResult)}
 									{@const isTruncated = resultStr.length > RESULT_PREVIEW_LIMIT && !expandedResult}
@@ -290,5 +336,14 @@
 				{/if}
 			{/each}
 		{/if}
+	{/if}
+
+	{#if generatedFileItem}
+		<FileItemModal
+			bind:show={showGeneratedPreview}
+			item={generatedFileItem}
+			contentUrl={generatedFile.preview_url}
+			edit={false}
+		/>
 	{/if}
 </div>
