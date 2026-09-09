@@ -24,7 +24,10 @@
 		'Researching legal sources…',
 		'Preparing legal analysis…',
 		'Legal analysis ready',
-		'Legal research failed'
+		'Legal research failed',
+		'Searching the encyclopedia…',
+		'Encyclopedia search complete',
+		'Encyclopedia search failed'
 	]);
 	$: reasoningDescription = translatedNotices.has(status?.description)
 		? $i18n.t(status.description)

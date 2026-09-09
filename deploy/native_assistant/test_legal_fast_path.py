@@ -4,6 +4,7 @@ import asyncio
 import json
 import unittest
 
+from open_webui.utils import encyclopedia_context as enc
 from open_webui.utils import legal_fast_path as lfp
 from open_webui.utils import legal_specialist_stream as lss
 
@@ -42,6 +43,7 @@ class RouteParsing(unittest.TestCase):
         self.assertEqual(lfp.parse_route(' LexUz\n'), 'lexuz')
         self.assertEqual(lfp.parse_route('prosecutor'), 'prosecutor')
         self.assertEqual(lfp.parse_route('general'), 'general')
+        self.assertEqual(lfp.parse_route('wiki'), 'wiki')
         self.assertEqual(lfp.parse_route(''), 'general')
         self.assertEqual(lfp.parse_route(None), 'general')
 
@@ -185,6 +187,49 @@ class Bibliography(unittest.TestCase):
             [c['source']['id'] for c in lss.bibliography_sources(text)],
             ['https://lex.uz/uz/docs/-9', 'https://lex.uz/uz/docs/-8'],
         )
+
+
+class EncyclopediaContext(unittest.TestCase):
+    result = {
+        'article': {
+            'title': 'Samarqand',
+            'url': 'https://ai.example/wiki/content/b/Samarqand',
+            'text': 'Qadimiy shahar.',
+        },
+        'results': [
+            {'title': 'Samarqand', 'url': 'https://ai.example/wiki/content/b/Samarqand', 'snippet': 'dup'},
+            {'title': 'Registon', 'url': 'https://ai.example/wiki/content/b/Registon', 'snippet': 'Maydon.'},
+            {'title': 'Empty', 'url': 'https://ai.example/wiki/content/b/E', 'snippet': ''},
+        ],
+    }
+
+    def test_docs_article_first_unique_by_url(self):
+        docs = enc.encyclopedia_docs(self.result)
+        self.assertEqual([d['metadata']['source'].rsplit('/', 1)[1] for d in docs], ['Samarqand', 'Registon'])
+        self.assertEqual(docs[0]['content'], 'Qadimiy shahar.')
+
+    def test_attach_adds_a_docs_file_item(self):
+        async def fake(query):
+            return json.dumps(self.result)
+
+        form = {'files': []}
+        attached = asyncio.run(
+            enc.attach_encyclopedia_context(form, {'search_encyclopedia': {'callable': fake}}, 'Samarqand haqida')
+        )
+        self.assertTrue(attached)
+        self.assertEqual(form['files'][0]['type'], 'web_search')
+        self.assertEqual(len(form['files'][0]['docs']), 2)
+
+    def test_errors_and_missing_tool_attach_nothing(self):
+        async def failing(query):
+            return json.dumps({'error': 'service_unavailable'})
+
+        form = {}
+        self.assertFalse(
+            asyncio.run(enc.attach_encyclopedia_context(form, {'search_encyclopedia': {'callable': failing}}, 'x'))
+        )
+        self.assertFalse(asyncio.run(enc.attach_encyclopedia_context(form, {}, 'x')))
+        self.assertNotIn('files', form)
 
 
 class Identity(unittest.TestCase):

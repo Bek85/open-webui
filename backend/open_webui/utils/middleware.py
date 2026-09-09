@@ -2931,8 +2931,14 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                 from open_webui.utils.legal_fast_path import plan_legal_fast_path
 
                 fast_path_plan = await plan_legal_fast_path(request, form_data, user, metadata, model, tools_dict.keys())
-                if fast_path_plan:
+                if fast_path_plan and fast_path_plan.get('corpus'):
                     metadata['legal_fast_path'] = fast_path_plan
+                elif fast_path_plan and fast_path_plan.get('route') == 'wiki':
+                    # General knowledge: look the article up here and hand it to the model as
+                    # cited context; files with docs are turned into sources just below.
+                    from open_webui.utils.encyclopedia_context import attach_encyclopedia_context
+
+                    await attach_encyclopedia_context(form_data, tools_dict, fast_path_plan['question'])
             else:
                 # If the function calling is not native, then call the tools function calling handler
                 try:

@@ -24,8 +24,15 @@ UI session AND research_uzbek_law bound AND no files AND no knowledge AND legalF
      lexuz / prosecutor -> POST {RAG_BASE_URL}/<corpus>/stream with signed identity headers
                            2xx + text/event-stream -> relay as the assistant answer
                            anything else            -> native tool loop
+     wiki              -> search_encyclopedia runs server-side; its article and snippets are
+                          attached as a docs file item (cited sources); the model answers
+                          (utils/encyclopedia_context.py; see deploy/encyclopedia/README.md)
      general           -> native tool loop (model may still call tools)
 ```
+
+Classifier accuracy on the mixed probe set (2026-09-09): 18/20; every legal question
+stayed on the legal routes. Free model choice had called the encyclopedia on 4/8
+factual questions, which is why the lookup is deterministic.
 
 The specialist receives the last 12 user/assistant turns as plain text (each
 capped at 12 000 characters); it builds its own context. Attachments always take

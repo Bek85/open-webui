@@ -206,21 +206,42 @@ def rollback(destination):
     print('Legacy routing restored. Chats, uploads and other model settings preserved.')
 
 
+# Companion Workspace tools: id -> (deploy subdirectory, display name, description).
+# Each subdirectory holds workspace_tool.py and instructions.txt appended to the prompt.
+COMPANION_TOOLS = {
+    'prokuratura_file_generation': (
+        'file_generation',
+        'Word / PDF / Excel',
+        'Private document generation; downloads expire after 30 days.',
+    ),
+    'prokuratura_encyclopedia': (
+        'encyclopedia',
+        'Encyclopedia (offline Wikipedia)',
+        'Offline Uzbek and Russian Wikipedia search; no internet access.',
+    ),
+}
+
+
+def compose_system_prompt(tool_ids) -> str:
+    """system.txt plus the instructions of every bound companion tool, in a stable order."""
+    parts = [(ROOT / 'system.txt').read_text()]
+    for tid, (dirname, _, _) in COMPANION_TOOLS.items():
+        if tid in tool_ids:
+            parts.append((ROOT.parent / dirname / 'instructions.txt').read_text())
+    return '\n\n'.join(part.strip() for part in parts) + '\n'
+
+
 def refresh():
     """Push updated tool code and system prompt to the existing presets without touching access or restore points."""
     with database() as db:
         tool_grants = db.execute('SELECT id FROM tool WHERE id=?', (TOOL_ID,)).fetchone()
         assert tool_grants, 'Tool is not installed; run stage first'
         model_ids = [r[0] for r in db.execute('SELECT id FROM model WHERE id IN (?,?)', (MAIN_ID, CANARY_ID))]
-    files_dir = ROOT.parent / 'file_generation'
     tools = {TOOL_ID: tool_form()}
-    if (files_dir / 'workspace_tool.py').is_file():
-        tools['prokuratura_file_generation'] = {
-            'id': 'prokuratura_file_generation',
-            'name': 'Word / PDF / Excel',
-            'content': (files_dir / 'workspace_tool.py').read_text(),
-            'meta': {'description': 'Private document generation; downloads expire after 30 days.'},
-        }
+    for tid, (dirname, name, description) in COMPANION_TOOLS.items():
+        source = ROOT.parent / dirname / 'workspace_tool.py'
+        if source.is_file():
+            tools[tid] = {'id': tid, 'name': name, 'content': source.read_text(), 'meta': {'description': description}}
     installed = {t['id'] for t in api('/api/v1/tools/')}
     for tid, form in tools.items():
         if tid in installed:
@@ -228,10 +249,7 @@ def refresh():
             api('/api/v1/tools/id/' + tid + '/update', {**form, 'access_grants': current.get('access_grants', [])})
     for mid in model_ids:
         model = api('/api/v1/models/model?id=' + mid)
-        system = (ROOT / 'system.txt').read_text()
-        if 'prokuratura_file_generation' in (model.get('meta') or {}).get('toolIds', []):
-            # Same composition as file_generation/manage_files.py augmented(): prompt + file instructions.
-            system += '\n\n' + (files_dir / 'instructions.txt').read_text()
+        system = compose_system_prompt((model.get('meta') or {}).get('toolIds') or [])
         model['params'] = {**(model.get('params') or {}), 'system': system}
         api('/api/v1/models/model/update', model)
     print('Refreshed tools', sorted(tools), 'and system prompt for:', model_ids)

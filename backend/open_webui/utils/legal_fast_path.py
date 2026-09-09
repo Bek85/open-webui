@@ -48,12 +48,16 @@ prosecutor — FAQAT prokuraturaning ichki idoraviy hujjatlari:
   Eslatma: fuqaroning jinoyat, huquqbuzarlik yoki qonun mazmuni haqidagi savoli
   BU YERGA EMAS — u lexuz ga tegishli.
 
-general — yuqoridagilarning hech biriga tegishli bo'lmasa:
-  • Umumiy savollar, salomlashish, muloqot
-  • Texnik, ilmiy, madaniy va boshqa mavzular
-  • Huquq yoki prokuratura bilan bog'liq bo'lmagan har qanday so'rov
+wiki — huquqqa aloqasi bo'lmagan umumiy bilim (ensiklopedik) savollari:
+  • Shaxslar, joylar, mamlakatlar, tarixiy voqealar, fan, texnika, tabiat
+  • Atamalar va tushunchalarning umumiy ta'rifi ("... nima?", "... kim?", "qachon ...")
+  Eslatma: qonun, kodeks, javobgarlik, huquq va prokuraturaga oid savollar BU YERGA EMAS.
 
-Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI general"""
+general — yuqoridagilarning hech biriga tegishli bo'lmasa:
+  • Salomlashish, muloqot, matn yozish yoki tarjima qilish iltimoslari
+  • Yuklangan hujjat bilan ishlash
+
+Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI wiki YOKI general"""
 
 
 def parse_route(text) -> str:
@@ -63,6 +67,8 @@ def parse_route(text) -> str:
         return 'prosecutor'
     if 'lexuz' in text or 'lex_uz' in text or 'lex.uz' in text:
         return 'lexuz'
+    if 'wiki' in text:
+        return 'wiki'
     return 'general'
 
 
@@ -130,7 +136,7 @@ async def classify_route(request, user, model_id: str, text: str) -> str:
 
 
 async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, model: dict, tool_names) -> dict | None:
-    """Return the fast-path plan for a legal-only turn, or None to keep the native tool loop."""
+    """Route the turn: a specialist plan (has `corpus`), an encyclopedia plan (route `wiki`), or None."""
     if not is_fast_path_candidate(metadata, model, tool_names):
         return None
     question = plain_text_question(form_data.get('messages', []))
@@ -139,9 +145,17 @@ async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, m
     base_model_id = (model.get('info') or {}).get('base_model_id') or form_data.get('model')
     route = await classify_route(request, user, base_model_id, question)
     corpus = CORPUS_BY_ROUTE.get(route)
-    if not corpus:
-        return None
-    return {'corpus': corpus, 'question': question, 'messages': specialist_messages(form_data.get('messages', []))}
+    if corpus:
+        return {
+            'route': route,
+            'corpus': corpus,
+            'question': question,
+            'messages': specialist_messages(form_data.get('messages', [])),
+        }
+    if route == 'wiki':
+        # Handled in process_chat_payload: server-side encyclopedia lookup, model still answers.
+        return {'route': 'wiki', 'question': question}
+    return None
 
 
 async def start_legal_fast_path(form_data: dict, user, metadata: dict, plan: dict):

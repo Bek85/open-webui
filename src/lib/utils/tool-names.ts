@@ -7,6 +7,7 @@ export function getToolDisplayName(
 	if (name === 'create_document') return translate('Document creation');
 	if (name === 'create_spreadsheet') return translate('Spreadsheet creation');
 	if (name === 'research_prosecutor_orders') return translate('Prosecutor General’s orders');
+	if (name === 'search_encyclopedia') return translate('Encyclopedia search');
 	return name ?? '';
 }
 
@@ -17,7 +18,9 @@ const WORKSPACE_CAPTIONS = new Set([
 	'LexUz / Bosh prokuror buyruqlari',
 	'Signed, permission-aware legal research for ProkuraturaAI.',
 	'Word / PDF / Excel',
-	'Private document generation; downloads expire after 30 days.'
+	'Private document generation; downloads expire after 30 days.',
+	'Encyclopedia (offline Wikipedia)',
+	'Offline Uzbek and Russian Wikipedia search; no internet access.'
 ]);
 
 export function getWorkspaceCaption(

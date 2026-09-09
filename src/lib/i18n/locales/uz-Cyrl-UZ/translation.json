@@ -1,4 +1,10 @@
 {
+	"Encyclopedia search": "Энциклопедиядан қидириш",
+	"Encyclopedia (offline Wikipedia)": "Энциклопедия (офлайн Википедия)",
+	"Offline Uzbek and Russian Wikipedia search; no internet access.": "Ўзбек ва рус Википедияси бўйича офлайн қидирув; интернетга уланиш йўқ.",
+	"Searching the encyclopedia…": "Энциклопедиядан қидирилмоқда…",
+	"Encyclopedia search complete": "Энциклопедия қидируви якунланди",
+	"Encyclopedia search failed": "Энциклопедия қидируви амалга ошмади",
 	"Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.": "Ҳужжатлар, LexUz ва Бош прокурор буйруқлари билан ишлайдиган ягона ёрдамчи.",
 	"LexUz / Bosh prokuror buyruqlari": "LexUz / Бош прокурор буйруқлари",
 	"Signed, permission-aware legal research for ProkuraturaAI.": "ProkuraturaAI учун имзоланган, рухсатларни ҳисобга олувчи ҳуқуқий тадқиқот.",

@@ -1,4 +1,10 @@
 {
+	"Encyclopedia search": "Поиск в энциклопедии",
+	"Encyclopedia (offline Wikipedia)": "Энциклопедия (офлайн-Википедия)",
+	"Offline Uzbek and Russian Wikipedia search; no internet access.": "Офлайн-поиск по узбекской и русской Википедии; без доступа в интернет.",
+	"Searching the encyclopedia…": "Поиск в энциклопедии…",
+	"Encyclopedia search complete": "Поиск в энциклопедии завершён",
+	"Encyclopedia search failed": "Поиск в энциклопедии не удался",
 	"Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.": "Единый ассистент: документы, LexUz и приказы Генерального прокурора.",
 	"LexUz / Bosh prokuror buyruqlari": "LexUz / приказы Генерального прокурора",
 	"Signed, permission-aware legal research for ProkuraturaAI.": "Подписанный правовой поиск с учётом прав доступа для ProkuraturaAI.",

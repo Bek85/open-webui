@@ -53,6 +53,11 @@ services:
       # engine/lang fields are ignored. Lang codes must match the tesseract
       # langpacks in docling.Dockerfile (rus, uzb, uzb_cyrl) — NOT "uzb_cyrlic".
       DOCLING_PARAMS: '{"ocr_engine":"tesseract","ocr_lang":["rus","uzb_cyrl","uzb"]}'
+      # Offline encyclopedia tool (deploy/encyclopedia): internal kiwix URL, the
+      # reader URL users can open, and language:book-id pairs (ZIM basenames).
+      ENCYCLOPEDIA_KIWIX_URL: "http://kiwix:8080/wiki"
+      ENCYCLOPEDIA_PUBLIC_URL: "https://ai.prokuratura.uz/wiki"
+      ENCYCLOPEDIA_BOOKS: "uz:wikipedia_uz_all_maxi_2026-07"
       ENABLE_CODE_EXECUTION: false
       ENABLE_CODE_INTERPRETER: false
       ENABLE_DIRECT_CONNECTIONS: false
@@ -107,6 +112,29 @@ services:
     pids_limit: 64
     mem_limit: 512m
     cpus: 1.0
+    restart: unless-stopped
+
+  # Offline encyclopedia: kiwix-serve over Wikipedia ZIM dumps in /home/user/ai/kiwix/zim.
+  # No published port: open-webui queries it over ai_network and nginx proxies /wiki/
+  # for the reader. Book ids are the ZIM file basenames (see ENCYCLOPEDIA_BOOKS).
+  kiwix:
+    image: ghcr.io/kiwix/kiwix-serve:latest
+    container_name: kiwix
+    command: >-
+      --urlRootLocation /wiki
+      /data/wikipedia_uz_all_maxi_2026-07.zim
+    volumes:
+      - /home/user/ai/kiwix/zim:/data:ro
+    networks:
+      - ai_network
+    read_only: true
+    tmpfs:
+      - /tmp:size=67108864,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 2g
     restart: unless-stopped
 
   pipelines:
