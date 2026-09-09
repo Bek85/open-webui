@@ -118,6 +118,12 @@
 			}
 		: null;
 	let showGeneratedPreview = false;
+	let generatedFileOpened = false;
+	$: if (!generatedFile) generatedFileOpened = false;
+	$: if (generatedFile && isDone && !generatedFileOpened) {
+		open = true;
+		generatedFileOpened = true;
+	}
 	$: hasError = isDone && toolResultFailed(result);
 	$: displayName = getToolDisplayName(attributes.name, (key) => $i18n.t(key));
 	$: isLegalResearch = ['research_uzbek_law', 'research_prosecutor_orders'].includes(
