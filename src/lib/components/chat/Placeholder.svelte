@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getWorkspaceCaption } from '$lib/utils/tool-names';
 	import { toast } from 'svelte-sonner';
 	import { marked } from 'marked';
 
@@ -194,7 +195,7 @@
 								className=" w-fit"
 								content={marked.parse(
 									sanitizeResponseContent(
-										models[selectedModelIdx]?.info?.meta?.description ?? ''
+										getWorkspaceCaption(models[selectedModelIdx]?.info?.meta?.description ?? '', $i18n.t)
 									).replaceAll('\n', '<br>')
 								)}
 								placement="top"
@@ -204,8 +205,8 @@
 								>
 									{@html marked.parse(
 										sanitizeResponseContent(
-											models[selectedModelIdx]?.info?.meta?.description ?? ''
-										).replaceAll('\n', '<br>')
+										getWorkspaceCaption(models[selectedModelIdx]?.info?.meta?.description ?? '', $i18n.t)
+									).replaceAll('\n', '<br>')
 									)}
 								</div>
 							</Tooltip>
