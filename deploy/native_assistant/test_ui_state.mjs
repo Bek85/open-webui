@@ -26,7 +26,7 @@ test('parallel calls sharing timestamps remain distinct and pending work wins', 
 });
 
 test('all new captions have translations in all four supported locales', () => {
-  const keys = ['{{NAME}} failed', 'Completed with errors', 'Legal research did not complete. No verified answer was returned.', 'Technical details', 'Researching legal sources…', 'Preparing legal analysis…', 'Legal analysis ready', 'Legal research failed'];
+  const keys = ['{{NAME}} failed', 'Completed with errors', 'Legal research did not complete. No verified answer was returned.', 'Technical details', 'Researching legal sources…', 'Preparing legal analysis…', 'Legal analysis ready', 'Legal research failed', 'Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.', 'LexUz / Bosh prokuror buyruqlari', 'Signed, permission-aware legal research for ProkuraturaAI.', 'Word / PDF / Excel', 'Private document generation; downloads expire after 30 days.'];
   for (const locale of ['en-US', 'ru-RU', 'uz-Latn-UZ', 'uz-Cyrl-UZ']) {
     const text = readFileSync(new URL(`../../src/lib/i18n/locales/${locale}/translation.json`, import.meta.url), 'utf8');
     const translations = JSON.parse(text);

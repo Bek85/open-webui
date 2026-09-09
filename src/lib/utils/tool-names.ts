@@ -9,3 +9,21 @@ export function getToolDisplayName(
 	if (name === 'research_prosecutor_orders') return translate('Prosecutor General’s orders');
 	return name ?? '';
 }
+
+// Workspace model/tool captions live in the database (name, meta.description) and are
+// authored in English. Known ones are shown through i18n; anything else stays verbatim.
+const WORKSPACE_CAPTIONS = new Set([
+	'Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.',
+	'LexUz / Bosh prokuror buyruqlari',
+	'Signed, permission-aware legal research for ProkuraturaAI.',
+	'Word / PDF / Excel',
+	'Private document generation; downloads expire after 30 days.'
+]);
+
+export function getWorkspaceCaption(
+	text: string | undefined | null,
+	translate: (key: string) => string
+): string {
+	const value = (text ?? '').trim();
+	return WORKSPACE_CAPTIONS.has(value) ? translate(value) : (text ?? '');
+}

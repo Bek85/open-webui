@@ -10,6 +10,7 @@
 
 	import Suggestions from './Suggestions.svelte';
 	import { sanitizeResponseContent } from '$lib/utils';
+	import { getWorkspaceCaption } from '$lib/utils/tool-names';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
 
@@ -49,7 +50,7 @@
 							content={DOMPurify.sanitize(
 								marked.parse(
 									sanitizeResponseContent(
-										models[selectedModelIdx]?.info?.meta?.description ?? ''
+										getWorkspaceCaption(models[selectedModelIdx]?.info?.meta?.description ?? '', $i18n.t)
 									).replaceAll('\n', '<br>')
 								)
 							)}
@@ -102,7 +103,7 @@
 							{@html DOMPurify.sanitize(
 								marked.parse(
 									sanitizeResponseContent(
-										models[selectedModelIdx]?.info?.meta?.description
+										getWorkspaceCaption(models[selectedModelIdx]?.info?.meta?.description, $i18n.t)
 									).replaceAll('\n', '<br>')
 								)
 							)}

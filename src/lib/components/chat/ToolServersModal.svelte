@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getWorkspaceCaption } from '$lib/utils/tool-names';
 	import { getContext } from 'svelte';
 	import { toolServers, tools } from '$lib/stores';
 
@@ -66,7 +67,7 @@
 							<div class="min-w-0 flex-1">
 								<div class="flex items-center gap-1 min-w-0">
 									<div class="text-sm font-normal dark:text-gray-100 text-gray-800 truncate">
-										{tool?.name}
+										{getWorkspaceCaption(tool?.name, $i18n.t)}
 									</div>
 									{#if status}
 										<span class="text-[11px] {status.pill} shrink-0">{status.label}</span>
@@ -85,7 +86,7 @@
 
 								{#if tool?.meta?.description}
 									<div class="text-xs text-gray-500 truncate">
-										{tool?.meta?.description}
+										{getWorkspaceCaption(tool?.meta?.description, $i18n.t)}
 									</div>
 								{/if}
 							</div>

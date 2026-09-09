@@ -59,20 +59,42 @@ async def sse_frames(content):
         yield event, '\n'.join(data)
 
 
+_SOURCES_HEADING_RE = re.compile(r'^\s*#{0,6}\s*(?:Manbalar|Манбалар|Источники)\s*:?\s*$', re.MULTILINE)
+_SOURCE_ENTRY_RE = re.compile(r'^\s*(\d{1,3})[.)]\s*\[([^\]\n]+)\]\((https?://[^\s)]+)\)', re.MULTILINE)
+_MD_LINK_RE = re.compile(r'\[([^\]\n]+)\]\((https?://[^\s)]+)\)')
+
+
+def _source_card(title: str, url: str) -> dict:
+    return {
+        'source': {'id': url, 'name': title[:512], 'type': 'web'},
+        'document': [title[:512]],
+        'metadata': [{'source': url, 'url': url, 'name': title[:512]}],
+    }
+
+
 def bibliography_sources(answer: str) -> list:
-    """Native source cards for links the specialist actually cited in its report."""
+    """Native source cards aligned with the specialist's bibliography numbers.
+
+    The UI resolves an in-text ``[n]`` marker to the n-th source card, so cards must
+    follow the numbering of the last "Manbalar" block, not the order links first appear.
+    A numbered list with a gap cannot be aligned safely; then no cards are emitted and
+    the visible bibliography links remain the citations.
+    """
+    headings = list(_SOURCES_HEADING_RE.finditer(answer or ''))
+    if headings:
+        entries = {}
+        for number, title, url in _SOURCE_ENTRY_RE.findall(answer[headings[-1].end() :]):
+            entries.setdefault(int(number), (title, url))
+        if entries:
+            if sorted(entries) != list(range(1, max(entries) + 1)):
+                log.warning('Legal fast path: bibliography numbering has gaps %s; no source cards', sorted(entries))
+                return []
+            return [_source_card(*entries[n]) for n in sorted(entries)][:64]
     sources, seen = [], set()
-    for title, url in re.findall(r'\[([^\]\n]+)\]\((https?://[^\s)]+)\)', answer):
-        if url in seen:
-            continue
-        seen.add(url)
-        sources.append(
-            {
-                'source': {'id': url, 'name': title[:512], 'type': 'web'},
-                'document': [title[:512]],
-                'metadata': [{'source': url, 'url': url, 'name': title[:512]}],
-            }
-        )
+    for title, url in _MD_LINK_RE.findall(answer or ''):
+        if url not in seen:
+            seen.add(url)
+            sources.append(_source_card(title, url))
     return sources[:64]
 
 

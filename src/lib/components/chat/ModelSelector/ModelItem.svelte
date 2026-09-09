@@ -9,6 +9,7 @@
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import { copyToClipboard, sanitizeResponseContent } from '$lib/utils';
+	import { getWorkspaceCaption } from '$lib/utils/tool-names';
 	import ArrowUpTray from '$lib/components/icons/ArrowUpTray.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
 	import ModelItemMenu from './ModelItemMenu.svelte';
@@ -215,7 +216,7 @@
 				{#if item.model?.info?.meta?.description}
 					<Tooltip
 						content={`${marked.parse(
-							sanitizeResponseContent(item.model?.info?.meta?.description).replaceAll('\n', '<br>')
+							sanitizeResponseContent(getWorkspaceCaption(item.model?.info?.meta?.description, $i18n.t)).replaceAll('\n', '<br>')
 						)}`}
 					>
 						<div class=" translate-y-[1px]">

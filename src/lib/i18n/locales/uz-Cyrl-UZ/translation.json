@@ -1,4 +1,9 @@
 {
+	"Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.": "Ҳужжатлар, LexUz ва Бош прокурор буйруқлари билан ишлайдиган ягона ёрдамчи.",
+	"LexUz / Bosh prokuror buyruqlari": "LexUz / Бош прокурор буйруқлари",
+	"Signed, permission-aware legal research for ProkuraturaAI.": "ProkuraturaAI учун имзоланган, рухсатларни ҳисобга олувчи ҳуқуқий тадқиқот.",
+	"Word / PDF / Excel": "Word / PDF / Excel",
+	"Private document generation; downloads expire after 30 days.": "Махфий ҳужжат яратиш; юклаб олиш ҳаволалари 30 кундан сўнг тугайди.",
 	"Document creation": "Ҳужжат яратиш",
 	"Spreadsheet creation": "Жадвал яратиш",
 	"{{NAME}} failed": "{{NAME}}: хатолик",

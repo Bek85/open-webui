@@ -164,6 +164,29 @@ class Relay(unittest.TestCase):
         self.assertEqual(closed, [True])
 
 
+class Bibliography(unittest.TestCase):
+    def test_cards_follow_bibliography_numbers_not_appearance(self):
+        text = (
+            'Matn [2] va [1].\n\nInline [FK](https://lex.uz/uz/docs/-3) link.\n\n### Manbalar\n\n'
+            '1. [JK 109](https://lex.uz/uz/docs/-1)\n2. [JK 104](https://lex.uz/uz/docs/-2)\n'
+        )
+        self.assertEqual(
+            [c['source']['id'] for c in lss.bibliography_sources(text)],
+            ['https://lex.uz/uz/docs/-1', 'https://lex.uz/uz/docs/-2'],
+        )
+
+    def test_gap_in_numbering_yields_no_cards(self):
+        text = 'Manbalar\n1. [A](https://lex.uz/uz/docs/-1)\n3. [C](https://lex.uz/uz/docs/-3)\n'
+        self.assertEqual(lss.bibliography_sources(text), [])
+
+    def test_without_a_bibliography_block_links_keep_appearance_order(self):
+        text = 'A [x](https://lex.uz/uz/docs/-9) B [y](https://lex.uz/uz/docs/-8) [x](https://lex.uz/uz/docs/-9)'
+        self.assertEqual(
+            [c['source']['id'] for c in lss.bibliography_sources(text)],
+            ['https://lex.uz/uz/docs/-9', 'https://lex.uz/uz/docs/-8'],
+        )
+
+
 class Identity(unittest.TestCase):
     def test_headers_require_user_and_secret(self):
         headers = lss.identity_headers({'id': 'u|1', 'email': 'a@b', 'role': 'user'}, 'c', 'secret')

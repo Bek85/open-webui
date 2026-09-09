@@ -1,4 +1,9 @@
 {
+	"Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.": "Hujjatlar, LexUz va Bosh prokuror buyruqlari bilan ishlaydigan yagona yordamchi.",
+	"LexUz / Bosh prokuror buyruqlari": "LexUz / Bosh prokuror buyruqlari",
+	"Signed, permission-aware legal research for ProkuraturaAI.": "ProkuraturaAI uchun imzolangan, ruxsatlarni hisobga oluvchi huquqiy tadqiqot.",
+	"Word / PDF / Excel": "Word / PDF / Excel",
+	"Private document generation; downloads expire after 30 days.": "Maxfiy hujjat yaratish; yuklab olish havolalari 30 kundan so'ng tugaydi.",
 	"Document creation": "Hujjat yaratish",
 	"Spreadsheet creation": "Jadval yaratish",
 	"{{NAME}} failed": "{{NAME}}: xatolik",

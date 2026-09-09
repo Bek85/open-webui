@@ -41,8 +41,11 @@ The relay produces the SSE the middleware already understands:
   `Researching legal sources…` placeholder until the first specialist frame, and
   `Legal research failed` on failure.
 - `data: {"object": "chat.completion.chunk", ...}` — content deltas.
-- `data: {"event": {"type": "source", ...}}` — one native source card per link
-  cited in the specialist's bibliography, emitted only for completed streams.
+- `data: {"event": {"type": "source", ...}}` — native source cards emitted only
+  for completed streams, in the order of the last "Manbalar" block's numbers,
+  because the UI resolves an in-text `[n]` marker to the n-th card. If that
+  numbering has a gap, no cards are emitted (the bibliography links stay
+  clickable); without a numbered block, links are used in order of appearance.
 - A stream without its completion marker keeps the partial text and appends a
   user-facing notice in the user's script; it is never presented as verified.
   Specialist steps still open at that point are closed with `error: true`, and

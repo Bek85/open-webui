@@ -1,4 +1,9 @@
 {
+	"Unified assistant with documents, LexUz and Bosh prokuror buyruqlari.": "Единый ассистент: документы, LexUz и приказы Генерального прокурора.",
+	"LexUz / Bosh prokuror buyruqlari": "LexUz / приказы Генерального прокурора",
+	"Signed, permission-aware legal research for ProkuraturaAI.": "Подписанный правовой поиск с учётом прав доступа для ProkuraturaAI.",
+	"Word / PDF / Excel": "Word / PDF / Excel",
+	"Private document generation; downloads expire after 30 days.": "Приватное создание документов; ссылки на скачивание действуют 30 дней.",
 	"Document creation": "Создание документа",
 	"Spreadsheet creation": "Создание таблицы",
 	"{{NAME}} failed": "{{NAME}}: ошибка",
