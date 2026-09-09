@@ -13,10 +13,12 @@
 	import Spinner from './Spinner.svelte';
 	import WrenchSolid from '../icons/WrenchSolid.svelte';
 	import CheckCircle from '../icons/CheckCircle.svelte';
+	import XMark from '../icons/XMark.svelte';
 	import Image from './Image.svelte';
 	import FullHeightIframe from './FullHeightIframe.svelte';
 	import { settings } from '$lib/stores';
 	import { getToolDisplayName } from '$lib/utils/tool-names';
+	import { toolResultFailed } from '$lib/utils/tool-result';
 
 	export let id: string = '';
 	export let attributes: {
@@ -96,6 +98,7 @@
 
 	$: parsedArgs = parseArguments(args);
 	$: parsedResult = parseJSONString(result);
+	$: hasError = isDone && toolResultFailed(result);
 	$: displayName = getToolDisplayName(attributes.name, (key) => $i18n.t(key));
 	$: isLegalResearch = ['research_uzbek_law', 'research_prosecutor_orders'].includes(
 		attributes.name ?? ''
@@ -141,6 +144,10 @@
 					<div>
 						<Spinner className="size-4" />
 					</div>
+				{:else if hasError}
+					<div class="text-red-500 dark:text-red-400">
+						<XMark className="size-4" />
+					</div>
 				{:else if isDone}
 					<div class="text-emerald-500 dark:text-emerald-400">
 						<CheckCircle className="size-4" strokeWidth="2" />
@@ -154,10 +161,12 @@
 				<!-- Label -->
 				<div class="flex-1 line-clamp-1">
 					<!-- Short label (below md) -->
-					<span class="@md:hidden text-black dark:text-white">{displayName}</span>
+					<span class="@md:hidden text-black dark:text-white">{hasError ? $i18n.t('{{NAME}} failed', { NAME: displayName }) : displayName}</span>
 					<!-- Full label (md and above) -->
 					<span class="hidden @md:inline font-normal">
-						{#if isDone}
+						{#if hasError}
+							{$i18n.t('{{NAME}} failed', { NAME: displayName })}
+						{:else if isDone}
 							{$i18n.t('View Result from {{NAME}}', { NAME: displayName })}
 						{:else}
 							{$i18n.t('Executing {{NAME}}...', { NAME: displayName })}
@@ -223,7 +232,15 @@
 								{$i18n.t('Output')}
 							</div>
 							<div class="w-full max-w-none!">
-								{#if typeof parsedResult === 'object' && parsedResult !== null}
+								{#if hasError && isLegalResearch}
+									<p class="px-1 text-sm text-red-600 dark:text-red-400">
+										{$i18n.t('Legal research did not complete. No verified answer was returned.')}
+									</p>
+									<details class="px-1 text-xs mt-2">
+										<summary class="cursor-pointer">{$i18n.t('Technical details')}</summary>
+										<pre class="mt-2 whitespace-pre-wrap break-words">{formatJSONString(result)}</pre>
+									</details>
+								{:else if typeof parsedResult === 'object' && parsedResult !== null}
 									<pre
 										class="text-xs text-gray-600 dark:text-gray-300 whitespace-pre font-mono bg-gray-50 dark:bg-gray-900 rounded-lg p-2 overflow-x-auto">{JSON.stringify(
 											parsedResult,

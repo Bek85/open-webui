@@ -1,10 +1,11 @@
+import asyncio
 import hashlib
 import hmac
 import json
 import unittest
 from unittest.mock import patch
 
-from aiohttp import web
+from aiohttp import ClientPayloadError, web
 from legal_research import Tools, bibliography, identity_headers, safe_source, sse_frames
 
 
@@ -83,7 +84,7 @@ class ResearchTests(unittest.IsolatedAsyncioTestCase):
         self.body = (
             'event: status\ndata: not-json\n\nevent: status\ndata: {"action":"knowledge_search",'
             '"items":[{"link":"https://lex.uz/1","title":"Law"}],"done":true}\n\n'
-            'event: message\ndata: answer\n\n'
+            'event: message\ndata: answer\n\nevent: done\ndata: [DONE]\n\n'
         )
         result = await self.research()
         self.assertEqual(result['search_results'][0]['title'], 'Law')
@@ -100,6 +101,47 @@ class ResearchTests(unittest.IsolatedAsyncioTestCase):
     async def test_stream_error_discards_partial_answer(self):
         self.body = 'event: message\ndata: incomplete\n\nevent: error\ndata: internal-error\n\n'
         self.assertEqual((await self.research())['error'], 'research_failed')
+
+    async def test_incomplete_stream_is_not_success(self):
+        self.body = 'event: message\ndata: incomplete answer\n\n'
+        self.assertEqual((await self.research())['error'], 'incomplete_stream')
+        self.assertTrue(self.events[-1]['data']['error'])
+
+    async def test_summary_does_not_finish_research_and_parallel_ids_are_distinct(self):
+        self.body = (
+            'event: status\ndata: {"action":"summary","description":"Topic","done":true,"started_at":1}\n\n'
+            'event: message\ndata: answer\n\nevent: done\ndata: [DONE]\n\n'
+        )
+        await asyncio.gather(self.research(), self.research())
+        statuses = [e['data'] for e in self.events]
+        ids = {s['research_id'] for s in statuses}
+        self.assertEqual(len(ids), 2)
+        self.assertFalse(any(s['action'] == 'summary' for s in statuses))
+        for rid in ids:
+            steps = [s for s in statuses if s['research_id'] == rid]
+            self.assertTrue(any(s['description'] == 'Preparing legal analysis…' and not s['done'] for s in steps))
+            self.assertEqual(steps[-1]['description'], 'Legal analysis ready')
+            self.assertFalse(steps[-1]['error'])
+            latest = {(s['action'], s['started_at']): s for s in steps}
+            self.assertTrue(all(s['done'] for s in latest.values()))
+
+    async def test_transport_failure_logs_type_not_sensitive_exception_message(self):
+        async def broken_stream(content):
+            yield 'status', '{"action":"knowledge_search","started_at":1,"done":false}'
+            raise ClientPayloadError('secret-backend-details')
+
+        with (
+            patch('legal_research.sse_frames', broken_stream),
+            self.assertLogs('legal_research', level='WARNING') as logs,
+        ):
+            result = await self.research()
+        self.assertEqual(result['error'], 'service_unavailable')
+        self.assertIn('ClientPayloadError', str(logs.output))
+        self.assertNotIn('secret-backend-details', str(logs.output))
+        self.assertNotIn('u@example.test', str(logs.output))
+        self.assertTrue(self.events[-2]['data']['done'])
+        self.assertTrue(self.events[-2]['data']['error'])
+        self.assertTrue(self.events[-1]['data']['error'])
 
     async def test_empty_and_oversized_results(self):
         for body, expected in (('', 'empty_result'), ('x' * 120001, 'result_too_large')):

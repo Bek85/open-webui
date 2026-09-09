@@ -5,6 +5,7 @@
 	import WebSearchResults from '../WebSearchResults.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
+	import XMark from '$lib/components/icons/XMark.svelte';
 	import Markdown from '$lib/components/chat/Messages/Markdown.svelte';
 
 	import { formatDuration, shouldShowDuration } from '$lib/utils/format-duration';
@@ -17,12 +18,17 @@
 
 	// Translate known router notices, including those stored in existing chats.
 	// Other reasoning descriptions are model content and must stay verbatim.
-	$: reasoningDescription =
-		status?.description === 'Routing to LexUz pipeline…'
-			? $i18n.t('Routing to LexUz pipeline…')
-			: status?.description === 'Routing to Prosecutor pipeline…'
-				? $i18n.t('Routing to Prosecutor pipeline…')
-				: (status?.description ?? '');
+	const translatedNotices = new Set([
+		'Routing to LexUz pipeline…',
+		'Routing to Prosecutor pipeline…',
+		'Researching legal sources…',
+		'Preparing legal analysis…',
+		'Legal analysis ready',
+		'Legal research failed'
+	]);
+	$: reasoningDescription = translatedNotices.has(status?.description)
+		? $i18n.t(status.description)
+		: (status?.description ?? '');
 
 	$: isDone =
 		(done || status?.done) === true ||
@@ -51,6 +57,9 @@
 
 {#if !status?.hidden}
 	<div class="status-description flex items-center gap-2 py-0.5 w-full text-left">
+		{#if status?.error}
+			<span class="text-red-500 dark:text-red-400"><XMark className="size-4" /></span>
+		{/if}
 		{#if status?.action === 'web_search' && (status?.urls || status?.items)}
 			<WebSearchResults {status}>
 				<div class="flex flex-col justify-center -space-y-0.5 min-w-0 flex-1">
@@ -162,7 +171,7 @@
 						·&nbsp;{formatDuration(Math.max(durationMs, 100))}
 					</div>
 				{/if}
-				{#if isDone}
+				{#if isDone && !status?.error}
 					<div in:scale={{ start: 0.7, duration: 200 }} class="shrink-0 text-gray-500">
 						<Check className="size-3.5" strokeWidth="2.5" />
 					</div>

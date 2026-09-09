@@ -1,4 +1,12 @@
 {
+	"{{NAME}} failed": "{{NAME}}: хатолик",
+	"Completed with errors": "Хатоликлар билан якунланди",
+	"Legal research did not complete. No verified answer was returned.": "Ҳуқуқий таҳлил якунланмади. Тасдиқланган жавоб олинмади.",
+	"Technical details": "Техник тафсилотлар",
+	"Researching legal sources…": "Ҳуқуқий манбалар ўрганилмоқда…",
+	"Preparing legal analysis…": "Ҳуқуқий таҳлил тайёрланмоқда…",
+	"Legal analysis ready": "Ҳуқуқий таҳлил тайёр",
+	"Legal research failed": "Ҳуқуқий таҳлилни якунлаб бўлмади",
 	"Prosecutor General’s orders": "Бош прокурор буйруқлари",
 	"Legal research query": "Савол",
 	"(latest)": "(охирги)",

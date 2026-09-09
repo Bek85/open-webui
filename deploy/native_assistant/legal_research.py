@@ -8,13 +8,17 @@ import asyncio
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
 import time
+import uuid
 from urllib.parse import urlsplit
 
 import aiohttp
 from pydantic import BaseModel, Field
+
+log = logging.getLogger(__name__)
 
 
 def identity_headers(user, chat_id, secret):
@@ -114,6 +118,8 @@ class Tools:
     async def _research(self, corpus, query, user, metadata, emitter):  # noqa: C901
         async def emit(data):
             if emitter:
+                if data.get('type') == 'status':
+                    data = {**data, 'data': {**data['data'], 'research_id': request_id}}
                 await emitter(data)
 
         def failure(code, message):
@@ -143,6 +149,8 @@ class Tools:
             )
 
         started = int(time.time() * 1000)
+        request_id = uuid.uuid4().hex[:12]
+        phase, size = 'connecting', 0
         status = {
             'action': 'reasoning',
             'description': 'Routing to LexUz pipeline…' if corpus == 'lex_uz' else 'Routing to Prosecutor pipeline…',
@@ -150,6 +158,7 @@ class Tools:
         }
         await emit({'type': 'status', 'data': {**status, 'done': False}})
         completed = False
+        pending_steps = {}
         try:
             async with asyncio.timeout(self.valves.TIMEOUT_SECONDS):
                 async with aiohttp.ClientSession(
@@ -180,9 +189,21 @@ class Tools:
                             return failure(
                                 'unsupported_transport', 'The research service must provide an SSE response.'
                             )
+                        await emit(
+                            {'type': 'status', 'data': {**status, 'done': True, 'ended_at': int(time.time() * 1000)}}
+                        )
+                        status = {
+                            'action': 'reasoning',
+                            'description': 'Researching legal sources…',
+                            'started_at': max(started + 1, int(time.time() * 1000)),
+                        }
+                        await emit({'type': 'status', 'data': {**status, 'done': False}})
                         parts, sources, size = [], {}, 0
+                        stream_done = False
+                        phase = 'streaming'
                         async for event, data in sse_frames(response.content):
                             if event == 'done' or data.strip() == '[DONE]':
+                                stream_done = True
                                 break
                             if event == 'error':
                                 return failure(
@@ -200,7 +221,27 @@ class Tools:
                                     source = safe_source(item) if isinstance(item, dict) else None
                                     if source:
                                         sources[source['link']] = source
+                                # The service's summary closes retrieval, not the streamed report.
+                                # Never forward it as a global "research completed" summary.
+                                is_summary = detail.get('action') == 'summary'
+                                if is_summary:
+                                    detail = {**detail, 'action': 'reasoning'}
+                                key = (detail.get('action'), detail.get('started_at'))
+                                if detail.get('done') is False and not detail.get('ended_at'):
+                                    pending_steps[key] = detail
+                                else:
+                                    pending_steps.pop(key, None)
                                 await emit({'type': 'status', 'data': detail})
+                                if is_summary and phase != 'synthesizing':
+                                    phase = 'synthesizing'
+                                    now = max(status['started_at'] + 1, int(time.time() * 1000))
+                                    await emit({'type': 'status', 'data': {**status, 'done': True, 'ended_at': now}})
+                                    status = {
+                                        'action': 'reasoning',
+                                        'description': 'Preparing legal analysis…',
+                                        'started_at': now,
+                                    }
+                                    await emit({'type': 'status', 'data': {**status, 'done': False}})
                             elif event == 'message':
                                 size += len(data)
                                 if size > 120000:
@@ -212,6 +253,11 @@ class Tools:
                         if not answer or answer.startswith('Error:'):
                             return failure(
                                 'empty_result', 'The service returned no usable research. Do not fabricate an answer.'
+                            )
+                        if not stream_done:
+                            return failure(
+                                'incomplete_stream',
+                                'The research connection ended before completion. No verified answer is available.',
                             )
                         # Keep research findings and their original bibliography intact. Search hits
                         # remain in the timeline; they are NOT automatically treated as cited evidence.
@@ -230,12 +276,33 @@ class Tools:
                             },
                             ensure_ascii=False,
                         )
-        except (TimeoutError, aiohttp.ClientError, UnicodeError):
+        except (TimeoutError, aiohttp.ClientError, UnicodeError) as exc:
+            # Log diagnostics, never questions, document text, identities or credentials.
+            log.warning(
+                'Legal research failed request=%s corpus=%s phase=%s exception=%s elapsed_ms=%s answer_chars=%s',
+                request_id,
+                corpus,
+                phase,
+                type(exc).__name__,
+                int(time.time() * 1000) - started,
+                size,
+            )
             return failure('service_unavailable', 'Research could not be completed. Please try again later.')
         finally:
+            ended = int(time.time() * 1000)
+            for step in pending_steps.values():
+                await emit(
+                    {'type': 'status', 'data': {**step, 'done': True, 'ended_at': ended, 'error': not completed}}
+                )
             await emit(
                 {
                     'type': 'status',
-                    'data': {**status, 'done': True, 'ended_at': int(time.time() * 1000), 'error': not completed},
+                    'data': {
+                        **status,
+                        'description': 'Legal analysis ready' if completed else 'Legal research failed',
+                        'done': True,
+                        'ended_at': ended,
+                        'error': not completed,
+                    },
                 }
             )

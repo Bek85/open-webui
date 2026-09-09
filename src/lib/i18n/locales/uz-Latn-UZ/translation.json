@@ -1,4 +1,12 @@
 {
+	"{{NAME}} failed": "{{NAME}}: xatolik",
+	"Completed with errors": "Xatoliklar bilan yakunlandi",
+	"Legal research did not complete. No verified answer was returned.": "Huquqiy tahlil yakunlanmadi. Tasdiqlangan javob olinmadi.",
+	"Technical details": "Texnik tafsilotlar",
+	"Researching legal sources…": "Huquqiy manbalar o‘rganilmoqda…",
+	"Preparing legal analysis…": "Huquqiy tahlil tayyorlanmoqda…",
+	"Legal analysis ready": "Huquqiy tahlil tayyor",
+	"Legal research failed": "Huquqiy tahlilni yakunlab bo‘lmadi",
 	"Prosecutor General’s orders": "Bosh prokuror buyruqlari",
 	"Legal research query": "Savol",
 	"(latest)": "(oxirgi)",

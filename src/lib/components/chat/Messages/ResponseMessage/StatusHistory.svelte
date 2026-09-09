@@ -9,6 +9,7 @@
 
 	import { formatDuration } from '$lib/utils/format-duration';
 	import { acquireTick, releaseTick, nowTick } from '$lib/utils/timeline-tick';
+	import { currentResearchStatus, statusKey } from '$lib/utils/research-status';
 
 	const i18n: any = getContext('i18n');
 
@@ -24,14 +25,12 @@
 	let history: any[] = [];
 	let status: any = null;
 
-	$: if (history && history.length > 0) {
-		status = history.at(-1);
-	}
+	$: status = currentResearchStatus(history);
 
 	function dedupeHistory(arr: any[] = []) {
 		// Pipelines re-emit the same step (e.g. done:false then done:true) carrying the same
 		// `started_at`. Without deduping, two entries share a key and Svelte's keyed `{#each}`
-		// crashes ("duplicate keys"). Keep only the latest emit per (action, started_at).
+		// crashes ("duplicate keys"). Keep the latest emit per call/action/started_at.
 		// Also drop content-less events (no action, no description, no payload) — those
 		// render as orphan dots with no text and look broken.
 		if (!arr || arr.length === 0) return [];
@@ -48,10 +47,7 @@
 				item.count != null ||
 				(Array.isArray(item.queries) && item.queries.length > 0);
 			if (!hasContent) continue;
-			const key =
-				typeof item.started_at === 'number'
-					? `${item.action ?? ''}#${item.started_at}`
-					: null;
+			const key = statusKey(item);
 			if (key !== null && seen.has(key)) {
 				result[seen.get(key) as number] = item;
 			} else {
@@ -87,7 +83,9 @@
 	});
 
 	$: isSummary = status?.action === 'summary';
-	$: summaryDone = isSummary && (status?.done === true || typeof status?.ended_at === 'number');
+	$: summaryDone =
+		isSummary && inFlightCount === 0 && !status?.error &&
+		(status?.done === true || typeof status?.ended_at === 'number');
 
 	$: firstStarted = (history ?? [])
 		.map((s) => s?.started_at)
@@ -146,7 +144,7 @@
 
 	onDestroy(() => clearIdleTimer());
 
-	$: timelineItems = (history ?? []).slice(0, -1);
+	$: timelineItems = (history ?? []).filter((item) => item !== status);
 </script>
 
 {#if history && history.length > 0}
@@ -159,7 +157,7 @@
 				>
 					{#if history.length > 1 || showIdleThinking}
 						<div class="w-full">
-							{#each timelineItems as item, idx (typeof item?.started_at === 'number' ? `${item.action ?? ''}#${item.started_at}` : `idx#${idx}`)}
+							{#each timelineItems as item, idx (statusKey(item) ?? `idx#${idx}`)}
 								<div
 									class="flex items-stretch gap-2 mb-1"
 									in:fly={{ y: 6, duration: 220, easing: cubicOut }}
@@ -180,7 +178,7 @@
 										/>
 									</div>
 
-									<StatusItem status={item} done={true} />
+									<StatusItem status={item} done={item.research_id ? item.done === true : true} />
 								</div>
 							{/each}
 

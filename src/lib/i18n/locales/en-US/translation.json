@@ -1,4 +1,12 @@
 {
+	"{{NAME}} failed": "{{NAME}} failed",
+	"Completed with errors": "Completed with errors",
+	"Legal research did not complete. No verified answer was returned.": "Legal research did not complete. No verified answer was returned.",
+	"Technical details": "Technical details",
+	"Researching legal sources…": "Researching legal sources…",
+	"Preparing legal analysis…": "Preparing legal analysis…",
+	"Legal analysis ready": "Legal analysis ready",
+	"Legal research failed": "Legal research failed",
 	"Prosecutor General’s orders": "Prosecutor General’s orders",
 	"Legal research query": "Question",
 	"(latest)": "",

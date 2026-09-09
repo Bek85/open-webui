@@ -10,16 +10,19 @@
 	import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
 	import Sparkles from '$lib/components/icons/Sparkles.svelte';
 	import CheckCircle from '$lib/components/icons/CheckCircle.svelte';
+	import XMark from '$lib/components/icons/XMark.svelte';
 	import FullHeightIframe from '$lib/components/common/FullHeightIframe.svelte';
 
 	import { settings } from '$lib/stores';
 	import { getToolDisplayName } from '$lib/utils/tool-names';
+	import { toolResultFailed } from '$lib/utils/tool-result';
 
 	const i18n = getContext('i18n');
 
 	export let id = '';
 	export let tokens: Array<{
 		summary?: string;
+		text?: string;
 		attributes?: {
 			type?: string;
 			name?: string;
@@ -27,6 +30,7 @@
 			duration?: string;
 			embeds?: string;
 			arguments?: string;
+			result?: string;
 		};
 	}> = [];
 
@@ -51,6 +55,15 @@
 		tokens.some((t) => t?.attributes?.done !== undefined && t?.attributes?.done !== 'true');
 
 	$: codeInterpreterCount = tokens.filter((t) => t?.attributes?.type === 'code_interpreter').length;
+	$: hasErrors = tokens.some(
+		(t) =>
+			t.attributes?.type === 'tool_calls' &&
+			t.attributes?.done === 'true' &&
+			toolResultFailed(
+				decode(t.text || '').replace(/<summary>.*?<\/summary>/gi, '').trim() ||
+					decode(t.attributes.result || '')
+			)
+	);
 
 	// Collect all embeds from tool_calls tokens
 	$: allEmbeds = (() => {
@@ -108,7 +121,11 @@
 		return detail;
 	})();
 
-	$: prefixText = hasPending ? $i18n.t('Exploring') : $i18n.t('Explored');
+	$: prefixText = hasPending
+		? $i18n.t('Exploring')
+		: hasErrors
+			? $i18n.t('Completed with errors')
+			: $i18n.t('Explored');
 </script>
 
 <div {id} class="w-full">
@@ -128,6 +145,10 @@
 			{#if hasPending}
 				<div>
 					<Spinner className="size-4" />
+				</div>
+			{:else if hasErrors}
+				<div class="text-red-500 dark:text-red-400">
+					<XMark className="size-4" />
 				</div>
 			{:else if toolCallCount > 0}
 				<div class="text-emerald-500 dark:text-emerald-400">

@@ -21,6 +21,23 @@ normal per-user access checks, so stale browser selections cannot omit research.
 API/task requests without a UI session do not receive hidden required tools.
 Display captions are localized independently of stable function identifiers.
 
+Research progress distinguishes connection, retrieval and specialist synthesis.
+The service's `summary` event is a retrieval milestone, not completion of its
+answer stream. Per-call `research_id` values keep concurrent timelines distinct;
+pending calls remain visible even when another call finishes. Tool error payloads
+show a failure indicator and localized explanation, with raw output under
+technical details. A stream without its completion marker is rejected rather
+than accepted as a verified partial answer.
+
+Transport exceptions log only a random request reference, corpus, phase,
+exception class, elapsed time and answer length. No question, identity, document
+text or exception message is logged by this diagnostic. Intermittent transport
+failures are not yet explained: a live LexUz test succeeded with seven sources,
+but took about 180 seconds inside the specialist service (its retrieval summary
+arrived at about 96 seconds). The outer model still synthesizes a final answer
+after that. These UI fixes do not remove this two-stage latency or repair the
+research service's independent search-branch timeouts.
+
 Document reading uses Open WebUI's automatic extracted/retrieved file context
 (`file_context=true`). This grounds the initial answer in document content even
 when the model does not choose a file-reading tool. A live smoke test caught
@@ -93,6 +110,12 @@ rollback and restaging were also exercised successfully.
 `probe.py visibility` checks model/tool visibility through read-only API calls
 as a non-admin account. Chat smoke tests deliberately omit client `tool_ids` to
 exercise server-side required-tool binding.
+
+Run dependency-free UI state and translation checks with Node 22.18 or newer:
+
+```sh
+node --test deploy/native_assistant/test_ui_state.mjs
+```
 
 Build and recreate **only** `open-webui` with the standard compose deployment.
 This supplies the host-gateway alias needed for RAG and the provider
