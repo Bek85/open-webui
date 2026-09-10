@@ -4,6 +4,10 @@ The isolated renderer produces **DOCX, PDF and XLSX** from data-only native tool
 calls. It has no model credentials, host mounts, Docker socket, public ports or
 outbound network. It does not execute model-written Python, accept file paths,
 download resources, edit uploads or modify the research pipelines.
+Diagrams and visuals the chat renders (mermaid, html, svg fences) cannot be drawn
+into files: the workspace tool strips them before rendering and reports the count
+so the model tells the user. Rendering them would need a headless browser in this
+container (deferred 2026-09-10).
 
 Supported documents: headings, paragraphs, simple lists, emphasis, HTTP(S)
 source links and small Markdown tables. PDFs embed DejaVu fonts for Uzbek
