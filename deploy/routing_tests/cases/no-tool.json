@@ -62,6 +62,22 @@
     {
       "text": "Что ты умеешь?",
       "script": "ru"
+    },
+    {
+      "text": "Prokuratura tuzilmasini animatsiya bilan vizual ko'rsatib ber.",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Нарисуй интерактивную схему структуры прокуратуры.",
+      "script": "ru"
+    },
+    {
+      "text": "Shu raqamlarni interaktiv diagramma qilib chizib ber: 1-chorak 120, 2-chorak 95, 3-chorak 140, 4-chorak 110.",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Бўлимимиз ходимлари тузилмасини интерактив схема кўринишида чизиб бер.",
+      "script": "uz-cyrl"
     }
   ]
 }
