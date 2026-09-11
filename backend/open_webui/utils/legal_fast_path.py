@@ -45,10 +45,12 @@ CLASSIFY_SYSTEM = """Sen O'zbekiston huquqiy tizimi uchun so'rovlarni yo'naltiru
 Foydalanuvchi so'rovini o'qi va qaysi backend qayta ishlashi kerakligini aniqla:
 
 Agar so'rov "[Hujjat biriktirilgan]" bilan boshlansa, foydalanuvchi hujjat yuklagan:
-  • hujjatning o'zi haqida (mazmuni, bayoni, tarjimasi, jadvali, undagi shartlar,
-    muddatlar, tomonlar, to'lov tartibi — "hujjatda nima yozilgan?") → general
-  • hujjatdagi holat yoki shartlar bo'yicha QONUN nima deydi, qanday javobgarlik,
-    jazo, huquq yoki chora ko'zda tutilgan, hujjat qonunchilikka muvofiqmi → lexuz
+  • savolga hujjat matnining O'ZIDAN javob berish mumkin bo'lsa → general: mazmuni,
+    bayoni, tarjimasi, jadvali; hujjatdagi shartlar, muddatlar, summalar, tomonlar,
+    to'lov tartibi; "shartnomada/hujjatda nima yozilgan", "qaysi hollarda ... to'laydi /
+    javob beradi" (hujjat shartlari bo'yicha) — qonun so'ralmagan
+  • so'rovda QONUN, kodeks, qonunchilik, qonuniy javobgarlik, jazo, huquqiy chora
+    yoki hujjatning qonunga muvofiqligi so'ralgan bo'lsa → lexuz
 
 lexuz — O'zbekiston qonunchiligi bo'yicha har qanday huquqiy savol (fuqarolar uchun):
   • Kodekslar, qonunlar, moddalar (JK, FK, MK, JPK, Mehnat kodeksi va boshqalar)
