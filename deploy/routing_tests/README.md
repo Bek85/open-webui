@@ -10,12 +10,12 @@ prompt, a tool description, the classifier prompt, or the model server.
 
 | Path | Purpose |
 |---|---|
-| `cases/<category>.json` | representative requests per tool: `route` the classifier must return, `tool` the turn must use; each case has `text` and `script` (uz-latn, uz-cyrl, ru); optional `history` for turns that refer to a previous answer; optional `fixture` (a file under `fixtures/`, uploaded once and attached to every turn; such categories skip classifier mode because document turns never reach the classifier) |
+| `cases/<category>.json` | representative requests per tool: `route` the classifier must return, `tool` the turn must use; each case has `text` and `script` (uz-latn, uz-cyrl, ru); optional `history` for turns that refer to a previous answer; optional `fixture` (a file under `fixtures/`, uploaded once and attached to every turn; in classifier mode such cases are classified with the document flag the fast path adds) |
 | `run_routing_tests.py` | runner; `--mode classifier` (fast) or `--mode e2e` (real chat turns); `--category`, `--limit`, `--update-baseline` |
 | `chat_turn.py` | one real chat turn summarised: tool calls, legal fast path, encyclopedia sources, timings |
 | `baseline.json` | recorded hit rate per category and mode; the runner exits 1 below it |
 
-Categories: `legal-research`, `prosecutor-orders`, `encyclopedia`, `file-creation`, `legal-calculators`, `document-tasks`, `no-tool`.
+Categories: `legal-research`, `prosecutor-orders`, `encyclopedia`, `file-creation`, `legal-calculators`, `document-tasks`, `document-law`, `no-tool`.
 Classifier classes: `lexuz`, `prosecutor`, `wiki`, `file`, `calc`, `general`.
 
 ## Running
@@ -38,7 +38,7 @@ Legal categories count the specialist fast path (status `Researching legal sourc
 or a research tool call; `encyclopedia` counts encyclopedia sources (the
 server-side lookup delivers them as `sources` in the completion payload) or a
 tool call; `file-creation` counts either file tool; `legal-calculators` counts either
-calculator tool; `document-tasks` counts the whole-document status (`Butun hujjat o‘qilmoqda`) with no legal relay; `no-tool` requires none of these. `file-creation` is forced rather than sampled: the `file` class narrows the
+calculator tool; `document-tasks` counts the whole-document status (`Butun hujjat o‘qilmoqda`) with no legal relay; `document-law` counts the specialist relay on a document turn; `no-tool` requires none of these. `file-creation` is forced rather than sampled: the `file` class narrows the
 turn to the file tools and sets `tool_choice=required`, so a miss there now means
 the classifier misrouted, not that the model declined.
 

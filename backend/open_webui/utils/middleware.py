@@ -2924,10 +2924,11 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                 if inlet_filter_tools:
                     form_data['tools'].extend(inlet_filter_tools)
 
-                # Legal-only UI turns bypass the model's unreliable tool choice:
+                # Legal UI turns bypass the model's unreliable tool choice:
                 # a temperature-0 route decision, then the specialist streams
-                # directly (see utils/legal_fast_path.py). Document turns keep
-                # the native tool loop.
+                # directly (see utils/legal_fast_path.py). Attached documents
+                # travel with the question when they fit; otherwise the model
+                # keeps the turn.
                 from open_webui.utils.legal_fast_path import plan_legal_fast_path
 
                 fast_path_plan = await plan_legal_fast_path(request, form_data, user, metadata, model, tools_dict.keys())
@@ -5045,14 +5046,19 @@ async def streaming_chat_response_handler(response, ctx):
                             result = str(e)
                         return params, result, tool, tool_type, direct_tool
 
+                    # Tools that are safe and worth running side by side when the
+                    # model emits several in one response: delegated sub-agents and
+                    # the legal research tools, each a 1-3 minute specialist run
+                    # (three sequential runs measured at 11 minutes, 2026-09-11).
+                    concurrent_tool_names = {'delegate_task', 'research_uzbek_law', 'research_prosecutor_orders'}
                     delegate_calls = [
                         tool_call
                         for tool_call in response_tool_calls
-                        if tool_call.get('function', {}).get('name') == 'delegate_task'
+                        if tool_call.get('function', {}).get('name') in concurrent_tool_names
                     ]
                     tool_results = {}
                     for tool_call in response_tool_calls:
-                        if tool_call.get('function', {}).get('name') != 'delegate_task':
+                        if tool_call.get('function', {}).get('name') not in concurrent_tool_names:
                             tool_results[id(tool_call)] = await execute_tool_call(tool_call)
                     tool_results.update(
                         zip(

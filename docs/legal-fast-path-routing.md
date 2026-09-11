@@ -17,13 +17,19 @@ behaviour inside the unified ProkuraturaAI chat.
 ## Decision per turn
 
 ```
-UI session AND research_uzbek_law bound AND no files AND no knowledge AND legalFastPath != false
+UI session AND research_uzbek_law bound AND no knowledge AND legalFastPath != false
   AND no toggled web_search / image_generation / code_interpreter
   AND last user message is plain text (an image part keeps the model in charge)
-  -> classify last user message (temperature 0, max 10 tokens, base model, system prompt bypassed)
+  AND (no files, OR every file is an uploaded document the user can read whose extracted
+       text fits DOCUMENT_FAST_PATH_MAX_CHARS in total)
+  -> classify last user message (temperature 0, max 10 tokens, base model, system prompt bypassed);
+     with files the classifier input is prefixed "[Hujjat biriktirilgan] " and the prompt says
+     "about the document itself -> general, what the LAW says about it -> lexuz"
      lexuz / prosecutor -> POST {RAG_BASE_URL}/<corpus>/stream with signed identity headers
+                           (+ `attachments: [{name, text}]` on document turns)
                            2xx + text/event-stream -> relay as the assistant answer
                            anything else            -> native tool loop
+     any other route with files -> native tool loop (the model reads the file itself)
      wiki              -> search_encyclopedia runs server-side; its article and snippets are
                           attached as a docs file item (cited sources); the model answers
                           (utils/encyclopedia_context.py; see deploy/encyclopedia/README.md)
@@ -39,8 +45,23 @@ UI session AND research_uzbek_law bound AND no files AND no knowledge AND legalF
 
 ### Document turns
 
-Routing is skipped when files are attached (`is_fast_path_candidate`). Instead,
-`utils/document_context.py` decides how much of the attachment the model sees: when the
+**Document-plus-law turns relay to the specialist in one call (since 2026-09-11).**
+Before that, files disabled routing and the model's tool loop took over. Measured on a
+6-page complaint with the question "what liability does Uzbek law provide for the
+violations described here": the model issued three `research_uzbek_law` calls, one per
+issue, the middleware ran them one after another, each was a full specialist run whose
+written analysis the model then rewrote: 11 minutes end to end, about 4 of them the
+specialist writing reports nobody read. Now `fast_path_documents`
+(`utils/document_context.py`) collects the extracted text of every attached file, the
+classifier sees the question flagged as a document turn, and on `lexuz`/`prosecutor` the
+text travels in the request's `attachments` field. The specialist appends it to the
+agent's history as a trailing system message (never to the user query, which is its
+retrieval reference) and plans its own searches; its `ATTACHMENT_MAX_CHARS` matches the
+60 000-character default here. Files over the cap, unreadable files, knowledge
+collections and web items keep the model in charge, as does any non-legal route.
+
+For the turns the model keeps (summaries, translations, questions about the document's
+own wording), `utils/document_context.py` decides how much of the attachment the model sees: when the
 attached files' extracted text fits `DOCUMENT_FULL_CONTEXT_MAX_CHARS` (default 450 000,
 about a third of the 262K-token window) every file item gets `context: 'full'`, so the
 existing files handler delivers the whole text as one source per file instead of top-k
@@ -93,6 +114,7 @@ The relay produces the SSE the middleware already understands:
 | `RAG_BASE_URL` | `http://host.docker.internal:4040` | specialist service |
 | `MCP_AUTH_SECRET` | required | signed identity (same contract as pipelines/tool) |
 | `LEGAL_FAST_PATH_TIMEOUT_SECONDS` | `600` | whole-stream timeout |
+| `DOCUMENT_FAST_PATH_MAX_CHARS` | `60000` | largest attached text (all files) relayed to the specialist; above it the model reads the file |
 | model meta `legalFastPath` | `true` | set `false` on a preset to disable |
 
 Prosecutor access is enforced by the specialist: a 401/403 falls back to the

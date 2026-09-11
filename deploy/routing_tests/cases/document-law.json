@@ -1,0 +1,41 @@
+{
+  "category": "document-law",
+  "route": "lexuz",
+  "tool": "research_uzbek_law",
+  "fixture": "fixtures/sample-contract.txt",
+  "note": "Document-plus-law turns: the question needs the attached text AND the law. Since 2026-09-11 these relay to the specialist in one call with the document as attachments; e2e counts the legal stream.",
+  "cases": [
+    {
+      "text": "Ushbu shartnomada ijrochi muddatni buzsa, O'zbekiston qonunchiligiga ko'ra qanday javobgarlik kelib chiqadi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Shartnomadagi penya shartlari Fuqarolik kodeksiga muvofiqmi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Hujjatda tilga olingan qonun buzilishlari uchun O'zbekiston qonunchiligiga muvofiq qanday javobgarlik ko'zda tutilgan?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Buyurtmachi to'lovni kechiktirsa, qonun bo'yicha qanday choralar ko'rish mumkin?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ушбу шартнома шартлари Фуқаролик кодексига зид эмасми?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Шартномани бир томонлама бекор қилиш учун қонунда қандай асослар бор?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Какая ответственность предусмотрена законодательством Узбекистана за нарушения, описанные в этом документе?",
+      "script": "ru"
+    },
+    {
+      "text": "Соответствует ли пункт о неустойке в этом договоре требованиям Гражданского кодекса?",
+      "script": "ru"
+    }
+  ]
+}

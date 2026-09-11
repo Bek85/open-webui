@@ -19,6 +19,10 @@ log = logging.getLogger(__name__)
 
 # About a third of the 262 144-token window; Uzbek Cyrillic tokenizes at ~2.5 chars/token.
 MAX_FULL_CONTEXT_CHARS = int(os.getenv('DOCUMENT_FULL_CONTEXT_MAX_CHARS', '450000'))
+# Largest document set the legal specialist reads in one turn (its own cap,
+# ATTACHMENT_MAX_CHARS, defaults to the same 60 000). Bigger files stay with the
+# chat model, which reads them whole and asks the specialist focused questions.
+FAST_PATH_MAX_CHARS = int(os.getenv('DOCUMENT_FAST_PATH_MAX_CHARS', '60000'))
 
 
 def attached_file_items(metadata: dict) -> list:
@@ -34,15 +38,61 @@ def attached_file_items(metadata: dict) -> list:
     ]
 
 
-async def readable_length(item: dict, user) -> int | None:
-    """Characters of extracted text the user may read for this item; None when not readable."""
+async def readable_text(item: dict, user) -> str | None:
+    """Extracted text the user may read for this item; None when the file is unknown or not theirs."""
     record = await Files.get_file_by_id(item['id'])
     if not record:
         return None
     allowed = user.role == 'admin' or record.user_id == user.id or await has_access_to_file(item['id'], 'read', user)
     if not allowed:
         return None
-    return len((record.data or {}).get('content') or '')
+    return (record.data or {}).get('content') or ''
+
+
+async def readable_length(item: dict, user) -> int | None:
+    """Characters of extracted text the user may read for this item; None when not readable."""
+    text = await readable_text(item, user)
+    return None if text is None else len(text)
+
+
+def _uploaded_file_items(metadata: dict) -> list | None:
+    """Every attached item when all of them are uploaded files; None if any is a knowledge
+    collection, web page or data URI (those need the model's own handling)."""
+    items = metadata.get('files') or []
+    files = []
+    for item in items:
+        if (
+            not isinstance(item, dict)
+            or item.get('type', 'file') != 'file'
+            or not item.get('id')
+            or str(item['id']).startswith(('http://', 'https://', 'data:'))
+        ):
+            return None
+        files.append(item)
+    return files
+
+
+async def fast_path_documents(metadata: dict, user, max_chars: int = FAST_PATH_MAX_CHARS) -> list | None:
+    """Attached documents as ``[{'name', 'text'}]`` for the legal specialist.
+
+    None means the model keeps the turn: no files, a non-file item, a file the user
+    cannot read (or with no extracted text), or more text than ``max_chars`` in total.
+    Measured 2026-09-11: one specialist run with the document beats the tool loop's
+    one-run-per-issue pattern by a factor of three on a 6-page complaint.
+    """
+    items = _uploaded_file_items(metadata)
+    if not items:
+        return None
+    documents, total = [], 0
+    for item in items:
+        text = await readable_text(item, user)
+        if not text or not text.strip():
+            return None
+        total += len(text)
+        if total > max_chars:
+            return None
+        documents.append({'name': str(item.get('name') or item['id'])[:256], 'text': text})
+    return documents
 
 
 async def plan_document_context(metadata: dict, user, max_chars: int = MAX_FULL_CONTEXT_CHARS) -> dict | None:

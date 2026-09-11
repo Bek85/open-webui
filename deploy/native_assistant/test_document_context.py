@@ -76,5 +76,32 @@ class PlanDocumentContext(unittest.TestCase):
         self.assertEqual(events[0]['type'], 'status')
 
 
+class FastPathDocuments(unittest.TestCase):
+    """Documents the legal specialist may read in one turn; None hands the turn to the model."""
+
+    def docs(self, metadata, records, max_chars=1000):
+        with mock.patch.object(dc, 'Files', FakeFiles(records)):
+            return asyncio.run(dc.fast_path_documents(metadata, USER, max_chars=max_chars))
+
+    def test_readable_files_within_the_cap_travel_with_their_names(self):
+        metadata = {'files': [{'type': 'file', 'id': 'a', 'name': 'a.pdf'}, {'id': 'b', 'name': 'b.pdf'}]}
+        docs = self.docs(metadata, {'a': record('u1', 400), 'b': record('u1', 500)})
+        self.assertEqual([(d['name'], len(d['text'])) for d in docs], [('a.pdf', 400), ('b.pdf', 500)])
+
+    def test_over_cap_unreadable_empty_and_non_file_items_keep_the_model(self):
+        self.assertIsNone(self.docs({'files': [{'type': 'file', 'id': 'a', 'name': 'a'}]}, {'a': record('u1', 1001)}))
+        self.assertIsNone(self.docs({'files': [{'type': 'file', 'id': 'x', 'name': 'x'}]}, {}))
+        self.assertIsNone(self.docs({'files': [{'type': 'file', 'id': 'a', 'name': 'a'}]}, {'a': record('u1', 0)}))
+        self.assertIsNone(self.docs({'files': [{'type': 'collection', 'id': 'k', 'name': 'kb'}]}, {}))
+        self.assertIsNone(self.docs({'files': [{'type': 'file', 'id': 'https://example.org/p'}]}, {}))
+        self.assertIsNone(self.docs({'files': []}, {}))
+        self.assertIsNone(self.docs({}, {}))
+
+    def test_a_file_of_another_user_without_grant_keeps_the_model(self):
+        metadata = {'files': [{'type': 'file', 'id': 'a', 'name': 'a.pdf'}]}
+        with mock.patch.object(dc, 'has_access_to_file', mock.AsyncMock(return_value=False)):
+            self.assertIsNone(self.docs(metadata, {'a': record('someone-else', 10)}))
+
+
 if __name__ == '__main__':
     unittest.main()

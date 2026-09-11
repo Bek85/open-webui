@@ -4,7 +4,10 @@ Native tool choice is a sampling coin flip on implicit legal questions (measured
 2026-09-09: 5/8 hits at any temperature). For legal-only turns (no attachments)
 this module classifies the question with a temperature-0 call and streams the
 specialist service directly as the assistant answer, exactly like the legacy
-router pipeline. Document-plus-law turns keep the native tool path.
+router pipeline. Document-plus-law turns take the same path since 2026-09-11:
+the uploaded text travels with the question as ``attachments`` and the
+specialist plans its own searches, instead of the model issuing one research
+call per issue (three sequential specialist runs, 11 minutes, on a 6-page file).
 """
 
 import asyncio
@@ -15,6 +18,7 @@ import uuid
 
 import aiohttp
 from open_webui.utils.chat import generate_chat_completion
+from open_webui.utils.document_context import FAST_PATH_MAX_CHARS, fast_path_documents
 from open_webui.utils.legal_specialist_stream import identity_headers, relay_frames, sse_frames
 from open_webui.utils.misc import get_content_from_message, get_last_user_message_item
 from starlette.responses import JSONResponse, StreamingResponse
@@ -31,11 +35,20 @@ MAX_HISTORY_MESSAGES = 12
 MAX_MESSAGE_CHARS = 12000
 CLASSIFY_TIMEOUT_SECONDS = 20
 MODEL_ONLY_FEATURES = ('web_search', 'image_generation', 'code_interpreter')
+# Prepended to the classifier input on document turns: the one-word classifier never
+# sees attachments, and the same words route differently with a file behind them.
+ATTACHED_DOCUMENT_PREFIX = '[Hujjat biriktirilgan] '
 
 # Same tuned prompt as deploy/pipelines/router_pipeline.py (the legacy router).
 CLASSIFY_SYSTEM = """Sen O'zbekiston huquqiy tizimi uchun so'rovlarni yo'naltiruvchi sistemasan.
 
 Foydalanuvchi so'rovini o'qi va qaysi backend qayta ishlashi kerakligini aniqla:
+
+Agar so'rov "[Hujjat biriktirilgan]" bilan boshlansa, foydalanuvchi hujjat yuklagan:
+  • hujjatning o'zi haqida (mazmuni, bayoni, tarjimasi, jadvali, undagi shartlar,
+    muddatlar, tomonlar, to'lov tartibi — "hujjatda nima yozilgan?") → general
+  • hujjatdagi holat yoki shartlar bo'yicha QONUN nima deydi, qanday javobgarlik,
+    jazo, huquq yoki chora ko'zda tutilgan, hujjat qonunchilikka muvofiqmi → lexuz
 
 lexuz — O'zbekiston qonunchiligi bo'yicha har qanday huquqiy savol (fuqarolar uchun):
   • Kodekslar, qonunlar, moddalar (JK, FK, MK, JPK, Mehnat kodeksi va boshqalar)
@@ -74,7 +87,7 @@ calc — aniq hisob-kitob so'rovlari (qonun mazmuni emas, faqat son yoki sana ke
 
 general — yuqoridagilarning hech biriga tegishli bo'lmasa:
   • Salomlashish, muloqot, matn yozish yoki tarjima qilish iltimoslari
-  • Yuklangan hujjat bilan ishlash
+  • Yuklangan hujjat bilan ishlash (bayon, tarjima, jadval, hujjat matnidagi savollar)
   • Yordamchining o'zi haqidagi savollar ("sen kimsan?", "nimalar qila olasan?", "qanday yordam berasan?")
 
 Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI wiki YOKI file YOKI calc YOKI general"""
@@ -97,7 +110,11 @@ def parse_route(text) -> str:
 
 
 def is_fast_path_candidate(metadata: dict, model: dict, tool_names) -> bool:
-    """UI chat, research tool bound, no attachments, knowledge or toggled features: safe to bypass the model."""
+    """UI chat, research tool bound, no knowledge base or toggled features: safe to bypass the model.
+
+    Attached files do not disqualify the turn here; ``plan_legal_fast_path`` reads them
+    and keeps the model in charge when they cannot travel with the question.
+    """
     meta = (model.get('info') or {}).get('meta') or {}
     features = metadata.get('features') or {}
     return bool(
@@ -105,10 +122,14 @@ def is_fast_path_candidate(metadata: dict, model: dict, tool_names) -> bool:
         and not metadata.get('direct')
         and RESEARCH_TOOL in (tool_names or ())
         and meta.get('legalFastPath', True)
-        and not metadata.get('files')
         and not meta.get('knowledge')
         and not any(features.get(name) for name in MODEL_ONLY_FEATURES)
     )
+
+
+def classifier_text(question: str, has_documents: bool) -> str:
+    """What the route classifier reads: the question, flagged when a document is attached."""
+    return (ATTACHED_DOCUMENT_PREFIX + question) if has_documents else question
 
 
 def plain_text_question(messages: list) -> str | None:
@@ -180,14 +201,25 @@ async def classify_route(request, user, model_id: str, text: str) -> str:
 
 
 async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, model: dict, tool_names) -> dict | None:
-    """Route the turn: a specialist plan (has `corpus`), an encyclopedia plan (route `wiki`), or None."""
+    """Route the turn: a specialist plan (has `corpus`), an encyclopedia plan (route `wiki`), or None.
+
+    With files attached, only the legal routes are deterministic: the documents ride
+    along as ``attachments`` when every file is readable and fits
+    ``DOCUMENT_FAST_PATH_MAX_CHARS``; otherwise, and for every other route, the model
+    keeps the turn and reads the file itself (utils/document_context.py).
+    """
     if not is_fast_path_candidate(metadata, model, tool_names):
         return None
     question = plain_text_question(form_data.get('messages', []))
     if question is None:
         return None
+    documents = None
+    if metadata.get('files'):
+        documents = await fast_path_documents(metadata, user, FAST_PATH_MAX_CHARS)
+        if documents is None:
+            return None
     base_model_id = (model.get('info') or {}).get('base_model_id') or form_data.get('model')
-    route = await classify_route(request, user, base_model_id, question)
+    route = await classify_route(request, user, base_model_id, classifier_text(question, bool(documents)))
     corpus = CORPUS_BY_ROUTE.get(route)
     if corpus:
         return {
@@ -195,12 +227,23 @@ async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, m
             'corpus': corpus,
             'question': question,
             'messages': specialist_messages(form_data.get('messages', [])),
+            'attachments': documents or [],
         }
+    if documents:
+        return None
     if route == 'wiki' or route in FORCED_TOOLS_BY_ROUTE:
         # Handled in process_chat_payload and the model still writes the answer:
         # 'wiki' gets a server-side lookup, 'file'/'calc' get a forced tool call.
         return {'route': route, 'question': question}
     return None
+
+
+def specialist_request_body(plan: dict) -> dict:
+    """The stream request: history plus, on document turns, the attachments the specialist reads."""
+    body = {'messages': plan['messages'], 'stream': True}
+    if plan.get('attachments'):
+        body['attachments'] = plan['attachments']
+    return body
 
 
 async def start_legal_fast_path(form_data: dict, user, metadata: dict, plan: dict):
@@ -228,7 +271,7 @@ async def start_legal_fast_path(form_data: dict, user, metadata: dict, plan: dic
     response = None
     try:
         response = await session.post(
-            f'{base_url}/{plan["corpus"]}/stream', json={'messages': plan['messages'], 'stream': True}, headers=headers
+            f'{base_url}/{plan["corpus"]}/stream', json=specialist_request_body(plan), headers=headers
         )
         usable = response.status < 400 and 'text/event-stream' in response.headers.get('Content-Type', '')
     except (TimeoutError, aiohttp.ClientError) as exc:
@@ -258,7 +301,12 @@ async def start_legal_fast_path(form_data: dict, user, metadata: dict, plan: dic
             response.release()
             await session.close()
 
-    log.info('Legal fast path: request=%s corpus=%s streaming', request_id, plan['corpus'])
+    log.info(
+        'Legal fast path: request=%s corpus=%s attachments=%s streaming',
+        request_id,
+        plan['corpus'],
+        len(plan.get('attachments') or []),
+    )
     body = relay_frames(
         sse_frames(response.content), form_data.get('model', ''), plan['corpus'], plan['question'], close_upstream
     )

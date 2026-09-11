@@ -3,6 +3,7 @@
 import asyncio
 import json
 import unittest
+from unittest import mock
 
 from open_webui.utils import encyclopedia_context as enc
 from open_webui.utils import legal_fast_path as lfp
@@ -55,8 +56,9 @@ class Eligibility(unittest.TestCase):
     def test_ui_legal_turn_without_files(self):
         self.assertTrue(lfp.is_fast_path_candidate({'session_id': 's'}, self.model, ['research_uzbek_law']))
 
-    def test_attachments_and_api_calls_keep_native_tools(self):
-        self.assertFalse(
+    def test_attachments_no_longer_disqualify_but_api_calls_do(self):
+        # Files are decided in plan_legal_fast_path (readable and within the cap -> attachments).
+        self.assertTrue(
             lfp.is_fast_path_candidate({'session_id': 's', 'files': [{'id': 'f'}]}, self.model, ['research_uzbek_law'])
         )
         self.assertFalse(lfp.is_fast_path_candidate({}, self.model, ['research_uzbek_law']))
@@ -91,6 +93,53 @@ class Eligibility(unittest.TestCase):
         history = lfp.specialist_messages(messages)
         self.assertEqual(len(history), lfp.MAX_HISTORY_MESSAGES)
         self.assertEqual(history[-1], {'role': 'user', 'content': 'q19'})
+
+
+class DocumentTurns(unittest.TestCase):
+    """A legal question about an attached file is one specialist call with the text attached."""
+
+    model = {'info': {'meta': {}, 'base_model_id': 'base'}}
+    metadata = {'session_id': 's', 'files': [{'type': 'file', 'id': 'f', 'name': 'ariza.pdf'}]}
+    form = {'model': 'm', 'messages': [{'role': 'user', 'content': 'Hujjatdagi buzilishlar uchun qanday javobgarlik bor?'}]}
+    documents = [{'name': 'ariza.pdf', 'text': 'Shikoyat matni.'}]
+
+    def plan(self, documents, route):
+        with mock.patch.object(lfp, 'fast_path_documents', mock.AsyncMock(return_value=documents)) as docs, \
+                mock.patch.object(lfp, 'classify_route', mock.AsyncMock(return_value=route)) as classify:
+            plan = asyncio.run(lfp.plan_legal_fast_path(None, dict(self.form), object(), dict(self.metadata), self.model, ['research_uzbek_law']))
+        return plan, docs, classify
+
+    def test_documents_ride_along_on_the_legal_route(self):
+        plan, _, classify = self.plan(self.documents, 'lexuz')
+        self.assertEqual(plan['corpus'], 'lex_uz')
+        self.assertEqual(plan['attachments'], self.documents)
+        self.assertEqual(plan['messages'][-1]['content'], self.form['messages'][0]['content'])
+        # The classifier is told a document is attached; the question itself is unchanged.
+        self.assertTrue(classify.call_args.args[-1].startswith(lfp.ATTACHED_DOCUMENT_PREFIX))
+        self.assertEqual(lfp.classifier_text('q', False), 'q')
+
+    def test_unreadable_or_oversized_documents_keep_the_model(self):
+        plan, _, classify = self.plan(None, 'lexuz')
+        self.assertIsNone(plan)
+        classify.assert_not_called()
+
+    def test_non_legal_document_turns_keep_the_model(self):
+        for route in ('general', 'wiki', 'file', 'calc'):
+            plan, _, _ = self.plan(self.documents, route)
+            self.assertIsNone(plan, route)
+
+    def test_turns_without_files_never_read_documents(self):
+        form = dict(self.form)
+        with mock.patch.object(lfp, 'fast_path_documents', mock.AsyncMock()) as docs, \
+                mock.patch.object(lfp, 'classify_route', mock.AsyncMock(return_value='lexuz')):
+            plan = asyncio.run(lfp.plan_legal_fast_path(None, form, object(), {'session_id': 's'}, self.model, ['research_uzbek_law']))
+        docs.assert_not_called()
+        self.assertEqual(plan['attachments'], [])
+        self.assertNotIn('attachments', lfp.specialist_request_body(plan))
+
+    def test_request_body_carries_attachments_only_when_present(self):
+        body = lfp.specialist_request_body({'messages': [{'role': 'user', 'content': 'q'}], 'attachments': self.documents})
+        self.assertEqual(body, {'messages': [{'role': 'user', 'content': 'q'}], 'stream': True, 'attachments': self.documents})
 
 
 class ForcedFileTools(unittest.TestCase):

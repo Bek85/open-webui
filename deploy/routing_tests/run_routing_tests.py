@@ -59,17 +59,18 @@ def classify(text, base_url, key, system_prompt):
 
 
 def run_classifier(categories, limit):
-    from open_webui.utils.legal_fast_path import CLASSIFY_SYSTEM
+    from open_webui.utils.legal_fast_path import CLASSIFY_SYSTEM, classifier_text
 
     base_url, key = llm_endpoint()
     rates = {}
     for category in categories:
-        if category.get('fixture'):
-            continue  # document turns never reach the classifier (files attached)
+        # Document turns reach the classifier flagged (since 2026-09-11), so fixture
+        # categories are classified exactly as the fast path would see them.
+        has_documents = bool(category.get('fixture'))
         cases = category['cases'][:limit] if limit else category['cases']
         hits = 0
         for case in cases:
-            route = classify(case['text'], base_url, key, CLASSIFY_SYSTEM)
+            route = classify(classifier_text(case['text'], has_documents), base_url, key, CLASSIFY_SYSTEM)
             ok = route == category['route']
             hits += ok
             mark = 'OK  ' if ok else 'MISS'
