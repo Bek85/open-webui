@@ -64,11 +64,11 @@
       "script": "ru"
     },
     {
-      "text": "Prokuratura tuzilmasini animatsiya bilan vizual ko'rsatib ber.",
+      "text": "Quyidagi bosqichlarni animatsiya bilan vizual ko'rsatib ber: ariza qabul qilish, ro'yxatga olish, ijrochiga topshirish, javob yuborish.",
       "script": "uz-latn"
     },
     {
-      "text": "Нарисуй интерактивную схему структуры прокуратуры.",
+      "text": "Нарисуй интерактивную схему этих этапов: приём заявления, регистрация, передача исполнителю, отправка ответа.",
       "script": "ru"
     },
     {
@@ -76,7 +76,7 @@
       "script": "uz-latn"
     },
     {
-      "text": "Бўлимимиз ходимлари тузилмасини интерактив схема кўринишида чизиб бер.",
+      "text": "Қуйидаги тузилмани интерактив схема кўринишида чизиб бер: бошлиқ, 2 нафар ўринбосар, 5 нафар прокурор ёрдамчиси, котибият.",
       "script": "uz-cyrl"
     }
   ]

@@ -2,6 +2,7 @@
   "classifier": {
     "encyclopedia": 1.0,
     "file-creation": 1.0,
+    "legal-calculators": 1.0,
     "legal-research": 1.0,
     "no-tool": 1.0,
     "prosecutor-orders": 1.0
@@ -9,8 +10,10 @@
   "e2e": {
     "encyclopedia": 1.0,
     "file-creation": 1.0,
+    "legal-calculators": 1.0,
     "legal-research": 1.0,
     "no-tool": 1.0,
-    "prosecutor-orders": 1.0
+    "prosecutor-orders": 1.0,
+    "document-tasks": 1.0
   }
 }

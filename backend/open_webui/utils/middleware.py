@@ -2960,6 +2960,11 @@ async def process_chat_payload(request, form_data, user, metadata, model):
 
     if file_context_enabled:
         try:
+            # Files that fit the window are read whole instead of as top-k chunks; the
+            # model is told which case applies (utils/document_context.py).
+            from open_webui.utils.document_context import apply_document_context
+
+            await apply_document_context(form_data, metadata, user, extra_params.get('__event_emitter__'))
             form_data, flags = await chat_completion_files_handler(request, form_data, extra_params, user)
             sources.extend(flags.get('sources', []))
         except Exception as e:

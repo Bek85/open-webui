@@ -64,6 +64,8 @@ def run_classifier(categories, limit):
     base_url, key = llm_endpoint()
     rates = {}
     for category in categories:
+        if category.get('fixture'):
+            continue  # document turns never reach the classifier (files attached)
         cases = category['cases'][:limit] if limit else category['cases']
         hits = 0
         for case in cases:
@@ -76,6 +78,23 @@ def run_classifier(categories, limit):
     return rates
 
 
+def upload_fixture(path: str) -> dict:
+    """Upload a fixture document once (processed synchronously) and return a chat file item."""
+    import requests
+    from probe import auth_headers
+
+    with open(path, 'rb') as handle:
+        response = requests.post(
+            'http://127.0.0.1:8080/api/v1/files/?process=true&process_in_background=false',
+            files={'file': (Path(path).name, handle, 'text/plain')},
+            headers=auth_headers(),
+            timeout=120,
+        )
+    response.raise_for_status()
+    body = response.json()
+    return {'type': 'file', 'id': body['id'], 'name': body.get('filename') or Path(path).name}
+
+
 def run_e2e(categories, limit):
     from chat_turn import turn
 
@@ -83,9 +102,10 @@ def run_e2e(categories, limit):
     for category in categories:
         cases = category['cases'][:limit] if limit else category['cases']
         history = category.get('history') or []
+        files = [upload_fixture(str(ROOT / category['fixture']))] if category.get('fixture') else None
         hits = 0
         for case in cases:
-            result = turn(history + [{'role': 'user', 'content': case['text']}])
+            result = turn(history + [{'role': 'user', 'content': case['text']}], files=files)
             ok = result.used(category['tool']) and not result.error
             hits += ok
             first = result.first_text and round(result.first_text, 1)
@@ -117,7 +137,9 @@ def main():
         failed |= floor is not None and rate < floor
         print(f'{name:<18} {rate:.2f}  {verdict}')
     if args.update_baseline and not args.limit and not args.category:
-        baseline[args.mode] = {k: round(v, 2) for k, v in rates.items()}
+        # A full run records new categories and improvements; it never lowers a recorded rate.
+        recorded = baseline.get(args.mode) or {}
+        baseline[args.mode] = {k: max(recorded.get(k, 0), round(v, 2)) for k, v in rates.items()}
         BASELINE.write_text(json.dumps(baseline, indent=2) + '\n')
         print('baseline updated:', BASELINE)
     sys.exit(1 if failed else 0)

@@ -13,7 +13,7 @@ Every phase below ships with a probe suite so this stays measurable.
 |---|---|---|
 | [01](phase-01-offline-encyclopedia.md) | Offline encyclopedia (kiwix + Wikipedia uz/ru) as a tool and reader | Done (2026-09-09) |
 | [02](phase-02-routing-test-suite-and-category-router.md) | Routing test suite + per-category deterministic router | Done (2026-09-09; `file` and `calc` classes forced) |
-| [03](phase-03-document-intelligence.md) | Long-document summarization, comparison, structure-preserving translation | Planned |
+| [03](phase-03-document-intelligence.md) | Long-document summarization, comparison, structure-preserving translation | Shipped as whole-document context (2026-09-11); over-cap map-reduce deferred |
 | [04](phase-04-legal-calculators.md) | Deterministic legal calculators (BHM by date, procedural deadlines, fine ranges) | Steps 1-2 done (2026-09-11); fine ranges await legal-team table |
 | [05](phase-05-code-interpreter-and-spreadsheet-analytics.md) | Offline code interpreter (Pyodide) for calculations and uploaded spreadsheets | Planned |
 | [06](phase-06-vision.md) | Image input (scans, photos, screenshots) after model-server validation | Planned |

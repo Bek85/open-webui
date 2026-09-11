@@ -37,6 +37,19 @@ UI session AND research_uzbek_law bound AND no files AND no knowledge AND legalF
      general           -> native tool loop (model may still call tools)
 ```
 
+### Document turns
+
+Routing is skipped when files are attached (`is_fast_path_candidate`). Instead,
+`utils/document_context.py` decides how much of the attachment the model sees: when the
+attached files' extracted text fits `DOCUMENT_FULL_CONTEXT_MAX_CHARS` (default 450 000,
+about a third of the 262K-token window) every file item gets `context: 'full'`, so the
+existing files handler delivers the whole text as one source per file instead of top-k
+chunks, and a status line tells the user the whole document is being read. Above the cap
+retrieval stays and the model is told it only has excerpts. Either way a one-line system
+note states which files were supplied in full, so the honesty rule in `system.txt` has a
+fact to rely on. Measured 2026-09-11 on a 139 000-character judgment: whole document
+16 s to first token, 116 s total; retrieval 22 s / 138 s.
+
 Classifier accuracy on the mixed probe set (2026-09-09): 18/20; every legal question
 stayed on the legal routes. Free model choice had called the encyclopedia on 4/8
 factual questions, which is why the lookup is deterministic.

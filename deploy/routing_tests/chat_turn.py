@@ -21,6 +21,7 @@ class TurnResult:
         self.calls = []  # (tool name, arguments dict)
         self.legal_stream = False  # legal fast path (specialist relayed, no tool call)
         self.wiki_sources = 0
+        self.whole_document = False  # server chose whole-document context (status line)
         self.first_text = None
         self.total = 0.0
         self.error = None
@@ -37,10 +38,12 @@ class TurnResult:
             return any(name in ('create_document', 'create_spreadsheet') for name, _ in self.calls)
         if tool == 'legal_calculator':
             return any(name in ('base_calculation_value', 'count_deadline') for name, _ in self.calls)
+        if tool == 'whole_document':
+            return self.whole_document and not self.legal_stream
         return any(name == tool for name, _ in self.calls)
 
 
-def turn(messages: list, model: str = 'router_pipeline', timeout: int = 600) -> TurnResult:  # noqa: C901
+def turn(messages: list, model: str = 'router_pipeline', timeout: int = 600, files: list | None = None) -> TurnResult:  # noqa: C901
     headers = auth_headers()
     client = socketio.Client()
     finished = threading.Event()
@@ -57,6 +60,8 @@ def turn(messages: list, model: str = 'router_pipeline', timeout: int = 600) -> 
         if kind == 'status':
             if payload.get('description') in LEGAL_STATUSES:
                 result.legal_stream = True
+            if str(payload.get('description', '')).startswith('Butun hujjat'):
+                result.whole_document = True
         elif kind in ('source', 'citation'):
             if '/wiki/' in json.dumps(payload, ensure_ascii=False):
                 result.wiki_sources += 1
@@ -100,7 +105,7 @@ def turn(messages: list, model: str = 'router_pipeline', timeout: int = 600) -> 
         'session_id': sid,
         'chat_id': 'temporary:' + sid,
         'id': mid,
-        'files': [],
+        'files': files or [],
     }
     try:
         response = requests.post(

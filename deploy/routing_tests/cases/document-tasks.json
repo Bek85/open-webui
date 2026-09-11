@@ -1,0 +1,36 @@
+{
+  "category": "document-tasks",
+  "route": "general",
+  "tool": "whole_document",
+  "fixture": "fixtures/sample-contract.txt",
+  "cases": [
+    {
+      "text": "Ushbu shartnomaning mazmunini bo'limlar bo'yicha qisqacha bayon qilib ber.",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Hujjatdagi barcha muddatlar va majburiyatlarni jadvalga chiqar.",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Shartnomani to'liq rus tiliga tarjima qil, tuzilmasini saqlab.",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ijrochi qaysi hollarda penya to'laydi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ушбу ҳужжатда қандай тўлов тартиби белгиланган?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Переведи этот документ на русский язык, сохранив нумерацию и таблицы.",
+      "script": "ru"
+    },
+    {
+      "text": "Составь таблицу всех сроков из этого договора.",
+      "script": "ru"
+    }
+  ]
+}
