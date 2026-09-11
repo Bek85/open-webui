@@ -5,6 +5,7 @@ import copy
 import datetime as dt
 import json
 import os
+import shutil
 import sqlite3
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -219,7 +220,62 @@ COMPANION_TOOLS = {
         'Encyclopedia (offline Wikipedia)',
         'Offline Uzbek and Russian Wikipedia search; no internet access.',
     ),
+    'prokuratura_legal_calculators': (
+        'legal_calculators',
+        'Legal calculators (BHM, deadlines)',
+        'Base calculation value by date and deadline arithmetic from curated tables.',
+    ),
 }
+CALCULATOR_DATA = Path('/app/backend/data/legal_calculators')
+
+
+def install_calculator_tables():
+    """Copy the curated JSON tables into the WebUI data volume, where the DB-stored tool reads them."""
+    source = ROOT.parent / 'legal_calculators' / 'data'
+    if not source.is_dir():
+        return
+    CALCULATOR_DATA.mkdir(parents=True, exist_ok=True)
+    for path in source.glob('*.json'):
+        shutil.copy(path, CALCULATOR_DATA / path.name)
+
+
+def companion_form(tool_id: str) -> dict:
+    dirname, name, description = COMPANION_TOOLS[tool_id]
+    return {
+        'id': tool_id,
+        'name': name,
+        'content': (ROOT.parent / dirname / 'workspace_tool.py').read_text(),
+        'meta': {'description': description},
+        'access_grants': PUBLIC_READ,
+    }
+
+
+def activate_companion(tool_id: str):
+    """Idempotent: create/update the public tool, bind it as required on the main model, recompose the prompt."""
+    installed = {t['id'] for t in api('/api/v1/tools/')}
+    if tool_id in installed:
+        api('/api/v1/tools/id/' + tool_id + '/update', companion_form(tool_id))
+    else:
+        api('/api/v1/tools/create', companion_form(tool_id))
+    model = api('/api/v1/models/model?id=' + MAIN_ID)
+    for key in ('toolIds', 'requiredToolIds'):
+        model['meta'][key] = list(dict.fromkeys([*(model['meta'].get(key) or []), tool_id]))
+    model['params'] = {**(model.get('params') or {}), 'system': compose_system_prompt(model['meta']['toolIds'])}
+    result = api('/api/v1/models/model/update', model)
+    assert tool_id in result['meta']['requiredToolIds']
+    print(tool_id, 'active on', MAIN_ID)
+
+
+def deactivate_companion(tool_id: str):
+    """Unbind the tool from the main model, recompose the prompt, delete the tool. Chats are untouched."""
+    model = api('/api/v1/models/model?id=' + MAIN_ID)
+    for key in ('toolIds', 'requiredToolIds'):
+        model['meta'][key] = [t for t in (model['meta'].get(key) or []) if t != tool_id]
+    model['params'] = {**(model.get('params') or {}), 'system': compose_system_prompt(model['meta']['toolIds'])}
+    api('/api/v1/models/model/update', model)
+    if tool_id in {t['id'] for t in api('/api/v1/tools/')}:
+        api('/api/v1/tools/id/' + tool_id + '/delete', method='DELETE')
+    print(tool_id, 'removed from', MAIN_ID)
 
 
 def compose_system_prompt(tool_ids) -> str:
@@ -242,6 +298,7 @@ def refresh():
         source = ROOT.parent / dirname / 'workspace_tool.py'
         if source.is_file():
             tools[tid] = {'id': tid, 'name': name, 'content': source.read_text(), 'meta': {'description': description}}
+    install_calculator_tables()
     installed = {t['id'] for t in api('/api/v1/tools/')}
     for tid, form in tools.items():
         if tid in installed:

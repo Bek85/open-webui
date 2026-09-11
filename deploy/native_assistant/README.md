@@ -76,10 +76,13 @@ docker exec -e PYTHONPATH=/app/backend -w /app/backend open-webui \
   python /tmp/deploy/native_assistant/manage.py refresh
 ```
 
-`refresh` updates both Workspace tools (legal research, file generation) and the
-system prompt of the existing presets, re-composing it from `system.txt` plus
-`file_generation/instructions.txt` when the file tool is bound; access grants
-and provider settings are untouched. The fast path itself is
+`refresh` updates the legal research tool and every companion tool in
+`COMPANION_TOOLS` (file generation, encyclopedia, legal calculators, whose tables
+it also installs) and the system prompt of the existing presets, re-composing it
+from `system.txt` plus each bound companion's `instructions.txt`; access grants
+and provider settings are untouched. A companion is first installed and bound
+with its own `manage_<name>.py activate` script, which reuses
+`activate_companion` from `manage.py`. The fast path itself is
 backend code and needs an image rebuild of `open-webui` only.
 
 Tests: `python -m unittest -v test_legal_fast_path` alongside the existing ones.

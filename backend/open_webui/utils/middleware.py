@@ -2933,12 +2933,12 @@ async def process_chat_payload(request, form_data, user, metadata, model):
                 fast_path_plan = await plan_legal_fast_path(request, form_data, user, metadata, model, tools_dict.keys())
                 if fast_path_plan and fast_path_plan.get('corpus'):
                     metadata['legal_fast_path'] = fast_path_plan
-                elif fast_path_plan and fast_path_plan.get('route') == 'file':
-                    # Exporting an existing answer: force a file-tool call instead of
+                elif fast_path_plan and fast_path_plan.get('route') in ('file', 'calc'):
+                    # Exports and calculations: force the route's tool call instead of
                     # leaving it to sampling, which drops ~1 export in 7.
-                    from open_webui.utils.legal_fast_path import force_file_tools
+                    from open_webui.utils.legal_fast_path import force_route_tools
 
-                    force_file_tools(form_data, tools_dict.keys())
+                    force_route_tools(form_data, tools_dict.keys(), fast_path_plan['route'])
                 elif fast_path_plan and fast_path_plan.get('route') == 'wiki':
                     # General knowledge: look the article up here and hand it to the model as
                     # cited context; files with docs are turned into sources just below.

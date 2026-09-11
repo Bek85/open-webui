@@ -30,7 +30,10 @@ UI session AND research_uzbek_law bound AND no files AND no knowledge AND legalF
      file              -> the turn is narrowed to create_document / create_spreadsheet and
                           tool_choice is set to required, so the export cannot be answered in
                           prose; the model still picks format, title and arguments
-                          (legal_fast_path.force_file_tools)
+                          (legal_fast_path.force_route_tools)
+     calc              -> the turn is narrowed to base_calculation_value / count_deadline with
+                          tool_choice required, so BHM values and deadlines come from the curated
+                          tables, never from memory (deploy/legal_calculators/README.md)
      general           -> native tool loop (model may still call tools)
 ```
 

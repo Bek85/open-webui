@@ -24,6 +24,9 @@ log = logging.getLogger(__name__)
 RESEARCH_TOOL = 'research_uzbek_law'
 CORPUS_BY_ROUTE = {'lexuz': 'lex_uz', 'prosecutor': 'prosecutor'}
 FILE_TOOLS = ('create_document', 'create_spreadsheet')
+CALC_TOOLS = ('base_calculation_value', 'count_deadline')
+# Routes where the model must call one of a small tool set on the first request.
+FORCED_TOOLS_BY_ROUTE = {'file': FILE_TOOLS, 'calc': CALC_TOOLS}
 MAX_HISTORY_MESSAGES = 12
 MAX_MESSAGE_CHARS = 12000
 CLASSIFY_TIMEOUT_SECONDS = 20
@@ -61,12 +64,20 @@ file — suhbatdagi mavjud javobni yoki ma'lumotni yuklab olinadigan faylga ayla
   Agar avval qonunchilikni o'rganish kerak bo'lsa — lexuz; prokuratura
   hujjatlarini o'rganib yangi hisobot tuzish kerak bo'lsa — prosecutor.
 
+calc — aniq hisob-kitob so'rovlari (qonun mazmuni emas, faqat son yoki sana kerak):
+  • Bazaviy hisoblash miqdori (BHM, БРВ) qiymati — hozir yoki ma'lum sanada
+  • Summani BHM ga o'tkazish ("5 mln so'm necha BHM?", "50 BHM necha so'm?")
+  • Muddat hisoblash: sanadan boshlab N kun / ish kuni / oy qachon tugaydi,
+    oxirgi kun bayramga to'g'ri kelsa, ish kunlari soni
+  Eslatma: "qaysi modda", "qanday jazo", "qaysi kategoriya", "qonunga ko'ra
+  muddat necha kun" kabi huquqiy baho yoki norma kerak bo'lsa — lexuz.
+
 general — yuqoridagilarning hech biriga tegishli bo'lmasa:
   • Salomlashish, muloqot, matn yozish yoki tarjima qilish iltimoslari
   • Yuklangan hujjat bilan ishlash
   • Yordamchining o'zi haqidagi savollar ("sen kimsan?", "nimalar qila olasan?", "qanday yordam berasan?")
 
-Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI wiki YOKI file YOKI general"""
+Faqat bitta so'z yoz: lexuz YOKI prosecutor YOKI wiki YOKI file YOKI calc YOKI general"""
 
 
 def parse_route(text) -> str:
@@ -80,6 +91,8 @@ def parse_route(text) -> str:
         return 'wiki'
     if 'file' in text:
         return 'file'
+    if 'calc' in text:
+        return 'calc'
     return 'general'
 
 
@@ -122,8 +135,8 @@ def specialist_messages(messages: list) -> list:
     return history[-MAX_HISTORY_MESSAGES:]
 
 
-def force_file_tools(form_data: dict, tool_names) -> bool:
-    """Restrict the turn to the file tools and require one of them to be called.
+def force_route_tools(form_data: dict, tool_names, route: str) -> bool:
+    """Restrict the turn to the route's tools (FORCED_TOOLS_BY_ROUTE) and require one to be called.
 
     Free tool choice drops roughly one export in seven at the serving temperature
     (measured 2026-09-09, and independent of wording), so the model's discretion is
@@ -131,10 +144,11 @@ def force_file_tools(form_data: dict, tool_names) -> bool:
     request is forced: the tool-call follow-up in process_chat_response drops
     `tool_choice`, otherwise the model would be made to call a tool forever.
     """
-    available = {name for name in FILE_TOOLS if name in (tool_names or ())}
+    wanted = FORCED_TOOLS_BY_ROUTE.get(route, ())
+    available = {name for name in wanted if name in (tool_names or ())}
     specs = [spec for spec in (form_data.get('tools') or []) if (spec.get('function') or {}).get('name') in available]
     if not specs:
-        log.warning('File route: no file tool bound to this model; using native tools')
+        log.warning('%s route: none of %s bound to this model; using native tools', route, wanted)
         return False
     form_data['tools'] = specs
     form_data['tool_choice'] = 'required'
@@ -182,9 +196,9 @@ async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, m
             'question': question,
             'messages': specialist_messages(form_data.get('messages', [])),
         }
-    if route in ('wiki', 'file'):
-        # Both are handled in process_chat_payload and the model still writes the answer:
-        # 'wiki' gets a server-side lookup, 'file' gets a forced file-tool call.
+    if route == 'wiki' or route in FORCED_TOOLS_BY_ROUTE:
+        # Handled in process_chat_payload and the model still writes the answer:
+        # 'wiki' gets a server-side lookup, 'file'/'calc' get a forced tool call.
         return {'route': route, 'question': question}
     return None
 

@@ -35,6 +35,8 @@ class TurnResult:
             return self.wiki_sources > 0 or any(name == tool for name, _ in self.calls)
         if tool == 'create_document':
             return any(name in ('create_document', 'create_spreadsheet') for name, _ in self.calls)
+        if tool == 'legal_calculator':
+            return any(name in ('base_calculation_value', 'count_deadline') for name, _ in self.calls)
         return any(name == tool for name, _ in self.calls)
 
 

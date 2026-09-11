@@ -1,7 +1,7 @@
 # Phase 04: deterministic legal calculators
 
 **Context:** specialist "calculation guard" about BHM values (legal-rag prompts), time tools already enabled.
-**Priority:** medium-high. **Status:** planned.
+**Priority:** medium-high. **Status:** steps 1-2 shipped 2026-09-11 (`deploy/legal_calculators/`, classifier class `calc`); step 3 waits for the curated fine-range table.
 
 ## Overview
 Small, exact tools the model cannot get wrong: base calculation value (BHM) by
@@ -23,6 +23,11 @@ arithmetic (working days, code-specific rules), fine ranges per article.
 
 ## Success criteria
 100% agreement with the curated tables on unit tests; specialist answers stop hedging on BHM.
+
+## Outcome (2026-09-11)
+- Tools `base_calculation_value` and `count_deadline`; tables `data/bhm.json` (2019-2026, two 2021 rows flagged secondary) and `data/holidays.json` (2025-2026).
+- Deadline rule verified against Criminal Procedure Code art. 314 and Civil Procedure Code art. 152; holiday transfer rule from Labour Code art. 208.
+- Routing category `legal-calculators` (14 cases) with `tool_choice=required`.
 
 ## Risks
 Table maintenance is a legal-team responsibility; make the data files the single source and document the update path.

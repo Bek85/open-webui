@@ -107,7 +107,7 @@ class ForcedFileTools(unittest.TestCase):
 
     def test_only_file_tools_remain_and_a_call_is_required(self):
         form = self.form()
-        self.assertTrue(lfp.force_file_tools(form, ['research_uzbek_law', 'create_document', 'create_spreadsheet']))
+        self.assertTrue(lfp.force_route_tools(form, ['research_uzbek_law', 'create_document', 'create_spreadsheet'], 'file'))
         self.assertEqual(
             [spec['function']['name'] for spec in form['tools']], ['create_document', 'create_spreadsheet']
         )
@@ -115,13 +115,23 @@ class ForcedFileTools(unittest.TestCase):
 
     def test_unbound_file_tools_leave_the_turn_alone(self):
         form = self.form()
-        self.assertFalse(lfp.force_file_tools(form, ['research_uzbek_law']))
+        self.assertFalse(lfp.force_route_tools(form, ['research_uzbek_law'], 'file'))
         self.assertNotIn('tool_choice', form)
         self.assertEqual(len(form['tools']), 3)
 
     def test_file_route_plan_keeps_the_model_answering(self):
         # 'file' is a context-shaping route like 'wiki': no corpus, so no specialist relay.
         self.assertIsNone(lfp.CORPUS_BY_ROUTE.get('file'))
+
+    def test_calc_route_forces_only_calculator_tools(self):
+        form = self.form()
+        form['tools'].append({'type': 'function', 'function': {'name': 'count_deadline'}})
+        names = ['research_uzbek_law', 'create_document', 'create_spreadsheet', 'count_deadline']
+        self.assertTrue(lfp.force_route_tools(form, names, 'calc'))
+        self.assertEqual([spec['function']['name'] for spec in form['tools']], ['count_deadline'])
+        self.assertEqual(form['tool_choice'], 'required')
+        self.assertEqual(lfp.parse_route('calc'), 'calc')
+        self.assertIsNone(lfp.CORPUS_BY_ROUTE.get('calc'))
 
 
 class Relay(unittest.TestCase):

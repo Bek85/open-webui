@@ -1,0 +1,63 @@
+{
+  "category": "legal-calculators",
+  "route": "calc",
+  "tool": "legal_calculator",
+  "cases": [
+    {
+      "text": "Hozirgi bazaviy hisoblash miqdori qancha?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "2023-yil mart oyida BHM necha so'm edi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "5 million so'm necha BHM bo'ladi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "2024-yil 15-noyabrda 12 500 000 so'm necha BHM ga teng edi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "50 BHM hozir necha so'm?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "2026-yil 18-martdan boshlab 10 kunlik muddat qachon tugaydi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Shikoyat 2026-yil 27-avgustda kelib tushdi, 15 ish kunlik muddat qaysi sanada tugaydi?",
+      "script": "uz-latn"
+    },
+    {
+      "text": "2026-yil 31-yanvardan bir oylik muddatni hisoblab ber.",
+      "script": "uz-latn"
+    },
+    {
+      "text": "Ҳозирги базавий ҳисоблаш миқдори қанча?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "8 миллион сўм неча БҲМ бўлади?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "2026 йил 20 майдан бошлаб 30 кунлик муддат қачон тугайди?",
+      "script": "uz-cyrl"
+    },
+    {
+      "text": "Какой сейчас размер базовой расчётной величины?",
+      "script": "ru"
+    },
+    {
+      "text": "Сколько БРВ составляет 3 миллиона сумов?",
+      "script": "ru"
+    },
+    {
+      "text": "Посчитай, когда истекает 10-дневный срок, если отсчёт начался 25 декабря 2025 года.",
+      "script": "ru"
+    }
+  ]
+}

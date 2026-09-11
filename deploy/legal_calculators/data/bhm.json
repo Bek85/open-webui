@@ -1,0 +1,71 @@
+{
+  "description": "Base calculation value of Uzbekistan (bazaviy hisoblash miqdori, BHM) by effective date, with the minimum monthly wage (mehnatga haq to'lashning eng kam miqdori) where the same decree sets it. Rows are read by base_calculation_value: the latest row on or before the requested date applies. `verified_until` closes a row when the following period is not verified, so the tool refuses instead of returning a stale value. `verification: secondary` marks rows whose decree text could not be quoted from lex.uz and which rest on consistent official-press reports; the tool tells the model to say so. Update: add a row per decree (Ish haqi, pensiyalar ... oshirish to'g'risida), quoting the clause `bazaviy hisoblash miqdori — N so'm etib belgilansin` and its `... 1-<oy>dan boshlab` date.",
+  "unit": "UZS",
+  "rows": [
+    {
+      "effective_from": "2019-09-01",
+      "value": 223000,
+      "decree": "PF-5723 (21.05.2019); PQ-4555 (30.12.2019) 2020-yil 1-fevraldan 223 000 so'm o'zgarishsiz qoldirilsin",
+      "source_url": "https://lex.uz/docs/-4673445",
+      "verified_until": "2021-01-31"
+    },
+    {
+      "effective_from": "2021-02-01",
+      "value": 245000,
+      "min_wage_uzs": 747300,
+      "decree": "PQ-4938 (30.12.2020), 1-band asl tahriri; matn keyingi tahrirda o'zgartirilgan",
+      "source_url": "https://lex.uz/docs/-5193227",
+      "verification": "secondary"
+    },
+    {
+      "effective_from": "2021-09-01",
+      "value": 270000,
+      "min_wage_uzs": 822000,
+      "decree": "PF-6279 (17.08.2021), ilovaga muvofiq 1,1 barobar oshirish",
+      "source_url": "https://lex.uz/docs/-5584121",
+      "verification": "secondary"
+    },
+    {
+      "effective_from": "2022-06-01",
+      "value": 300000,
+      "min_wage_uzs": 920000,
+      "decree": "PF-138 (20.05.2022), 2-band: 2022-yil 1-iyundan boshlab bazaviy hisoblash miqdori — oyiga 300 000 so'm",
+      "source_url": "https://lex.uz/uz/docs/-6027058"
+    },
+    {
+      "effective_from": "2023-05-01",
+      "value": 330000,
+      "min_wage_uzs": 980000,
+      "decree": "PF-45 (28.03.2023), 4-band: 2023-yil 1-maydan boshlab bazaviy hisoblash miqdori — oyiga 330 000 so'm",
+      "source_url": "https://lex.uz/uz/docs/-6417184"
+    },
+    {
+      "effective_from": "2023-12-01",
+      "value": 340000,
+      "min_wage_uzs": 1050000,
+      "decree": "PF-196 (17.11.2023), 2-band: 2023-yil 1-dekabrdan boshlab bazaviy hisoblash miqdori — oyiga 340 000 so'm",
+      "source_url": "https://lex.uz/uz/docs/-6665682"
+    },
+    {
+      "effective_from": "2024-10-01",
+      "value": 375000,
+      "min_wage_uzs": 1155000,
+      "decree": "PF-108 (12.08.2024), 2-band: 2024-yil 1-oktabrdan boshlab bazaviy hisoblash miqdori — 375 000 so'm",
+      "source_url": "https://lex.uz/uz/docs/-7059431"
+    },
+    {
+      "effective_from": "2025-08-01",
+      "value": 412000,
+      "min_wage_uzs": 1271000,
+      "decree": "PF-91 (02.06.2025), 2-band (b): 2025-yil 1-avgustdan boshlab bazaviy hisoblash miqdori — 412 000 so'm",
+      "source_url": "https://lex.uz/uz/docs/-7553322"
+    },
+    {
+      "effective_from": "2026-09-01",
+      "value": 440000,
+      "min_wage_uzs": 1360000,
+      "decree": "PF-115 (23.06.2026), 2-band (b): 2026-yil 1-sentabrdan boshlab bazaviy hisoblash miqdori — 440 000 so'm",
+      "source_url": "https://lex.uz/uz/docs/-8283656"
+    }
+  ]
+}

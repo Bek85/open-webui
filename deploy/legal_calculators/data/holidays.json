@@ -1,0 +1,46 @@
+{
+  "description": "Non-working days of Uzbekistan used by count_deadline. Fixed holidays and the rule that a rest day coinciding with a holiday moves to the next working day come from Article 208 of the Labour Code; transferred and additional rest days come from the yearly presidential decisions cited per entry. A working_saturday entry marks a Saturday made a working day to compensate a transferred rest day. Update yearly: add the new year's entries when the December decree and the two religious holiday decisions are published.",
+  "source_url": "https://lex.uz/uz/docs/-6257288",
+  "source_note": "Mehnat kodeksi, 208-modda (ishlanmaydigan bayram kunlari; dam olish kuni bayramga to'g'ri kelsa keyingi ish kuniga ko'chiriladi)",
+  "years": {
+    "2025": [
+      {"date": "2025-01-01", "name": "Yangi yil", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-01-02", "name": "Ko'chirilgan dam olish kuni (4-yanvar shanba o'rniga)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7275687"},
+      {"date": "2025-01-04", "name": "Ish kuni (shanba, 2-yanvar o'rniga)", "kind": "working_saturday", "source_url": "https://lex.uz/uz/docs/-7275687"},
+      {"date": "2025-03-08", "name": "Xotin-qizlar kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-03-10", "name": "Ko'chirilgan dam olish kuni (8-mart shanbaga to'g'ri kelgani uchun)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-03-21", "name": "Navro'z bayrami", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-03-30", "name": "Ramazon hayiti", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-7447449"},
+      {"date": "2025-03-31", "name": "Ko'chirilgan dam olish kuni (Ramazon hayiti yakshanbaga to'g'ri kelgani uchun)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7447449"},
+      {"date": "2025-05-09", "name": "Xotira va qadrlash kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-06-06", "name": "Qurbon hayiti", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-7549345"},
+      {"date": "2025-06-07", "name": "Qo'shimcha dam olish kuni (olti kunlik ish haftasi)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7549345"},
+      {"date": "2025-09-01", "name": "Mustaqillik kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-10-01", "name": "O'qituvchi va murabbiylar kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-12-08", "name": "Konstitutsiya kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2025-12-31", "name": "Qo'shimcha dam olish kuni", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"}
+    ],
+    "2026": [
+      {"date": "2026-01-01", "name": "Yangi yil", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2026-01-02", "name": "Qo'shimcha dam olish kuni", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-01-03", "name": "Qo'shimcha dam olish kuni (olti kunlik ish haftasi)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-03-08", "name": "Xotin-qizlar kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2026-03-09", "name": "Ko'chirilgan dam olish kuni (8-mart yakshanbaga to'g'ri kelgani uchun)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-03-20", "name": "Ramazon hayiti", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-8090629"},
+      {"date": "2026-03-21", "name": "Navro'z bayrami", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2026-03-23", "name": "Ko'chirilgan dam olish kuni (Navro'z shanbaga to'g'ri kelgani uchun)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-05-09", "name": "Xotira va qadrlash kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2026-05-11", "name": "Ko'chirilgan dam olish kuni (9-may shanbaga to'g'ri kelgani uchun)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-05-27", "name": "Qurbon hayiti", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-8212928"},
+      {"date": "2026-05-28", "name": "Qo'shimcha dam olish kuni", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-05-29", "name": "Qo'shimcha dam olish kuni", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-05-30", "name": "Qo'shimcha dam olish kuni (olti kunlik ish haftasi)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-08-31", "name": "Qo'shimcha dam olish kuni", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-09-01", "name": "Mustaqillik kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2026-10-01", "name": "O'qituvchi va murabbiylar kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2026-12-08", "name": "Konstitutsiya kuni", "kind": "holiday", "source_url": "https://lex.uz/uz/docs/-6257288"},
+      {"date": "2026-12-12", "name": "Ish kuni (shanba, 31-dekabr o'rniga)", "kind": "working_saturday", "source_url": "https://lex.uz/uz/docs/-7938920"},
+      {"date": "2026-12-31", "name": "Ko'chirilgan dam olish kuni (12-dekabr shanba o'rniga)", "kind": "transferred_rest_day", "source_url": "https://lex.uz/uz/docs/-7938920"}
+    ]
+  }
+}
