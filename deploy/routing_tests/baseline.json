@@ -7,7 +7,8 @@
     "legal-calculators": 1.0,
     "legal-research": 1.0,
     "no-tool": 1.0,
-    "prosecutor-orders": 1.0
+    "prosecutor-orders": 1.0,
+    "legal-follow-ups": 1.0
   },
   "e2e": {
     "document-law": 1.0,
@@ -17,6 +18,7 @@
     "legal-calculators": 1.0,
     "legal-research": 1.0,
     "no-tool": 1.0,
-    "prosecutor-orders": 1.0
+    "prosecutor-orders": 1.0,
+    "legal-follow-ups": 1.0
   }
 }

@@ -27,6 +27,10 @@ log = logging.getLogger(__name__)
 
 RESEARCH_TOOL = 'research_uzbek_law'
 CORPUS_BY_ROUTE = {'lexuz': 'lex_uz', 'prosecutor': 'prosecutor'}
+# Native research calls that can be relayed as the answer instead of re-synthesized.
+CORPUS_BY_TOOL = {'research_uzbek_law': 'lex_uz', 'research_prosecutor_orders': 'prosecutor'}
+RELAY_TOOL_RESULT = 'The specialist answer was streamed to the user as the reply to this call.'
+PREVIOUS_QUESTION_CHARS = 300
 FILE_TOOLS = ('create_document', 'create_spreadsheet')
 CALC_TOOLS = ('base_calculation_value', 'count_deadline')
 # Routes where the model must call one of a small tool set on the first request.
@@ -43,6 +47,13 @@ ATTACHED_DOCUMENT_PREFIX = '[Hujjat biriktirilgan] '
 CLASSIFY_SYSTEM = """Sen O'zbekiston huquqiy tizimi uchun so'rovlarni yo'naltiruvchi sistemasan.
 
 Foydalanuvchi so'rovini o'qi va qaysi backend qayta ishlashi kerakligini aniqla:
+
+Agar matnda "Oldingi savol:" va "Hozirgi so'rov:" bo'lsa, suhbat davom etmoqda:
+  • hozirgi so'rov oldingi savolning davomi bo'lsa ("qayta qidir", "boshqacha so'zlar bilan",
+    "batafsilroq", "yana", "shu haqida", "topilishi kerak", "to'liq ko'rsat", "boshqa
+    moddalarni ham") → OLDINGI savolning yo'nalishini tanla
+  • hozirgi so'rov mustaqil yangi mavzu bo'lsa → faqat hozirgi so'rov bo'yicha yo'naltir
+  • "rahmat", "tushunarli", salomlashish kabi javoblar → general
 
 Agar so'rov "[Hujjat biriktirilgan]" bilan boshlansa, foydalanuvchi hujjat yuklagan:
   • savolga hujjat matnining O'ZIDAN javob berish mumkin bo'lsa → general: mazmuni,
@@ -129,9 +140,23 @@ def is_fast_path_candidate(metadata: dict, model: dict, tool_names) -> bool:
     )
 
 
-def classifier_text(question: str, has_documents: bool) -> str:
-    """What the route classifier reads: the question, flagged when a document is attached."""
-    return (ATTACHED_DOCUMENT_PREFIX + question) if has_documents else question
+def classifier_text(question: str, has_documents: bool, previous: str | None = None) -> str:
+    """What the route classifier reads: the question, with the previous question when the chat continues
+    (a bare "search again with other words" carries no legal signal on its own), flagged when a document
+    is attached."""
+    text = question
+    if previous:
+        text = f"Oldingi savol: {previous[:PREVIOUS_QUESTION_CHARS]}\nHozirgi so'rov: {question}"
+    return (ATTACHED_DOCUMENT_PREFIX + text) if has_documents else text
+
+
+def previous_user_question(messages: list) -> str | None:
+    """Text of the user turn before the last one, or None on the first turn."""
+    users = [m for m in messages if m.get('role') == 'user']
+    if len(users) < 2:
+        return None
+    text = get_content_from_message(users[-2])
+    return text.strip() if isinstance(text, str) and text.strip() else None
 
 
 def plain_text_question(messages: list) -> str | None:
@@ -221,7 +246,8 @@ async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, m
         if documents is None:
             return None
     base_model_id = (model.get('info') or {}).get('base_model_id') or form_data.get('model')
-    route = await classify_route(request, user, base_model_id, classifier_text(question, bool(documents)))
+    previous = previous_user_question(form_data.get('messages', []))
+    route = await classify_route(request, user, base_model_id, classifier_text(question, bool(documents), previous))
     corpus = CORPUS_BY_ROUTE.get(route)
     if corpus:
         return {
@@ -238,6 +264,46 @@ async def plan_legal_fast_path(request, form_data: dict, user, metadata: dict, m
         # 'wiki' gets a server-side lookup, 'file'/'calc' get a forced tool call.
         return {'route': route, 'question': question}
     return None
+
+
+def legal_relay_plan(tool_calls: list, form_data: dict, metadata: dict, model: dict, tool_names) -> dict | None:
+    """A fast-path plan for a lone native research call on a plain chat turn, else None.
+
+    When the classifier hands a turn to the model and the model still calls a research
+    tool, the tool path would wait for the specialist's whole answer and then have the
+    model write a second one (measured 2026-09-11: first text after ~3 min versus 11-28 s
+    relayed). Relaying applies only to a single research call without attachments; document
+    turns and multi-tool turns keep the loop, because the model must combine the results.
+    The model's rewritten query becomes the final user turn: it is usually sharper than a
+    bare "search again", and the specialist still sees the conversation before it.
+    """
+    if len(tool_calls or []) != 1 or metadata.get('files'):
+        return None
+    if not is_fast_path_candidate(metadata, model, tool_names):
+        return None
+    call = tool_calls[0]
+    function = call.get('function') or {}
+    corpus = CORPUS_BY_TOOL.get(function.get('name'))
+    if not corpus:
+        return None
+    try:
+        query = (json.loads(function.get('arguments') or '{}') or {}).get('query')
+    except (json.JSONDecodeError, TypeError, AttributeError):
+        return None
+    if not isinstance(query, str) or not query.strip():
+        return None
+    history = specialist_messages(form_data.get('messages', []))
+    if history and history[-1]['role'] == 'user':
+        history = history[:-1]
+    route = next(route for route, name in CORPUS_BY_ROUTE.items() if name == corpus)
+    return {
+        'route': route,
+        'corpus': corpus,
+        'question': query.strip(),
+        'messages': [*history, {'role': 'user', 'content': query.strip()[:MAX_MESSAGE_CHARS]}],
+        'attachments': [],
+        'tool_call': call,
+    }
 
 
 def specialist_request_body(plan: dict) -> dict:

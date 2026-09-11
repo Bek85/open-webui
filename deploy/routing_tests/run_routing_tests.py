@@ -70,7 +70,8 @@ def run_classifier(categories, limit):
         cases = category['cases'][:limit] if limit else category['cases']
         hits = 0
         for case in cases:
-            route = classify(classifier_text(case['text'], has_documents), base_url, key, CLASSIFY_SYSTEM)
+            text = classifier_text(case['text'], has_documents, case.get('previous'))
+            route = classify(text, base_url, key, CLASSIFY_SYSTEM)
             ok = route == category['route']
             hits += ok
             mark = 'OK  ' if ok else 'MISS'
@@ -102,10 +103,10 @@ def run_e2e(categories, limit):
     rates = {}
     for category in categories:
         cases = category['cases'][:limit] if limit else category['cases']
-        history = category.get('history') or []
         files = [upload_fixture(str(ROOT / category['fixture']))] if category.get('fixture') else None
         hits = 0
         for case in cases:
+            history = case.get('history') or category.get('history') or []
             result = turn(history + [{'role': 'user', 'content': case['text']}], files=files)
             ok = result.used(category['tool']) and not result.error
             hits += ok

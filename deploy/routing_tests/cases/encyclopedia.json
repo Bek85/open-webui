@@ -62,6 +62,21 @@
     {
       "text": "Когда была основана Бухара?",
       "script": "ru"
+    },
+    {
+      "text": "Amir Temur qachon tug'ilgan?",
+      "script": "uz-latn",
+      "previous": "Voyaga yetgan shaxs bir necha oy davomida qarindoshi tomonidan muntazam ravishda kaltaklandi; zarba berish holatlari haftada bir necha marta takrorlangan va bu guvohlar hamda tibbiy qaydlar bilan tasdiqlangan. Sud-tibbiy ekspertiza og'ir yoki o'rtacha og'ir shikast yetkazilmaganini aniqladi, ammo uzoq davom etgan jismoniy va ruhiy azob berilganini qayd etdi. Jabrlanuvchi iztiroblar uchun pul tarzida qoplash talab qilmoqda. Sud qilmishning huquqiy tavsifini va summa qanday mezonlar bilan belgilanishini aniqlashi kerak.",
+      "history": [
+        {
+          "role": "user",
+          "content": "Voyaga yetgan shaxs bir necha oy davomida qarindoshi tomonidan muntazam ravishda kaltaklandi; zarba berish holatlari haftada bir necha marta takrorlangan va bu guvohlar hamda tibbiy qaydlar bilan tasdiqlangan. Sud-tibbiy ekspertiza og'ir yoki o'rtacha og'ir shikast yetkazilmaganini aniqladi, ammo uzoq davom etgan jismoniy va ruhiy azob berilganini qayd etdi. Jabrlanuvchi iztiroblar uchun pul tarzida qoplash talab qilmoqda. Sud qilmishning huquqiy tavsifini va summa qanday mezonlar bilan belgilanishini aniqlashi kerak."
+        },
+        {
+          "role": "assistant",
+          "content": "Qilmish JK 110-moddasi (qiynash) bo'yicha baholanishi mumkin; ma'naviy zarar FK 1021-1022-moddalari asosida oqilonalik va adolatlilik mezonlari bilan belgilanadi.\n\nManbalar:\n[1] [JK 110-modda](https://lex.uz/docs/111453)"
+        }
+      ]
     }
   ]
 }

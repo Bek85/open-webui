@@ -142,6 +142,78 @@ class DocumentTurns(unittest.TestCase):
         self.assertEqual(body, {'messages': [{'role': 'user', 'content': 'q'}], 'stream': True, 'attachments': self.documents})
 
 
+class FollowUps(unittest.TestCase):
+    kazus = 'Voyaga yetgan shaxs ... kaltaklandi; sud qanday mezonlar bilan belgilaydi?'
+
+    def test_previous_question_is_the_turn_before_the_last(self):
+        messages = [
+            {'role': 'system', 'content': 'sys'},
+            {'role': 'user', 'content': self.kazus},
+            {'role': 'assistant', 'content': 'javob'},
+            {'role': 'user', 'content': 'yaxshilab qidirib ko\'r'},
+        ]
+        self.assertEqual(lfp.previous_user_question(messages), self.kazus)
+        self.assertIsNone(lfp.previous_user_question(messages[:2]))
+        self.assertIsNone(lfp.previous_user_question([]))
+
+    def test_classifier_text_carries_previous_question_and_document_flag(self):
+        text = lfp.classifier_text('batafsilroq', False, 'x' * 500)
+        self.assertTrue(text.startswith('Oldingi savol: ' + 'x' * lfp.PREVIOUS_QUESTION_CHARS + '\n'))
+        self.assertTrue(text.endswith("Hozirgi so'rov: batafsilroq"))
+        self.assertEqual(lfp.classifier_text('q', False, None), 'q')
+        flagged = lfp.classifier_text('q', True, 'p')
+        self.assertTrue(flagged.startswith(lfp.ATTACHED_DOCUMENT_PREFIX + 'Oldingi savol: p'))
+
+
+class ToolCallRelay(unittest.TestCase):
+    """A lone native research call on a plain chat turn streams the specialist instead of re-synthesizing."""
+
+    model = {'info': {'meta': {}}}
+    form = {
+        'model': 'router_pipeline',
+        'messages': [
+            {'role': 'system', 'content': 'sys'},
+            {'role': 'user', 'content': 'kazus'},
+            {'role': 'assistant', 'content': 'javob'},
+            {'role': 'user', 'content': "yaxshilab qidirib ko'r"},
+        ],
+    }
+    tools = ['research_uzbek_law', 'research_prosecutor_orders', 'create_document']
+
+    query = "FKda ma'naviy zarar mezonlari"
+
+    def call(self, name='research_uzbek_law', arguments=None):
+        arguments = json.dumps({'query': self.query}) if arguments is None else arguments
+        return {'id': 'c1', 'function': {'name': name, 'arguments': arguments}}
+
+    def test_relay_plan_uses_history_plus_the_model_query(self):
+        plan = lfp.legal_relay_plan([self.call()], self.form, {'session_id': 's'}, self.model, self.tools)
+        self.assertEqual((plan['route'], plan['corpus']), ('lexuz', 'lex_uz'))
+        self.assertEqual(plan['question'], self.query)
+        self.assertEqual([m['role'] for m in plan['messages']], ['user', 'assistant', 'user'])
+        self.assertEqual(plan['messages'][-1]['content'], self.query)
+        self.assertEqual(plan['messages'][0]['content'], 'kazus')
+        self.assertEqual(lfp.specialist_request_body(plan), {'messages': plan['messages'], 'stream': True})
+        prosecutor = lfp.legal_relay_plan(
+            [self.call('research_prosecutor_orders')], self.form, {'session_id': 's'}, self.model, self.tools
+        )
+        self.assertEqual(prosecutor['corpus'], 'prosecutor')
+
+    def test_no_relay_for_multi_tool_document_api_or_other_tools(self):
+        meta = {'session_id': 's'}
+
+        def plan(calls, metadata=meta):
+            return lfp.legal_relay_plan(calls, self.form, metadata, self.model, self.tools)
+
+        self.assertIsNone(plan([self.call(), self.call()]))
+        self.assertIsNone(plan([self.call()], {**meta, 'files': [{'id': 'f'}]}))
+        self.assertIsNone(plan([self.call()], {}))
+        self.assertIsNone(plan([self.call('create_document')]))
+        self.assertIsNone(plan([self.call(arguments='{"query": ""}')]))
+        self.assertIsNone(plan([self.call(arguments='not json')]))
+        self.assertIsNone(plan([]))
+
+
 class ForcedFileTools(unittest.TestCase):
     """Exports must not depend on sampling: the file route forces the call."""
 

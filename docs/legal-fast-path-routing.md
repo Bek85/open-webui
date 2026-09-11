@@ -43,6 +43,27 @@ UI session AND research_uzbek_law bound AND no knowledge AND legalFastPath != fa
      general           -> native tool loop (model may still call tools)
 ```
 
+### Follow-ups
+
+The classifier reads the previous user question together with the current one
+(`classifier_text(question, has_documents, previous)`), because a continuation such as
+"yaxshilab qidirib ko'r boshqacha so'zlar bilan" carries no legal signal on its own.
+Measured 2026-09-11: that message alone classified `general`, the model then called the
+research tool natively and the first visible text arrived after about three minutes.
+The prompt rule: a continuation inherits the previous route; a new topic is judged on
+its own; thanks and greetings stay `general`. Routing cases carry `previous` for this.
+
+### Tool-call relay
+
+When the model does call a research tool natively on a plain chat turn (one call, no
+attachments), `legal_relay_plan` in `legal_fast_path.py` turns that call into a fast-path
+plan and the tool loop in `middleware.py` streams the specialist instead of executing the
+tool and asking the model for a second answer. The model's rewritten query becomes the
+final user turn of the specialist request, after the conversation history. The
+function-call item is closed with a note (`RELAY_TOOL_RESULT`); the relay stream carries
+statuses, content and source cards exactly as the fast path does. Document turns and
+multi-tool turns keep the loop, because the model must combine the results.
+
 ### Document turns
 
 **Document-plus-law turns relay to the specialist in one call (since 2026-09-11).**

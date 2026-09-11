@@ -5051,14 +5051,32 @@ async def streaming_chat_response_handler(response, ctx):
                     # the legal research tools, each a 1-3 minute specialist run
                     # (three sequential runs measured at 11 minutes, 2026-09-11).
                     concurrent_tool_names = {'delegate_task', 'research_uzbek_law', 'research_prosecutor_orders'}
+
+                    # A lone legal research call on a plain chat turn is relayed like the
+                    # fast path: the specialist stream becomes the answer instead of a tool
+                    # result the model re-synthesizes (utils/legal_fast_path.py).
+                    from open_webui.utils.legal_fast_path import legal_relay_plan, start_legal_fast_path
+
+                    relay_response = None
+                    relay_plan = legal_relay_plan(response_tool_calls, form_data, metadata, model, tools.keys())
+                    if relay_plan:
+                        relay_response = await start_legal_fast_path(form_data, user, metadata, relay_plan)
+                        if relay_response is None:
+                            relay_plan = None
+                    relayed_call = relay_plan['tool_call'] if relay_plan else None
+
                     delegate_calls = [
                         tool_call
                         for tool_call in response_tool_calls
                         if tool_call.get('function', {}).get('name') in concurrent_tool_names
+                        and tool_call is not relayed_call
                     ]
                     tool_results = {}
                     for tool_call in response_tool_calls:
-                        if tool_call.get('function', {}).get('name') not in concurrent_tool_names:
+                        if (
+                            tool_call.get('function', {}).get('name') not in concurrent_tool_names
+                            and tool_call is not relayed_call
+                        ):
                             tool_results[id(tool_call)] = await execute_tool_call(tool_call)
                     tool_results.update(
                         zip(
@@ -5070,6 +5088,11 @@ async def streaming_chat_response_handler(response, ctx):
                     for tool_call in response_tool_calls:
                         tool_call_id = tool_call.get('id', '')
                         tool_function_name = tool_call.get('function', {}).get('name', '')
+                        if tool_call is relayed_call:
+                            from open_webui.utils.legal_fast_path import RELAY_TOOL_RESULT
+
+                            results.append({'tool_call_id': tool_call_id, 'content': RELAY_TOOL_RESULT})
+                            continue
                         tool_function_params, tool_result, tool, tool_type, direct_tool = tool_results[id(tool_call)]
                         if tool_result is None:
                             results.append(
@@ -5326,12 +5349,15 @@ async def streaming_chat_response_handler(response, ctx):
                                     }
                                 )
 
-                        res = await generate_chat_completion(
-                            request,
-                            new_form_data,
-                            user,
-                            bypass_system_prompt=True,
-                        )
+                        if relay_response is not None:
+                            res = relay_response  # specialist stream stands in for the model's second pass
+                        else:
+                            res = await generate_chat_completion(
+                                request,
+                                new_form_data,
+                                user,
+                                bypass_system_prompt=True,
+                            )
 
                         if isinstance(res, StreamingResponse):
                             # Save accumulated output and start fresh.
