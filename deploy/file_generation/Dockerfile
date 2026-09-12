@@ -14,6 +14,7 @@ CMD ["uvicorn", "service:app", "--host", "0.0.0.0", "--port", "8081", "--no-acce
 FROM runtime AS test
 USER root
 RUN pip install --no-cache-dir httpx==0.28.1
+COPY workspace_tool.py /app/
 COPY tests /app/tests
 USER 10001:10001
 CMD ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]

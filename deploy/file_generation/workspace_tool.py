@@ -1,7 +1,7 @@
 """
 title: Prokuratura AI document generation
 description: Create private downloadable Word, PDF and Excel files from supplied content.
-version: 1.2.0
+version: 1.3.0
 """
 
 import json
@@ -30,6 +30,27 @@ def strip_visual_blocks(content: str) -> tuple[str, int]:
     """Drop mermaid/html/svg fences and report how many were removed so the model can tell the user."""
     stripped, count = VISUAL_FENCE.subn('', content or '')
     return stripped.strip(), count
+
+
+def failure(status: int, detail) -> dict:
+    """Tool result for a rejected render. 'busy' clears in moments; 'quota' means the store is full."""
+    reason = detail if detail in ('busy', 'quota') else None
+    if status == 422:
+        advice = 'Ask for a smaller or corrected document/table.'
+    elif reason == 'busy':
+        advice = 'The document service is busy right now; ask the user to try again in a moment.'
+    elif reason == 'quota':
+        advice = 'The file store is full; new files cannot be saved until an administrator frees space.'
+    else:
+        advice = 'The document service is unavailable; ask the user to try again later.'
+    return {
+        'error': 'file_generation_failed',
+        'status': status,
+        'reason': reason,
+        'instruction': (
+            f'Explain in the user’s language that no file was created. {advice} Never invent a download link.'
+        ),
+    }
 
 
 class Tools:
@@ -105,14 +126,4 @@ class Tools:
                 ensure_ascii=False,
             )
         except HTTPException as exc:
-            return json.dumps(
-                {
-                    'error': 'file_generation_failed',
-                    'status': exc.status_code,
-                    'instruction': (
-                        'Explain in the user’s language that no file was created. '
-                        'For 422 ask for a smaller or corrected document/table; '
-                        'for 429 ask the user to try later. Never invent a download link.'
-                    ),
-                }
-            )
+            return json.dumps(failure(exc.status_code, exc.detail))

@@ -29,6 +29,18 @@ def signed_headers(method, path, owner, body=b''):
     }
 
 
+async def rejection_detail(response, code):
+    """Generic wording, except the renderer's two 429 reasons: 'busy' clears by itself, 'quota' does not."""
+    if code == 429:
+        try:
+            detail = (await response.json()).get('detail')
+        except Exception:  # noqa: BLE001 - body is optional
+            detail = None
+        if detail in ('busy', 'quota'):
+            return detail
+    return 'File generation unavailable' if code == 503 else 'File unavailable or request rejected'
+
+
 async def renderer_request(method, path, owner, payload=None):
     body = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode() if payload is not None else b''
     if len(body) > 512 * 1024:
@@ -42,9 +54,7 @@ async def renderer_request(method, path, owner, payload=None):
             ) as response:
                 if response.status != 200:
                     code = response.status if response.status in (404, 410, 413, 422, 429) else 503
-                    raise HTTPException(
-                        code, 'File generation unavailable' if code == 503 else 'File unavailable or request rejected'
-                    )
+                    raise HTTPException(code, await rejection_detail(response, code))
                 output = bytearray()
                 async for chunk in response.content.iter_chunked(65536):
                     output.extend(chunk)

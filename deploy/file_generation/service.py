@@ -23,6 +23,9 @@ KEY_PATH = Path(os.getenv('FILE_GENERATION_KEY_PATH', '/run/secrets/file_generat
 RETENTION = 30 * 86400
 MAX_BODY = 512 * 1024
 QUOTA_BYTES = 2 * 1024 * 1024 * 1024
+# Retained artifacts per owner; the oldest are evicted when a new one is created past the cap
+# (a hard refusal locked an account out until its 30-day retention ran down).
+MAX_PER_OWNER = 100
 LOCK = threading.Lock()
 log = logging.getLogger('file_generation')
 
@@ -115,16 +118,33 @@ def authenticate(request, body=b''):
     return owner
 
 
+def evict_oldest(db, owner, keep):
+    """Drop the owner's oldest rows until at most `keep` remain; returns the files to unlink after commit.
+
+    Caller holds LOCK. Files are removed only once the transaction succeeded, so a failed
+    render never leaves rows pointing at deleted files.
+    """
+    rows = db.execute(
+        'SELECT id, format FROM artifacts WHERE owner=? ORDER BY expires_at DESC, rowid DESC LIMIT -1 OFFSET ?',
+        (owner, keep),
+    ).fetchall()
+    for row in rows:
+        db.execute('DELETE FROM artifacts WHERE id=?', (row['id'],))
+    if rows:
+        log.info('Evicting %d artifact(s) past the per-owner cap', len(rows))
+    return [artifact_path(row['id'], row['format']) for row in rows]
+
+
 def save_artifact(spec, owner):
     output = render(spec)
     identifier, expires = str(uuid.uuid4()), int(time.time()) + RETENTION
     filename = filename_for(spec)
     path = artifact_path(identifier, spec.format)
     with LOCK, database() as db:
-        count = db.execute('SELECT COUNT(*) FROM artifacts WHERE owner=?', (owner,)).fetchone()[0]
+        evicted = evict_oldest(db, owner, MAX_PER_OWNER - 1)
         total = db.execute('SELECT COALESCE(SUM(size),0) FROM artifacts').fetchone()[0]
-        if count >= 100 or total + len(output) > QUOTA_BYTES:
-            raise HTTPException(429, 'Generated file quota reached')
+        if total + len(output) > QUOTA_BYTES:
+            raise HTTPException(429, 'quota')
         try:
             with path.open('xb') as target:
                 target.write(output)
@@ -136,6 +156,8 @@ def save_artifact(spec, owner):
         except Exception:
             path.unlink(missing_ok=True)
             raise
+    for old in evicted:
+        old.unlink(missing_ok=True)
     return {
         'id': identifier,
         'filename': filename,
@@ -163,7 +185,7 @@ async def create(request: Request):
     except ValidationError:
         raise HTTPException(422, 'Invalid document structure or size limits exceeded') from None
     if request.app.state.slots.locked():
-        raise HTTPException(429, 'Renderer busy; try again shortly')
+        raise HTTPException(429, 'busy')
     async with request.app.state.slots:
         try:
             return await asyncio.to_thread(save_artifact, spec, owner)

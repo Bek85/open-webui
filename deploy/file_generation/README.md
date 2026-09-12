@@ -30,8 +30,12 @@ route. URLs contain no bearer credentials. Responses are attachment-only and
 Generated files expire **30 days** after creation. An hourly cleanup removes
 expired artifacts in the dedicated `generated_files` volume only. Existing
 uploads, chats and research data are untouched. Per-user limit: 100 retained
-artifacts; total stored artifact quota: 2 GiB; output limit: 10 MiB/file; request
-limit: 512 KiB. Two render jobs can run concurrently. CPU/memory/PID limits and
+artifacts — creating a file past the cap evicts that user's oldest artifact (a
+refusal would lock the account out until retention ran down); total stored
+artifact quota: 2 GiB; output limit: 10 MiB/file; request limit: 512 KiB. Two
+render jobs can run concurrently. A rejected render answers 429 with `detail`
+`busy` (both render slots taken, clears in moments) or `quota` (store full); the
+WebUI relay and the tool pass that reason on so the model advises correctly. CPU/memory/PID limits and
 a read-only root filesystem bound the renderer. No content is logged by it.
 
 ## Build and tests

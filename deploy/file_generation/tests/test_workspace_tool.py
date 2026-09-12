@@ -51,5 +51,24 @@ class StripVisualBlocks(unittest.TestCase):
         self.assertEqual(workspace_tool.strip_visual_blocks('```mermaid\ngraph LR\nA-->B\n```'), ('', 1))
 
 
+class Failure(unittest.TestCase):
+    def test_busy_and_quota_get_different_advice(self):
+        busy = workspace_tool.failure(429, 'busy')
+        quota = workspace_tool.failure(429, 'quota')
+        self.assertEqual((busy['reason'], quota['reason']), ('busy', 'quota'))
+        self.assertIn('try again in a moment', busy['instruction'])
+        self.assertIn('store is full', quota['instruction'])
+        self.assertNotIn('try again', quota['instruction'])
+
+    def test_other_statuses(self):
+        self.assertIn('smaller or corrected', workspace_tool.failure(422, 'x')['instruction'])
+        unavailable = workspace_tool.failure(503, 'File generation unavailable')
+        self.assertIsNone(unavailable['reason'])
+        self.assertIn('unavailable', unavailable['instruction'])
+        for result in (workspace_tool.failure(429, 'busy'), unavailable):
+            self.assertEqual(result['error'], 'file_generation_failed')
+            self.assertIn('Never invent a download link', result['instruction'])
+
+
 if __name__ == '__main__':
     unittest.main()

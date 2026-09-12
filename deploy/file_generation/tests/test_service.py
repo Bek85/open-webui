@@ -87,12 +87,41 @@ class ServiceTests(unittest.TestCase):
     def test_quota(self):
         with patch.object(service, 'QUOTA_BYTES', 1):
             body = b'{"format":"docx","title":"x","content":"x"}'
-            self.assertEqual(
-                self.client.post(
-                    '/render', content=body, headers=self.headers('POST', '/render', body=body)
-                ).status_code,
-                429,
-            )
+            response = self.client.post('/render', content=body, headers=self.headers('POST', '/render', body=body))
+        self.assertEqual((response.status_code, response.json()['detail']), (429, 'quota'))
+
+    def test_busy_when_both_render_slots_are_taken(self):
+        slots = self.client.app.state.slots
+        for _ in range(2):
+            slots._value -= 1  # occupy both slots without blocking the test thread
+        try:
+            body = b'{"format":"docx","title":"x","content":"x"}'
+            response = self.client.post('/render', content=body, headers=self.headers('POST', '/render', body=body))
+        finally:
+            slots._value += 2
+        self.assertEqual((response.status_code, response.json()['detail']), (429, 'busy'))
+
+    def test_owner_cap_evicts_oldest_instead_of_refusing(self):
+        with patch.object(service, 'MAX_PER_OWNER', 2):
+            first, second, third = self.create(), self.create(), self.create()
+        ids = [row['id'] for row in self.rows()]
+        self.assertEqual(sorted(ids), sorted([second['id'], third['id']]))
+        self.assertFalse(service.artifact_path(first['id'], 'docx').exists())
+        self.assertTrue(service.artifact_path(third['id'], 'docx').exists())
+        response = self.client.get(f'/files/{first["id"]}', headers=self.headers('GET', f'/files/{first["id"]}'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_eviction_is_per_owner(self):
+        with patch.object(service, 'MAX_PER_OWNER', 1):
+            mine = self.create()
+            body = json.dumps({'format': 'docx', 'title': 'Синов', 'content': 'x'}).encode()
+            headers = self.headers('POST', '/render', owner='user2', body=body)
+            self.assertEqual(self.client.post('/render', content=body, headers=headers).status_code, 200)
+        self.assertIn(mine['id'], [row['id'] for row in self.rows()])
+
+    def rows(self):
+        with service.database() as db:
+            return db.execute('SELECT id, owner FROM artifacts').fetchall()
 
 
 if __name__ == '__main__':
