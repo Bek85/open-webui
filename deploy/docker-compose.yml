@@ -52,7 +52,13 @@ services:
       # only forwards DOCLING_PARAMS to docling-serve; the admin-panel OCR
       # engine/lang fields are ignored. Lang codes must match the tesseract
       # langpacks in docling.Dockerfile (rus, uzb, uzb_cyrl) — NOT "uzb_cyrlic".
-      DOCLING_PARAMS: '{"ocr_engine":"tesseract","ocr_lang":["rus","uzb_cyrl","uzb"]}'
+      # No "rus": tesseract keeps the best-scoring model per line, and the
+      # Russian model has no қ/ў/ҳ/ғ, so wherever it wins those letters are
+      # flattened to к/у/х/г (measured 46 -> 11 bad words on a 4-page law).
+      # uzb_cyrl is a superset of the Russian alphabet, so Russian still reads.
+      # NOTE: once rag.docling_params exists in webui.db, that row wins over
+      # this env — change both, or the env edit does nothing.
+      DOCLING_PARAMS: '{"ocr_engine":"tesseract","ocr_lang":["uzb_cyrl","uzb"]}'
       # Offline encyclopedia tool (deploy/encyclopedia): internal kiwix URL, the
       # reader URL users can open, and language:book-id pairs (ZIM basenames).
       ENCYCLOPEDIA_KIWIX_URL: "http://kiwix:8080/wiki"
